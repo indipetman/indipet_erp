@@ -7969,6 +7969,7 @@
       let activeMasterHubType = "category";
       let editingMasterHubRecordId = null;
       let lastMasterHubModalTrigger = null;
+      let masterRecordAfterSave = null;
       let masterHubToastTimer = null;
       let stockOverviewExpiryRenderTimer = null;
 
@@ -9684,15 +9685,17 @@
         }
       };
 
-      const openMasterRecordModal = (recordId = null, trigger = document.activeElement) => {
+      const openMasterRecordModal = (recordId = null, trigger = document.activeElement, options = {}) => {
+        if (options.type && masterHubConfig[options.type]) activeMasterHubType = options.type;
         const config = masterHubConfig[activeMasterHubType];
         const record = recordId ? masterHubData[activeMasterHubType].find(item => item.id === recordId) : null;
         editingMasterHubRecordId = record?.id || null;
         lastMasterHubModalTrigger = trigger;
+        masterRecordAfterSave = typeof options.afterSave === "function" ? options.afterSave : null;
         masterRecordModalTitle.textContent = `${record ? "Edit" : "Add"} ${config.label}`;
         masterRecordModalDescription.textContent = record ? `Update this ${config.label} Master record.` : `Create a new ${config.label} Master record.`;
         masterRecordModalSave.textContent = record ? "Save Changes" : "Create";
-        masterRecordFields.innerHTML = renderMasterRecordFields(activeMasterHubType, record || {});
+        masterRecordFields.innerHTML = renderMasterRecordFields(activeMasterHubType, record || options.defaults || {});
         masterRecordModalError.classList.remove("is-visible");
         masterRecordModal.hidden = false;
         body.classList.add("master-modal-open");
@@ -9704,6 +9707,7 @@
         masterRecordModal.hidden = true;
         body.classList.remove("master-modal-open");
         editingMasterHubRecordId = null;
+        masterRecordAfterSave = null;
         if (lastMasterHubModalTrigger && document.contains(lastMasterHubModalTrigger)) lastMasterHubModalTrigger.focus();
       };
 
@@ -9846,12 +9850,15 @@
           }
         }
         persistMasterHubData();
+        const savedType = activeMasterHubType;
+        const afterSave = masterRecordAfterSave;
         closeMasterRecordModal();
         renderMasterHubSummary();
         renderMasterHubTiles();
         renderMasterHubRecords();
         updateProductClassificationLayout();
         renderVendorSupplyMapping();
+        if (afterSave) afterSave(savedType, record);
       };
 
       const showMasterHubWorkspace = event => {
@@ -12160,6 +12167,56 @@
           if (options.includes(previous)) productSubbrandInput.value = previous;
         }
         updateProductSubbrandNote();
+      };
+
+      const applyQuickAddedProductMasterRecord = (type, record) => {
+        if (!record?.name) return;
+        if (type === "category") {
+          updateProductCategoryInput();
+          productCategoryInput.value = record.name;
+          updateProductSubcategoryInput();
+        } else if (type === "subcategory") {
+          updateProductSubcategoryInput();
+          productSubcategoryInput.value = record.name;
+          updateProductTrackingInheritanceNote();
+        } else if (type === "brand") {
+          updateProductBrandInput();
+          productBrandInput.value = record.name;
+          updateProductSubbrandInput();
+        } else if (type === "subbrand") {
+          updateProductBrandInput();
+          productBrandInput.value = record.parentBrand || productBrandInput.value;
+          updateProductSubbrandInput();
+          productSubbrandInput.value = record.name;
+          updateProductSubbrandNote();
+        } else if (type === "operationalSupplyType") {
+          updateProductSubcategoryInput();
+          productSubcategoryInput.value = record.name;
+          updateProductTrackingInheritanceNote();
+        }
+        showProductFormMessage(`${masterHubConfig[type].label} "${record.name}" created and applied.`, [], true);
+      };
+
+      const openProductQuickAddMasterModal = quickAdd => {
+        const label = quickAdd.dataset.productQuickAdd;
+        const quickAddConfig = {
+          Brand: { type: "brand", defaults: { status: "Active" } },
+          "Sub-brand": { type: "subbrand", defaults: { parentBrand: productBrandInput.value, status: "Active" }, requires: productBrandInput, missing: "Select a Brand before adding a Sub-brand." },
+          Category: { type: "category", defaults: { inventoryType: "Product", status: "Active" } },
+          "Sub-category": { type: "subcategory", defaults: { parentCategory: productCategoryInput.value, inventoryType: "Product", batchTracking: "No", expiryTracking: "No", status: "Active" }, requires: productCategoryInput, missing: "Select a Category before adding a Sub-category." },
+          "Operational Supply Type": { type: "operationalSupplyType", defaults: { status: "Active" } }
+        }[label];
+        if (!quickAddConfig) return;
+        if (quickAddConfig.requires && !quickAddConfig.requires.value) {
+          showProductFormMessage(quickAddConfig.missing, [quickAddConfig.requires]);
+          return;
+        }
+        clearProductFormMessage();
+        openMasterRecordModal(null, quickAdd, {
+          type: quickAddConfig.type,
+          defaults: quickAddConfig.defaults,
+          afterSave: applyQuickAddedProductMasterRecord
+        });
       };
 
       const escapeProductText = value => value.replace(/[&<>'"]/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
@@ -15715,7 +15772,7 @@
         }
         const quickAdd = event.target.closest("[data-product-quick-add]");
         if (!quickAdd) return;
-        showProductFormMessage(`${quickAdd.dataset.productQuickAdd} Quick Add is ready for a permission-controlled Master record flow. No record was created in this interface preview.`, [], true);
+        openProductQuickAddMasterModal(quickAdd);
       });
 
       document.addEventListener("mousemove", updateProductRichTableResize);
