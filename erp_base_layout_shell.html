@@ -9738,6 +9738,20 @@
         renderVendorSupplyMapping();
       };
 
+      const normalizeErpCode = value => String(value || "").trim().toUpperCase();
+
+      const masterRecordCodeConflict = (code, currentType, currentId) => {
+        const normalizedCode = normalizeErpCode(code);
+        if (!normalizedCode) return null;
+        return masterHubTypeOrder
+          .flatMap(type => masterHubData[type].map(record => ({ type, record })))
+          .find(({ type, record }) =>
+            record.id !== currentId &&
+            !(type === currentType && record.id === currentId) &&
+            normalizeErpCode(record.code) === normalizedCode
+          ) || null;
+      };
+
       const submitMasterRecord = () => {
         const required = [...masterRecordFields.querySelectorAll("[data-master-required]")].filter(field => !field.disabled && !field.closest("[hidden]"));
         const missing = required.filter(field => !field.value.trim());
@@ -9749,6 +9763,7 @@
           return;
         }
         const values = Object.fromEntries([...masterRecordFields.querySelectorAll("input[name], select[name]")].filter(field => !field.disabled).map(field => [field.name, field.value.trim()]));
+        if (values.code) values.code = normalizeErpCode(values.code);
         const records = masterHubData[activeMasterHubType];
         const existingRecord = editingMasterHubRecordId ? records.find(record => record.id === editingMasterHubRecordId) : null;
         const duplicate = records.find(record => record.id !== editingMasterHubRecordId && record.name.toLowerCase() === values.name.toLowerCase());
@@ -9756,6 +9771,17 @@
           masterRecordModalError.textContent = `${masterHubConfig[activeMasterHubType].label} name already exists.`;
           masterRecordModalError.classList.add("is-visible");
           masterRecordFields.querySelector('[name="name"]').focus();
+          return;
+        }
+        const codeConflict = values.code ? masterRecordCodeConflict(values.code, activeMasterHubType, editingMasterHubRecordId) : null;
+        if (codeConflict) {
+          masterRecordModalError.textContent = `Code ${normalizeErpCode(values.code)} is already used in ${masterHubConfig[codeConflict.type].label}: ${codeConflict.record.name}. Use a unique code.`;
+          masterRecordModalError.classList.add("is-visible");
+          const codeField = masterRecordFields.querySelector('[name="code"]');
+          if (codeField) {
+            codeField.setAttribute("aria-invalid", "true");
+            codeField.focus();
+          }
           return;
         }
         if (activeMasterHubType === "unit" && values.relatedUnit && (!values.conversionFactor || Number(values.conversionFactor) <= 0)) {
