@@ -7263,7 +7263,7 @@
               <div class="master-hub-grid" id="masterHubTiles"></div>
             </section>
 
-            <article class="data-card master-hub-record-card" data-component="DataCard" aria-label="Selected Master records">
+            <article class="data-card master-hub-record-card" id="masterHubRecordCard" data-component="DataCard" aria-label="Selected Master records">
               <div class="master-hub-record-toolbar">
                 <div class="master-hub-record-title"><h2 id="masterHubRecordTitle">Category Records</h2><p id="masterHubRecordDescription">Product and Service category definitions.</p></div>
                 <div class="master-hub-record-tools">
@@ -7818,6 +7818,7 @@
       const masterHubTableHead = document.getElementById("masterHubTableHead");
       const masterHubTableBody = document.getElementById("masterHubTableBody");
       const masterHubTableContainer = document.getElementById("masterHubTableContainer");
+      const masterHubRecordCard = document.getElementById("masterHubRecordCard");
       const masterHubEmpty = document.getElementById("masterHubEmpty");
       const masterHubRecordCount = document.getElementById("masterHubRecordCount");
       const masterRecordModal = document.getElementById("masterRecordModal");
@@ -9560,6 +9561,14 @@
         initializePinnableTable(masterHubTable);
       };
 
+      const scrollMasterHubRecordsToTop = () => {
+        masterHubTableContainer.scrollTop = 0;
+        masterHubTableContainer.scrollLeft = 0;
+        requestAnimationFrame(() => {
+          masterHubRecordCard.scrollIntoView({ block: "start", inline: "nearest", behavior: "auto" });
+        });
+      };
+
       const selectMasterHubType = type => {
         if (!masterHubConfig[type]) return;
         activeMasterHubType = type;
@@ -9567,6 +9576,7 @@
         masterHubStatusFilter.value = "";
         renderMasterHubTiles();
         renderMasterHubRecords();
+        scrollMasterHubRecordsToTop();
       };
 
       const masterModalField = ({ name, label, value = "", required = false, type = "text", options = null, readonly = false, span = false, placeholder = "" }) => {
