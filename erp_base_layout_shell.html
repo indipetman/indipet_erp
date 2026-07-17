@@ -888,6 +888,24 @@
       font-size: 12px;
     }
 
+    .breadcrumb button {
+      appearance: none;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    .breadcrumb button:hover,
+    .breadcrumb button:focus-visible {
+      color: var(--primary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      outline: none;
+    }
+
     .breadcrumb svg {
       width: 13px;
       height: 13px;
@@ -6550,11 +6568,11 @@
           <section class="page-header" data-component="PageHeader">
             <div>
               <nav class="breadcrumb" aria-label="Breadcrumb">
-                <span>ERP</span>
+                <button type="button" data-breadcrumb-target="dashboard">ERP</button>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
-                <span>Masters</span>
+                <button type="button" data-breadcrumb-target="masterHub">Masters</button>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
-                <span>Product</span>
+                <button type="button" data-breadcrumb-target="product">Product</button>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
                 <span aria-current="page" id="productFormBreadcrumbCurrent">Add New Product</span>
               </nav>
@@ -13676,6 +13694,21 @@
       vendorNavLink.addEventListener("click", showVendorWorkspace);
       masterDataNavLink.addEventListener("click", showMasterHubWorkspace);
       stockOverviewNavLink.addEventListener("click", showStockOverviewWorkspace);
+
+      document.addEventListener("click", event => {
+        const breadcrumb = event.target.closest("[data-breadcrumb-target]");
+        if (!breadcrumb) return;
+        event.preventDefault();
+        ({
+          dashboard: showDashboardWorkspace,
+          customer: showCustomerWorkspace,
+          product: showProductWorkspace,
+          service: showServiceWorkspace,
+          vendor: showVendorWorkspace,
+          masterHub: showMasterHubWorkspace,
+          stockOverview: showStockOverviewWorkspace
+        })[breadcrumb.dataset.breadcrumbTarget]?.();
+      });
 
       masterHubTiles.addEventListener("click", event => {
         const tile = event.target.closest("[data-master-hub-type]");
