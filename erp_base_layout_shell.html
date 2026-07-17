@@ -3795,6 +3795,11 @@
       gap: 7px;
     }
 
+    .product-classification-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 28px;
+    }
+
     .product-select-action .product-quick-add {
       width: 40px;
       height: 40px;
@@ -5058,6 +5063,10 @@
       .customer-form-grid,
       .customer-review-grid,
       .customer-relationship-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .product-classification-grid {
         grid-template-columns: 1fr;
       }
 
@@ -6630,7 +6639,7 @@
                   <div class="customer-form-kicker">Step 2 of 5</div>
                   <h2 class="customer-form-title">Classification & Tax</h2>
                   <p class="customer-form-description">Connect the product to controlled master records. Quick Add requires the appropriate master-data permission.</p>
-                  <div class="customer-form-grid">
+                  <div class="customer-form-grid product-classification-grid">
                     <div class="customer-form-field" id="productBrandField"><span class="customer-form-label">Brand <span class="product-form-field-note" style="margin:0">Optional</span></span><div class="product-select-action"><select id="productBrandInput"><option value="">No Brand</option><option>Whiskas</option><option>Royal Canin</option><option>Pedigree</option><option>Drools</option><option>Indipet Select</option></select><button class="product-quick-add" type="button" data-product-quick-add="Brand" aria-label="Quick add Brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
                     <div class="customer-form-field" id="productSubbrandField"><span class="customer-form-label">Sub-brand <span class="product-form-field-note" style="margin:0">Optional</span></span><div class="product-select-action"><select id="productSubbrandInput" disabled><option value="">Select Brand first</option></select><button class="product-quick-add" type="button" data-product-quick-add="Sub-brand" aria-label="Quick add Sub-brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div><span class="product-form-field-note" id="productSubbrandNote">Primary Brand will be used when no Sub-brand is selected.</span></div>
                     <div class="customer-form-field" id="productCategoryField"><span class="customer-form-label">Category <span class="customer-required">Required</span></span><div class="product-select-action"><select id="productCategoryInput" data-product-required required><option value="">Select category</option><option>Food</option><option>Treats</option><option>Accessories</option><option>Healthcare</option><option>Grooming</option></select><button class="product-quick-add" type="button" data-product-quick-add="Category" aria-label="Quick add Category"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
