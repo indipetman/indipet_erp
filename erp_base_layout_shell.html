@@ -8192,6 +8192,10 @@
         }
       };
 
+      const persistErpMockTable = (tableName, records) => {
+        void saveErpMockTable(tableName, records);
+      };
+
       const renderCustomerLayer = () => {
         renderCustomerSummary();
         renderCustomerFilterOptions();
@@ -9462,6 +9466,30 @@
         ]
       };
 
+      const masterHubStorageKey = "indipet.erp.masterHubData.v1";
+
+      const loadMasterHubData = () => {
+        try {
+          const saved = JSON.parse(localStorage.getItem(masterHubStorageKey) || "null");
+          if (!saved || typeof saved !== "object") return;
+          Object.keys(masterHubData).forEach(type => {
+            if (Array.isArray(saved[type])) masterHubData[type] = saved[type];
+          });
+        } catch (error) {
+          console.warn("Could not load Master Hub changes.", error);
+        }
+      };
+
+      const persistMasterHubData = () => {
+        try {
+          localStorage.setItem(masterHubStorageKey, JSON.stringify(masterHubData));
+        } catch (error) {
+          console.warn("Could not save Master Hub changes.", error);
+        }
+      };
+
+      loadMasterHubData();
+
       const masterHubConfig = {
         category: { label: "Category", plural: "Categories", description: "Product and Service category definitions.", tileCopy: "Classify Product or Service records.", icon: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>' },
         subcategory: { label: "Sub-category", plural: "Sub-categories", description: "Dependent classifications inherited from Category.", tileCopy: "Maintain Category child records.", icon: '<path d="M4 5h6v6H4zM14 13h6v6h-6zM7 11v4h7M17 13V9h-7"/>' },
@@ -9477,12 +9505,15 @@
       const masterHubTypeOrder = ["category", "subcategory", "brand", "subbrand", "operationalSupplyType", "unit", "productTag", "serviceTag", "pet"];
 
       const syncMasterHubTagRecords = () => {
+        let changed = false;
         [["productTag", productTagMasterData, "PTG"], ["serviceTag", serviceTagMasterData, "STG"]].forEach(([type, names, prefix]) => {
           names.forEach(name => {
             if (masterHubData[type].some(record => record.name.toLowerCase() === name.toLowerCase())) return;
             masterHubData[type].push({ id: `${prefix}-${String(masterHubData[type].length + 1).padStart(3, "0")}`, name, description: `${masterHubConfig[type].label} Master record.`, status: "Active" });
+            changed = true;
           });
         });
+        if (changed) persistMasterHubData();
       };
 
       const renderMasterHubSummary = () => {
@@ -9767,6 +9798,7 @@
           renderServiceFilterDefinition(serviceFilterByKey("Tag"));
           renderServiceTagOptions();
         }
+        persistMasterHubData();
         masterRecordModalError.classList.remove("is-visible");
         renderMasterHubSummary();
         renderMasterHubTiles();
@@ -9829,6 +9861,7 @@
             renderServiceTagOptions();
           }
         }
+        persistMasterHubData();
         closeMasterRecordModal();
         renderMasterHubSummary();
         renderMasterHubTiles();
@@ -13791,6 +13824,7 @@
           setServiceRecordStatus(record, statusOption.dataset.serviceTableStatusOption);
           renderServiceSummary();
           renderServiceTable();
+          persistErpMockTable("services", serviceRecords);
           closeServiceTableStatusMenus();
           return;
         }
@@ -13803,6 +13837,7 @@
         if (activeServiceRecordId === record.id) serviceOnlineInput.value = record.online ? "Yes" : "No";
         renderServiceSummary();
         renderServiceTable();
+        persistErpMockTable("services", serviceRecords);
       });
 
       openServiceFormButton.addEventListener("click", showServiceForm);
@@ -13940,6 +13975,7 @@
             setServiceRecordStatus(record, serviceStatusInput.value);
             renderServiceSummary();
             renderServiceTable();
+            persistErpMockTable("services", serviceRecords);
           }
         }
         if (event.target === serviceOnlineInput && serviceFormMode === "edit" && activeServiceRecordId) {
@@ -13948,6 +13984,7 @@
             record.online = serviceOnlineInput.value === "Yes";
             renderServiceSummary();
             renderServiceTable();
+            persistErpMockTable("services", serviceRecords);
           }
         }
       });
@@ -14097,6 +14134,7 @@
             renderVendorSummary();
             renderVendorFilterOptions();
             renderVendorTable();
+            persistErpMockTable("vendors", vendorRecords);
           }
         }
       });
@@ -14498,6 +14536,7 @@
         renderVendorSummary();
         renderVendorFilterOptions();
         renderVendorTable();
+        persistErpMockTable("vendors", vendorRecords);
         closeVendorTableStatusMenus();
       });
 
@@ -14791,6 +14830,7 @@
           renderCustomerSummary();
           renderCustomerFilterOptions();
           renderCustomerTable();
+          persistErpMockTable("customers", customerRecords);
           closeCustomerViewStatusMenu();
           return;
         }
@@ -14802,7 +14842,7 @@
         if (!record) return;
         if (profileAction.dataset.customerViewAction === "edit") {
           setCustomerFormMode("edit", record);
-          showCustomerFormMessage("Customer record loaded for interface preview. Backend save is not connected yet.", [], true);
+          showCustomerFormMessage("Customer record loaded. Click Save Changes to keep updates in the Excel mock database.", [], true);
           document.title = `Edit Customer - ${record.name} - Indipet ERP`;
           return;
         }
@@ -14813,6 +14853,7 @@
           renderCustomerSummary();
           renderCustomerFilterOptions();
           renderCustomerTable();
+          persistErpMockTable("customers", customerRecords);
           showCustomerWorkspace();
         }
       });
@@ -14843,6 +14884,7 @@
           renderProductFilterOptions();
           renderProductTable();
           renderStockOverview();
+          persistErpMockTable("products", productRecords);
           closeProductViewStatusMenu();
           return;
         }
@@ -14854,7 +14896,7 @@
         if (!record) return;
         if (profileAction.dataset.productViewAction === "edit") {
           setProductFormMode("edit", record);
-          showProductFormMessage("Product record loaded for interface preview. Backend save is not connected yet.", [], true);
+          showProductFormMessage("Product record loaded. Click Save Changes to keep updates in the Excel mock database.", [], true);
           document.title = `Edit Product - ${productDisplayName(record)} - Indipet ERP`;
           return;
         }
@@ -14866,6 +14908,7 @@
           renderProductFilterOptions();
           renderProductTable();
           renderStockOverview();
+          persistErpMockTable("products", productRecords);
           showProductWorkspace();
         }
       });
@@ -14894,6 +14937,7 @@
           setServiceRecordStatus(record, statusOption.dataset.serviceViewStatusOption);
           renderServiceSummary();
           renderServiceTable();
+          persistErpMockTable("services", serviceRecords);
           closeServiceViewStatusMenu();
           return;
         }
@@ -14905,7 +14949,7 @@
         if (!record) return;
         if (profileAction.dataset.serviceViewAction === "edit") {
           setServiceFormMode("edit", record);
-          showServiceFormMessage("Service record loaded for interface preview. Backend save is not connected yet.", [], true);
+          showServiceFormMessage("Service record loaded. Click Save Changes to keep updates in the Excel mock database.", [], true);
           document.title = `Edit Service - ${record.name} - Indipet ERP`;
           return;
         }
@@ -14916,6 +14960,7 @@
           renderServiceSummary();
           renderServiceFilters();
           renderServiceTable();
+          persistErpMockTable("services", serviceRecords);
           showServiceWorkspace();
         }
       });
@@ -14945,6 +14990,7 @@
           renderVendorSummary();
           renderVendorFilterOptions();
           renderVendorTable();
+          persistErpMockTable("vendors", vendorRecords);
           closeVendorViewStatusMenu();
           return;
         }
@@ -14956,7 +15002,7 @@
         if (!record) return;
         if (profileAction.dataset.vendorViewAction === "edit") {
           setVendorFormMode("edit", record);
-          showVendorFormMessage("Vendor record loaded for interface preview. Backend save is not connected yet.", [], true);
+          showVendorFormMessage("Vendor record loaded. Click Save Changes to keep updates in the Excel mock database.", [], true);
           document.title = `Edit Vendor - ${record.name} - Indipet ERP`;
           return;
         }
@@ -14967,6 +15013,7 @@
           renderVendorSummary();
           renderVendorFilterOptions();
           renderVendorTable();
+          persistErpMockTable("vendors", vendorRecords);
           showVendorWorkspace();
         }
       });
@@ -15005,6 +15052,7 @@
           renderCustomerSummary();
           renderCustomerFilterOptions();
           renderCustomerTable();
+          persistErpMockTable("customers", customerRecords);
           closeCustomerTableStatusMenus();
           return;
         }
@@ -15178,6 +15226,7 @@
           renderProductFilterOptions();
           renderProductTable();
           renderStockOverview();
+          persistErpMockTable("products", productRecords);
           closeProductTableStatusMenus();
           return;
         }
@@ -15189,6 +15238,7 @@
         record.online = !record.online;
         renderProductSummary();
         renderProductTable();
+        persistErpMockTable("products", productRecords);
       });
 
       productFilterReset.addEventListener("click", () => {
@@ -15488,6 +15538,7 @@
             renderProductFilterOptions();
             renderProductTable();
             renderStockOverview();
+            persistErpMockTable("products", productRecords);
           }
         }
         if (event.target === productConsumptionClassification) updateProductConsumptionUsage();
