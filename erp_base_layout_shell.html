@@ -4458,6 +4458,14 @@
       background: #fff;
     }
 
+    .product-content-block.is-rich-text-block {
+      display: block;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+
     .product-content-block-title {
       color: var(--text);
       font-size: 10px;
@@ -4555,6 +4563,10 @@
       padding: 7px;
       border-bottom: 1px solid var(--border);
       background: #f8fafc;
+    }
+
+    .product-rich-toolbar .product-content-block-actions {
+      margin-left: auto;
     }
 
     .product-rich-toolbar select,
@@ -12208,8 +12220,7 @@
           `;
         }
         return `
-          <article class="product-content-block" data-product-content-block="${block.id}">
-            <div class="product-content-block-head"><span class="product-content-block-title">${blockTitle}</span>${actionButtons}</div>
+          <article class="product-content-block is-rich-text-block" data-product-content-block="${block.id}">
             <div class="product-rich-editor" data-product-rich-editor data-section-id="${section.id}" data-block-id="${block.id}">
               <div class="product-rich-toolbar" role="toolbar" aria-label="Content formatting tools">
                 <select data-product-online-field data-product-rich-command="formatBlock" aria-label="Paragraph style">
@@ -12271,6 +12282,7 @@
                 </select>
                 <button type="button" data-product-online-field data-product-rich-action="clear" title="Clear formatting">Tx</button>
                 <button type="button" data-product-online-field data-product-rich-action="source" title="Source view">&lt;/&gt;</button>
+                ${actionButtons}
               </div>
               <div class="product-rich-canvas" contenteditable="true" data-product-online-field data-product-rich-canvas data-section-id="${section.id}" data-block-id="${block.id}" data-placeholder="Write customer-facing content here">${block.html || ""}</div>
             </div>
