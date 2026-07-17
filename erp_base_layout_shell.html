@@ -3817,6 +3817,13 @@
       height: 16px;
     }
 
+    .product-tax-row {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(180px, .95fr) minmax(220px, 1fr) minmax(140px, .65fr);
+      gap: 17px 15px;
+    }
+
     .product-choice-list {
       display: flex;
       align-items: center;
@@ -4999,12 +5006,17 @@
       .product-content-image-block {
         grid-template-columns: 1fr;
       }
+
+      .product-tax-row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
     }
 
     @media (max-width: 680px) {
       .product-structure-grid,
       .product-attribute-grid,
-      .product-sku-grid {
+      .product-sku-grid,
+      .product-tax-row {
         grid-template-columns: 1fr;
       }
 
@@ -6635,9 +6647,11 @@
                     <div class="customer-form-field" id="productSubbrandField"><span class="customer-form-label">Sub-brand <span class="product-form-field-note" style="margin:0">Optional</span></span><div class="product-select-action"><select id="productSubbrandInput" disabled><option value="">Select Brand first</option></select><button class="product-quick-add" type="button" data-product-quick-add="Sub-brand" aria-label="Quick add Sub-brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div><span class="product-form-field-note" id="productSubbrandNote">Primary Brand will be used when no Sub-brand is selected.</span></div>
                     <div class="customer-form-field" id="productCategoryField"><span class="customer-form-label">Category <span class="customer-required">Required</span></span><div class="product-select-action"><select id="productCategoryInput" data-product-required required><option value="">Select category</option></select><button class="product-quick-add" type="button" data-product-quick-add="Category" aria-label="Quick add Category"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
                     <div class="customer-form-field" id="productSubcategoryField"><span class="customer-form-label" id="productSubcategoryLabel">Sub-category <span class="customer-required">Required</span></span><div class="product-select-action"><select id="productSubcategoryInput" data-product-required required><option value="">Select category first</option></select><button class="product-quick-add" id="productSubcategoryQuickAdd" type="button" data-product-quick-add="Sub-category" aria-label="Quick add Sub-category"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div><span class="product-form-field-note" id="productTrackingInheritanceNote">Batch and expiry requirements inherit from selected Sub-category.</span></div>
-                    <label class="customer-form-field"><span class="customer-form-label">HSN Code <span class="customer-required">Required</span></span><input id="productHsnInput" data-product-required required inputmode="numeric" placeholder="Enter HSN code"></label>
-                    <label class="customer-form-field"><span class="customer-form-label">GST Rate <span class="customer-required">Tax Master</span></span><select id="productGstInput" data-product-required required><option value="">Select GST rate</option><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option><option value="28">28%</option></select></label>
-                    <label class="customer-form-field"><span class="customer-form-label">CESS (%)</span><input id="productCessInput" type="number" min="0" step="0.01" placeholder="Enter applicable CESS"></label>
+                    <div class="product-tax-row">
+                      <label class="customer-form-field"><span class="customer-form-label">HSN Code <span class="customer-required">Required</span></span><input id="productHsnInput" data-product-required required inputmode="numeric" placeholder="Enter HSN code"></label>
+                      <label class="customer-form-field"><span class="customer-form-label">GST Rate <span class="customer-required">Tax Master</span></span><select id="productGstInput" data-product-required required><option value="">Select GST rate</option><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option><option value="28">28%</option></select></label>
+                      <label class="customer-form-field"><span class="customer-form-label">CESS (%)</span><input id="productCessInput" type="number" min="0" step="0.01" placeholder="Enter CESS"></label>
+                    </div>
                     <div class="customer-form-field span-3"><span class="customer-form-label">Animal <span class="customer-required">Required</span></span><div class="product-choice-list" id="productAnimalChoices"></div></div>
                     <div class="customer-form-field span-3">
                       <span class="customer-form-label">Product Tags</span>
