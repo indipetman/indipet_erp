@@ -6674,7 +6674,7 @@
                   </div>
 
                   <div id="productVariationBuilderPanel" hidden>
-                    <div class="customer-subsection-head" style="margin-top:18px"><div><h3 class="customer-subsection-title">Variation Attributes</h3><p class="customer-subsection-copy">Combine descriptive attributes freely. Weight, Volume or Pack may define net content automatically, but only one measurement-defining attribute may be used.</p></div><button class="action-button" id="addProductAttribute" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add Another Attribute</button></div>
+                    <div class="customer-subsection-head" style="margin-top:18px"><div><h3 class="customer-subsection-title">Variation Attributes</h3><p class="customer-subsection-copy">Combine descriptive attributes freely. Count, Weight, Volume, Length or Pack may define net content automatically, but only one measurement-defining attribute may be used.</p></div><button class="action-button" id="addProductAttribute" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add Another Attribute</button></div>
                     <div class="product-attribute-list" id="productAttributeList"></div>
                   </div>
                 </section>
@@ -8047,12 +8047,16 @@
       let customerRecords = [];
 
       const productPreviewDate = new Date("2026-06-21T00:00:00");
-      const productAttributeOptions = ["Weight", "Volume", "Pack", "Size", "Colour", "Flavour", "Material"];
+      const unitGroupOptions = ["Count", "Weight", "Volume", "Length", "Other"];
+      const productAttributeOptions = [...unitGroupOptions, "Pack", "Size", "Colour", "Flavour", "Material"];
       const productStockUnitOptions = ["pc", "box", "bag", "bottle", "roll"];
       const productMeasurementUnitOptions = ["g", "kg", "ml", "L", "pc", "tablet", "capsule", "cm"];
+      const productMeasurementAttributeLabel = "Count, Weight, Volume, Length or Pack";
       const productUnitAttributeUnits = {
+        Count: ["pc", "tablet", "capsule"],
         Weight: ["g", "kg"],
         Volume: ["ml", "L"],
+        Length: ["cm"],
         Pack: ["pc", "tablet", "capsule"]
       };
       const productTagMasterData = [];
@@ -9608,7 +9612,7 @@
             .map(unit => ({ value: unit.name, label: `${unit.name} (${unit.symbol})` }));
           return [
             masterModalField({ name: "purpose", label: "Unit Purpose", value: record.purpose || "", required: true, options: [{ value: "", label: "Select purpose" }, "Stock", "Measurement", "Both"] }),
-            masterModalField({ name: "unitGroup", label: "Unit Group", value: record.unitGroup || "", required: true, options: [{ value: "", label: "Select group" }, "Count", "Weight", "Volume", "Length", "Other"] }),
+            masterModalField({ name: "unitGroup", label: "Unit Group", value: record.unitGroup || "", required: true, options: [{ value: "", label: "Select group" }, ...unitGroupOptions] }),
             masterModalField({ name: "name", label: "Unit Name", value: record.name, required: true, placeholder: "Enter unit name" }),
             masterModalField({ name: "symbol", label: "Symbol", value: record.symbol, required: true, placeholder: "kg, g, L, ml, pc" }),
             masterModalField({ name: "relatedUnit", label: "Related / Base Unit", value: record.relatedUnit || "", options: [{ value: "", label: "No relation / base unit" }, ...relatedUnits] }),
@@ -13275,7 +13279,7 @@
         const note = card.querySelector("[data-product-attribute-note]");
         const units = productUnitAttributeUnits[name];
         if (units) {
-          valueEntry.placeholder = name === "Weight" ? "Type 1 kg and press Enter" : name === "Volume" ? "Type 200 ml and press Enter" : "Type 12 pc and press Enter";
+          valueEntry.placeholder = name === "Weight" ? "Type 1 kg and press Enter" : name === "Volume" ? "Type 200 ml and press Enter" : name === "Length" ? "Type 10 cm and press Enter" : "Type 12 pc and press Enter";
           note.textContent = `Measurement-defining attribute. Use Quantity + Measurement UoM (${units.join(", ")}); generated SKU net content will be locked.`;
         } else {
           valueEntry.placeholder = "Type a value and press Enter";
@@ -13435,7 +13439,7 @@
         if (unitDefinitions.length > 1) {
           productCommonUnitPanel.hidden = true;
           productDerivedUnitMessage.hidden = true;
-          productSkuList.innerHTML = '<div class="customer-repeater-empty"><strong>Choose only one measurement-defining attribute</strong><span>Weight, Volume or Pack can define net content, but only one may be used on a product.</span></div>';
+          productSkuList.innerHTML = `<div class="customer-repeater-empty"><strong>Choose only one measurement-defining attribute</strong><span>${productMeasurementAttributeLabel} can define net content, but only one may be used on a product.</span></div>`;
           return;
         }
         const invalidUnitDefinition = unitDefinitions.find(definition => definition.values.some(value => !parseProductMeasurementValue(definition.name, value)));
@@ -13579,7 +13583,7 @@
           }
           const unitDefinitions = definitions.filter(definition => definition.unitDefining);
           if (unitDefinitions.length > 1) {
-            showProductFormMessage("Use only one measurement-defining attribute: Weight, Volume or Pack.");
+            showProductFormMessage(`Use only one measurement-defining attribute: ${productMeasurementAttributeLabel}.`);
             return false;
           }
           const invalidUnitDefinition = unitDefinitions.find(definition => definition.values.some(value => !parseProductMeasurementValue(definition.name, value)));
