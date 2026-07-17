@@ -7415,6 +7415,38 @@
       const passwordShowIcon = passwordToggle.querySelector(".password-show-icon");
       const passwordHideIcon = passwordToggle.querySelector(".password-hide-icon");
       const erpAppShell = document.getElementById("erpAppShell");
+      const erpAuthStorageKey = "indipet.erp.authenticated.v1";
+      const erpActiveLayerStorageKey = "indipet.erp.activeLayer.v1";
+
+      const readErpStorage = key => {
+        try {
+          return localStorage.getItem(key);
+        } catch (error) {
+          console.warn("Could not read ERP browser storage.", error);
+          return "";
+        }
+      };
+
+      const writeErpStorage = (key, value) => {
+        try {
+          localStorage.setItem(key, value);
+        } catch (error) {
+          console.warn("Could not write ERP browser storage.", error);
+        }
+      };
+
+      const isErpAuthenticated = () => readErpStorage(erpAuthStorageKey) === "true";
+
+      const rememberErpLayer = layer => {
+        writeErpStorage(erpActiveLayerStorageKey, layer);
+      };
+
+      const showAuthenticatedErpShell = () => {
+        loginPage.hidden = true;
+        erpAppShell.hidden = false;
+      };
+
+      if (isErpAuthenticated()) showAuthenticatedErpShell();
       const sidebar = document.getElementById("sidebar");
       const collapseButton = document.getElementById("collapseSidebar");
       const mobileMenuButton = document.getElementById("mobileMenu");
@@ -9872,6 +9904,7 @@
 
       const showMasterHubWorkspace = event => {
         if (event) event.preventDefault();
+        rememberErpLayer("masterHub");
         [erpDashboardView, customerWorkspaceView, customerFormView, productWorkspaceView, productFormView, serviceWorkspaceView, serviceFormView, vendorWorkspaceView, vendorFormView].forEach(view => view.classList.remove("is-active"));
         masterHubWorkspaceView.classList.add("is-active");
         [dashboardNavLink, customerNavLink, productNavLink, serviceNavLink, vendorNavLink].forEach(link => { link.classList.remove("is-active"); link.removeAttribute("aria-current"); });
@@ -10518,6 +10551,7 @@
 
       const showVendorWorkspace = event => {
         if (event) event.preventDefault();
+        rememberErpLayer("vendor");
         [erpDashboardView, customerWorkspaceView, customerFormView, productWorkspaceView, productFormView, serviceWorkspaceView, serviceFormView, vendorFormView, masterHubWorkspaceView].forEach(view => view.classList.remove("is-active"));
         vendorWorkspaceView.classList.add("is-active");
         [dashboardNavLink, customerNavLink, productNavLink, serviceNavLink, masterDataNavLink].forEach(link => { link.classList.remove("is-active"); link.removeAttribute("aria-current"); });
@@ -11232,6 +11266,7 @@
 
       const showServiceWorkspace = event => {
         if (event) event.preventDefault();
+        rememberErpLayer("service");
         [erpDashboardView, customerWorkspaceView, customerFormView, productWorkspaceView, productFormView, serviceFormView, vendorWorkspaceView, vendorFormView, masterHubWorkspaceView].forEach(view => view.classList.remove("is-active"));
         serviceWorkspaceView.classList.add("is-active");
         [dashboardNavLink, customerNavLink, productNavLink, vendorNavLink, masterDataNavLink].forEach(link => { link.classList.remove("is-active"); link.removeAttribute("aria-current"); });
@@ -11282,6 +11317,7 @@
 
       const showStockOverviewWorkspace = event => {
         if (event) event.preventDefault();
+        rememberErpLayer("stockOverview");
         document.querySelectorAll(".workspace-view").forEach(view => view.classList.remove("is-active"));
         document.querySelectorAll(".sidebar-nav-item.is-active, .sidebar-nav-child.is-active").forEach(link => {
           link.classList.remove("is-active");
@@ -11301,6 +11337,7 @@
 
       const showCustomerWorkspace = event => {
         if (event) event.preventDefault();
+        rememberErpLayer("customer");
         erpDashboardView.classList.remove("is-active");
         productWorkspaceView.classList.remove("is-active");
         productFormView.classList.remove("is-active");
@@ -11333,6 +11370,7 @@
 
       const showDashboardWorkspace = event => {
         if (event) event.preventDefault();
+        rememberErpLayer("dashboard");
         customerWorkspaceView.classList.remove("is-active");
         customerFormView.classList.remove("is-active");
         productWorkspaceView.classList.remove("is-active");
@@ -11363,6 +11401,7 @@
 
       const showProductWorkspace = event => {
         if (event) event.preventDefault();
+        rememberErpLayer("product");
         erpDashboardView.classList.remove("is-active");
         customerWorkspaceView.classList.remove("is-active");
         customerFormView.classList.remove("is-active");
@@ -11392,6 +11431,20 @@
         closeMobileNavigation();
         requestAnimationFrame(renderProductTable);
         window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      };
+
+      const restoreErpLayer = () => {
+        const layer = readErpStorage(erpActiveLayerStorageKey) || "dashboard";
+        const layerRoutes = {
+          dashboard: showDashboardWorkspace,
+          customer: showCustomerWorkspace,
+          product: showProductWorkspace,
+          service: showServiceWorkspace,
+          vendor: showVendorWorkspace,
+          masterHub: showMasterHubWorkspace,
+          stockOverview: showStockOverviewWorkspace
+        };
+        (layerRoutes[layer] || showDashboardWorkspace)();
       };
 
       const clearCustomerFormMessage = () => {
@@ -13617,7 +13670,7 @@
           return;
         }
 
-        /* Visual prototype transition only. No credential is retained or authenticated here. */
+        /* Visual prototype transition only. Credentials are never stored. */
         loginUserId.value = "";
         loginPassword.value = "";
         loginPassword.type = "password";
@@ -13626,9 +13679,9 @@
         passwordToggle.setAttribute("aria-pressed", "false");
         passwordToggle.setAttribute("aria-label", "Show password");
         passwordToggle.title = "Show password";
-        loginPage.hidden = true;
-        erpAppShell.hidden = false;
-        document.title = "Indipet ERP Workspace";
+        writeErpStorage(erpAuthStorageKey, "true");
+        showAuthenticatedErpShell();
+        restoreErpLayer();
         collapseButton.focus();
       });
 
@@ -15750,6 +15803,7 @@
         renderMasterHubSummary();
         renderMasterHubTiles();
         renderMasterHubRecords();
+        if (isErpAuthenticated()) restoreErpLayer();
       };
 
       initializeErpWorkspace();
