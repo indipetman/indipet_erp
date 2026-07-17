@@ -3818,10 +3818,14 @@
     }
 
     .product-tax-row {
-      grid-column: 1 / -1;
+      grid-column: span 2;
       display: grid;
       grid-template-columns: minmax(180px, .95fr) minmax(220px, 1fr) minmax(140px, .65fr);
       gap: 17px 15px;
+    }
+
+    .product-tax-row .customer-form-field {
+      min-width: 0;
     }
 
     .product-choice-list {
@@ -5022,6 +5026,10 @@
 
       .product-sku-grid .span-2,
       .product-sku-grid .span-4 {
+        grid-column: auto;
+      }
+
+      .product-tax-row {
         grid-column: auto;
       }
     }
