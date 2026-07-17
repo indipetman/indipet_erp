@@ -6633,12 +6633,12 @@
                   <div class="customer-form-grid">
                     <div class="customer-form-field" id="productBrandField"><span class="customer-form-label">Brand <span class="product-form-field-note" style="margin:0">Optional</span></span><div class="product-select-action"><select id="productBrandInput"><option value="">No Brand</option></select><button class="product-quick-add" type="button" data-product-quick-add="Brand" aria-label="Quick add Brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
                     <div class="customer-form-field" id="productSubbrandField"><span class="customer-form-label">Sub-brand <span class="product-form-field-note" style="margin:0">Optional</span></span><div class="product-select-action"><select id="productSubbrandInput" disabled><option value="">Select Brand first</option></select><button class="product-quick-add" type="button" data-product-quick-add="Sub-brand" aria-label="Quick add Sub-brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div><span class="product-form-field-note" id="productSubbrandNote">Primary Brand will be used when no Sub-brand is selected.</span></div>
-                    <div class="customer-form-field" id="productCategoryField"><span class="customer-form-label">Category <span class="customer-required">Required</span></span><div class="product-select-action"><select id="productCategoryInput" data-product-required required><option value="">Select category</option><option>Food</option><option>Treats</option><option>Accessories</option><option>Healthcare</option><option>Grooming</option></select><button class="product-quick-add" type="button" data-product-quick-add="Category" aria-label="Quick add Category"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
+                    <div class="customer-form-field" id="productCategoryField"><span class="customer-form-label">Category <span class="customer-required">Required</span></span><div class="product-select-action"><select id="productCategoryInput" data-product-required required><option value="">Select category</option></select><button class="product-quick-add" type="button" data-product-quick-add="Category" aria-label="Quick add Category"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
                     <div class="customer-form-field" id="productSubcategoryField"><span class="customer-form-label" id="productSubcategoryLabel">Sub-category <span class="customer-required">Required</span></span><div class="product-select-action"><select id="productSubcategoryInput" data-product-required required><option value="">Select category first</option></select><button class="product-quick-add" id="productSubcategoryQuickAdd" type="button" data-product-quick-add="Sub-category" aria-label="Quick add Sub-category"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div><span class="product-form-field-note" id="productTrackingInheritanceNote">Batch and expiry requirements inherit from selected Sub-category.</span></div>
                     <label class="customer-form-field"><span class="customer-form-label">HSN Code <span class="customer-required">Required</span></span><input id="productHsnInput" data-product-required required inputmode="numeric" placeholder="Enter HSN code"></label>
                     <label class="customer-form-field"><span class="customer-form-label">GST Rate <span class="customer-required">Tax Master</span></span><select id="productGstInput" data-product-required required><option value="">Select GST rate</option><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option><option value="28">28%</option></select></label>
                     <label class="customer-form-field"><span class="customer-form-label">CESS (%)</span><input id="productCessInput" type="number" min="0" step="0.01" placeholder="Enter applicable CESS"></label>
-                    <div class="customer-form-field span-3"><span class="customer-form-label">Animal <span class="customer-required">Required</span></span><div class="product-choice-list" id="productAnimalChoices"><label class="product-choice-chip"><input type="checkbox" value="Dog" data-product-animal>Dog</label><label class="product-choice-chip"><input type="checkbox" value="Cat" data-product-animal>Cat</label><label class="product-choice-chip"><input type="checkbox" value="Bird" data-product-animal>Bird</label><label class="product-choice-chip"><input type="checkbox" value="Small Animal" data-product-animal>Small Animal</label><label class="product-choice-chip"><input type="checkbox" value="Universal" data-product-animal>Universal</label></div></div>
+                    <div class="customer-form-field span-3"><span class="customer-form-label">Animal <span class="customer-required">Required</span></span><div class="product-choice-list" id="productAnimalChoices"></div></div>
                     <div class="customer-form-field span-3">
                       <span class="customer-form-label">Product Tags</span>
                       <div class="product-tag-select" id="productTagSelect">
@@ -7639,6 +7639,7 @@
       const productSubcategoryInput = document.getElementById("productSubcategoryInput");
       const productSubcategoryQuickAdd = document.getElementById("productSubcategoryQuickAdd");
       const productTrackingInheritanceNote = document.getElementById("productTrackingInheritanceNote");
+      const productAnimalChoices = document.getElementById("productAnimalChoices");
       const productHsnInput = document.getElementById("productHsnInput");
       const productGstInput = document.getElementById("productGstInput");
       const productCessInput = document.getElementById("productCessInput");
@@ -8046,13 +8047,6 @@
       let customerRecords = [];
 
       const productPreviewDate = new Date("2026-06-21T00:00:00");
-      const productSubcategoryMap = {
-        Food: ["Dry Food", "Wet Food", "Prescription Diet"],
-        Treats: ["Biscuits", "Dental Treats", "Training Treats"],
-        Accessories: ["Collars & Leashes", "Feeding", "Toys"],
-        Healthcare: ["Supplements", "Tick & Flea", "Medicines"],
-        Grooming: ["Shampoo", "Brushes", "Hygiene"]
-      };
       const productAttributeOptions = ["Weight", "Volume", "Pack", "Size", "Colour", "Flavour", "Material"];
       const productStockUnitOptions = ["pc", "box", "bag", "bottle", "roll"];
       const productMeasurementUnitOptions = ["g", "kg", "ml", "L", "pc", "tablet", "capsule", "cm"];
@@ -8733,20 +8727,20 @@
       const updateProductSubcategoryFilter = () => {
         const selectedCategories = selectedProductFilterValues(productCategoryFilterDefinition);
         const values = selectedCategories.length
-          ? uniqueProductValues("subcategory").filter(subcategory => productRecords.some(record => selectedCategories.includes(record.category) && record.subcategory === subcategory))
-          : uniqueProductValues("subcategory");
+          ? [...new Set(selectedCategories.flatMap(category => productSubcategoryMasterOptions(category)))].sort((a, b) => a.localeCompare(b))
+          : productSubcategoryMasterOptions();
         renderProductMultiFilterOptions(productSubcategoryFilterDefinition, values);
       };
 
       const renderProductFilterOptions = () => {
-        renderProductMultiFilterOptions(productCategoryFilterDefinition, uniqueProductValues("category"));
+        renderProductMultiFilterOptions(productCategoryFilterDefinition, productCategoryMasterOptions());
         updateProductSubcategoryFilter();
         renderProductMultiFilterOptions(productBrandFilterDefinition, productBrandMasterOptions());
-        renderProductMultiFilterOptions(productAnimalFilterDefinition, uniqueProductValues("animals", true));
+        renderProductMultiFilterOptions(productAnimalFilterDefinition, productAnimalMasterOptions());
         renderProductMultiFilterOptions(productSubbrandFilterDefinition, productSubbrandMasterOptions());
         renderProductMultiFilterOptions(productStructureFilterDefinition, ["Standard", "Variable"]);
         renderProductMultiFilterOptions(productOnlineFilterDefinition, ["Online", "Offline"]);
-        renderProductMultiFilterOptions(productTagFilterDefinition, productTagMasterData);
+        renderProductMultiFilterOptions(productTagFilterDefinition, productTagMasterOptions());
         renderProductMultiFilterOptions(productVariationFilterDefinition, [...new Set(productRecords.flatMap(record => record.attribute.split(", ")).filter(Boolean))].sort());
         renderProductMultiFilterOptions(productGstFilterDefinition, uniqueProductValues("gst"));
         renderProductMultiFilterOptions(productStatusFilterDefinition, ["Active", "Inactive"]);
@@ -9735,7 +9729,7 @@
         if (activeMasterHubType === "productTag") {
           const sourceIndex = productTagMasterData.findIndex(name => name.toLowerCase() === record.name.toLowerCase());
           if (sourceIndex >= 0) productTagMasterData.splice(sourceIndex, 1);
-          renderProductMultiFilterOptions(productTagFilterDefinition, productTagMasterData);
+          renderProductMultiFilterOptions(productTagFilterDefinition, productTagMasterOptions());
           renderProductTagOptions();
         }
         if (activeMasterHubType === "serviceTag") {
@@ -9826,7 +9820,7 @@
           } else if (!source.some(name => name.toLowerCase() === record.name.toLowerCase())) source.push(record.name);
           source.sort((a, b) => a.localeCompare(b));
           if (activeMasterHubType === "productTag") {
-            renderProductMultiFilterOptions(productTagFilterDefinition, productTagMasterData);
+            renderProductMultiFilterOptions(productTagFilterDefinition, productTagMasterOptions());
             renderProductTagOptions();
           } else {
             renderServiceFilterDefinition(serviceFilterByKey("Tag"));
@@ -11924,13 +11918,14 @@
         updateProductSubbrandInput();
         productSubbrandInput.value = productSubbrandMasterOptions(productBrandInput.value).includes(record.subbrand) ? record.subbrand : "";
         updateProductSubbrandNote();
-        productCategoryInput.value = record.category;
+        updateProductCategoryInput();
+        productCategoryInput.value = productCategoryMasterOptions().includes(record.category) ? record.category : "";
         updateProductSubcategoryInput();
-        productSubcategoryInput.value = record.subcategory;
+        productSubcategoryInput.value = productSubcategoryMasterOptions(productCategoryInput.value).includes(record.subcategory) ? record.subcategory : "";
         productHsnInput.value = record.hsn;
         productGstInput.value = record.gst;
         productCessInput.value = "";
-        productForm.querySelectorAll("[data-product-animal]").forEach(input => { input.checked = record.animals.includes(input.value); });
+        renderProductAnimalChoices(record.animals || []);
         renderProductTagChoices(record.tags || []);
         const structureInput = productForm.querySelector(`[name="product_structure"][value="${record.structure}"]`);
         if (structureInput) structureInput.checked = true;
@@ -12034,7 +12029,7 @@
       const updateProductSubcategoryInput = () => {
         const previous = productSubcategoryInput.value;
         const operational = productIsOperational();
-        const options = operational ? operationalSupplyTypeOptions() : (productSubcategoryMap[productCategoryInput.value] || []);
+        const options = operational ? operationalSupplyTypeOptions() : productSubcategoryMasterOptions(productCategoryInput.value);
         productSubcategoryLabel.innerHTML = operational
           ? 'Operational Supply Type <span class="customer-required">Required</span>'
           : 'Sub-category <span class="customer-required">Required</span>';
@@ -12060,13 +12055,25 @@
           productSubbrandNote.textContent = "Brand and Sub-brand are not used for operational supply classification.";
         } else {
           productBrandInput.disabled = false;
+          updateProductCategoryInput();
           updateProductBrandInput();
           updateProductSubbrandInput();
         }
         updateProductSubcategoryInput();
+        renderProductAnimalChoices();
       };
 
       const productEffectiveBrand = () => productSubbrandInput.value || productBrandInput.value;
+
+      const productCategoryMasterOptions = () => masterHubData.category
+        .filter(record => record.status === "Active" && record.inventoryType === "Product")
+        .map(record => record.name)
+        .sort((a, b) => a.localeCompare(b));
+
+      const productSubcategoryMasterOptions = parentCategory => masterHubData.subcategory
+        .filter(record => record.status === "Active" && record.inventoryType === "Product" && (!parentCategory || record.parentCategory === parentCategory))
+        .map(record => record.name)
+        .sort((a, b) => a.localeCompare(b));
 
       const productBrandMasterOptions = () => masterHubData.brand
         .filter(record => record.status === "Active")
@@ -12083,6 +12090,30 @@
         const options = productBrandMasterOptions();
         productBrandInput.innerHTML = '<option value="">No Brand</option>' + options.map(option => `<option>${escapeProductText(option)}</option>`).join("");
         productBrandInput.value = options.includes(previous) ? previous : "";
+      };
+
+      const productAnimalMasterOptions = () => masterHubData.pet
+        .filter(record => record.status === "Active" && record.recordType === "Animal")
+        .map(record => record.name)
+        .sort((a, b) => a.localeCompare(b));
+
+      const productTagMasterOptions = () => [...new Set([
+        ...masterHubData.productTag.filter(record => record.status === "Active").map(record => record.name),
+        ...productTagMasterData
+      ])].sort((a, b) => a.localeCompare(b));
+
+      const updateProductCategoryInput = () => {
+        const previous = productCategoryInput.value;
+        const options = productCategoryMasterOptions();
+        productCategoryInput.innerHTML = '<option value="">Select category</option>' + options.map(option => `<option>${escapeProductText(option)}</option>`).join("");
+        productCategoryInput.value = options.includes(previous) ? previous : "";
+      };
+
+      const renderProductAnimalChoices = (selectedAnimals = checkedValues("[data-product-animal]")) => {
+        const options = productAnimalMasterOptions();
+        productAnimalChoices.innerHTML = options.length
+          ? options.map(animal => `<label class="product-choice-chip"><input type="checkbox" value="${escapeProductText(animal)}" data-product-animal ${selectedAnimals.includes(animal) ? "checked" : ""}>${escapeProductText(animal)}</label>`).join("")
+          : '<span class="product-form-field-note">Add Animal records in Pet Master to select applicable animals.</span>';
       };
 
       const updateProductSubbrandNote = () => {
@@ -13114,11 +13145,12 @@
 
       const renderProductTagOptions = (query = productTagQuickAddInput.value) => {
         const normalizedQuery = query.trim().toLowerCase();
-        const matchingTags = productTagMasterData.filter(tag => !normalizedQuery || tag.toLowerCase().includes(normalizedQuery));
+        const options = productTagMasterOptions();
+        const matchingTags = options.filter(tag => !normalizedQuery || tag.toLowerCase().includes(normalizedQuery));
         productTagOptions.innerHTML = matchingTags.length
           ? matchingTags.map(tag => `<button class="product-tag-option ${selectedProductTags.includes(tag) ? "is-selected" : ""}" type="button" data-product-tag-value="${escapeProductText(tag)}"><strong>${escapeProductText(tag)}</strong><span>${selectedProductTags.includes(tag) ? "✓" : ""}</span></button>`).join("")
           : '<div class="product-tag-empty">No matching Product Tags</div>';
-        const exactMatch = productTagMasterData.some(tag => tag.toLowerCase() === normalizedQuery);
+        const exactMatch = options.some(tag => tag.toLowerCase() === normalizedQuery);
         productTagCreateOption.hidden = !normalizedQuery || exactMatch;
         productTagCreateOption.textContent = normalizedQuery && !exactMatch ? `+ Add “${query.trim()}” to Product Tag Master` : "";
       };
@@ -13153,7 +13185,7 @@
           productTagMasterData.sort((a, b) => a.localeCompare(b));
         }
         renderProductTagChoices(selected);
-        renderProductMultiFilterOptions(productTagFilterDefinition, productTagMasterData);
+        renderProductMultiFilterOptions(productTagFilterDefinition, productTagMasterOptions());
         productTagQuickAddInput.value = "";
         renderProductTagOptions("");
         openProductTagDropdown();
@@ -13594,9 +13626,11 @@
         closeProductTagDropdown();
         productTagQuickAddStatus.textContent = "Search existing tags or type a new tag and press Enter.";
         productTagQuickAddStatus.classList.remove("is-success");
+        updateProductCategoryInput();
         updateProductSubcategoryInput();
         updateProductBrandInput();
         updateProductSubbrandInput();
+        renderProductAnimalChoices([]);
         updateProductStructurePanels();
         updateProductOnlinePanel();
         updateProductConsumptionUsage();
@@ -15770,9 +15804,11 @@
         pinnableTables.forEach(initializePinnableTable);
         renderCustomerLayer();
         renderProductLayer();
+        updateProductCategoryInput();
         updateProductSubcategoryInput();
         updateProductBrandInput();
         updateProductSubbrandInput();
+        renderProductAnimalChoices([]);
         updateProductStructurePanels();
         updateProductOnlinePanel();
         renderServiceLayer();
