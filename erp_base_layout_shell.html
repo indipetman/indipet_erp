@@ -3795,11 +3795,6 @@
       gap: 7px;
     }
 
-    .product-classification-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      column-gap: 28px;
-    }
-
     .product-select-action .product-quick-add {
       width: 40px;
       height: 40px;
@@ -5063,10 +5058,6 @@
       .customer-form-grid,
       .customer-review-grid,
       .customer-relationship-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .product-classification-grid {
         grid-template-columns: 1fr;
       }
 
@@ -6639,8 +6630,8 @@
                   <div class="customer-form-kicker">Step 2 of 5</div>
                   <h2 class="customer-form-title">Classification & Tax</h2>
                   <p class="customer-form-description">Connect the product to controlled master records. Quick Add requires the appropriate master-data permission.</p>
-                  <div class="customer-form-grid product-classification-grid">
-                    <div class="customer-form-field" id="productBrandField"><span class="customer-form-label">Brand <span class="product-form-field-note" style="margin:0">Optional</span></span><div class="product-select-action"><select id="productBrandInput"><option value="">No Brand</option><option>Whiskas</option><option>Royal Canin</option><option>Pedigree</option><option>Drools</option><option>Indipet Select</option></select><button class="product-quick-add" type="button" data-product-quick-add="Brand" aria-label="Quick add Brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
+                  <div class="customer-form-grid">
+                    <div class="customer-form-field" id="productBrandField"><span class="customer-form-label">Brand <span class="product-form-field-note" style="margin:0">Optional</span></span><div class="product-select-action"><select id="productBrandInput"><option value="">No Brand</option></select><button class="product-quick-add" type="button" data-product-quick-add="Brand" aria-label="Quick add Brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
                     <div class="customer-form-field" id="productSubbrandField"><span class="customer-form-label">Sub-brand <span class="product-form-field-note" style="margin:0">Optional</span></span><div class="product-select-action"><select id="productSubbrandInput" disabled><option value="">Select Brand first</option></select><button class="product-quick-add" type="button" data-product-quick-add="Sub-brand" aria-label="Quick add Sub-brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div><span class="product-form-field-note" id="productSubbrandNote">Primary Brand will be used when no Sub-brand is selected.</span></div>
                     <div class="customer-form-field" id="productCategoryField"><span class="customer-form-label">Category <span class="customer-required">Required</span></span><div class="product-select-action"><select id="productCategoryInput" data-product-required required><option value="">Select category</option><option>Food</option><option>Treats</option><option>Accessories</option><option>Healthcare</option><option>Grooming</option></select><button class="product-quick-add" type="button" data-product-quick-add="Category" aria-label="Quick add Category"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
                     <div class="customer-form-field" id="productSubcategoryField"><span class="customer-form-label" id="productSubcategoryLabel">Sub-category <span class="customer-required">Required</span></span><div class="product-select-action"><select id="productSubcategoryInput" data-product-required required><option value="">Select category first</option></select><button class="product-quick-add" id="productSubcategoryQuickAdd" type="button" data-product-quick-add="Sub-category" aria-label="Quick add Sub-category"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></div><span class="product-form-field-note" id="productTrackingInheritanceNote">Batch and expiry requirements inherit from selected Sub-category.</span></div>
@@ -8062,9 +8053,6 @@
         Healthcare: ["Supplements", "Tick & Flea", "Medicines"],
         Grooming: ["Shampoo", "Brushes", "Hygiene"]
       };
-      const productSubbrandMap = {
-        Drools: ["Purepet", "World's Best", "Focus", "Canine Creek"]
-      };
       const productAttributeOptions = ["Weight", "Volume", "Pack", "Size", "Colour", "Flavour", "Material"];
       const productStockUnitOptions = ["pc", "box", "bag", "bottle", "roll"];
       const productMeasurementUnitOptions = ["g", "kg", "ml", "L", "pc", "tablet", "capsule", "cm"];
@@ -8753,9 +8741,9 @@
       const renderProductFilterOptions = () => {
         renderProductMultiFilterOptions(productCategoryFilterDefinition, uniqueProductValues("category"));
         updateProductSubcategoryFilter();
-        renderProductMultiFilterOptions(productBrandFilterDefinition, uniqueProductValues("brand"));
+        renderProductMultiFilterOptions(productBrandFilterDefinition, productBrandMasterOptions());
         renderProductMultiFilterOptions(productAnimalFilterDefinition, uniqueProductValues("animals", true));
-        renderProductMultiFilterOptions(productSubbrandFilterDefinition, [...new Set(Object.values(productSubbrandMap).flat())].sort());
+        renderProductMultiFilterOptions(productSubbrandFilterDefinition, productSubbrandMasterOptions());
         renderProductMultiFilterOptions(productStructureFilterDefinition, ["Standard", "Variable"]);
         renderProductMultiFilterOptions(productOnlineFilterDefinition, ["Online", "Offline"]);
         renderProductMultiFilterOptions(productTagFilterDefinition, productTagMasterData);
@@ -11931,9 +11919,10 @@
         syncProductOnlineName(true);
         productParentStatus.value = record.status;
         productOnlineToggle.value = record.online ? "Yes" : "No";
-        productBrandInput.value = record.brand || "";
+        updateProductBrandInput();
+        productBrandInput.value = productBrandMasterOptions().includes(record.brand) ? record.brand : "";
         updateProductSubbrandInput();
-        productSubbrandInput.value = record.subbrand || "";
+        productSubbrandInput.value = productSubbrandMasterOptions(productBrandInput.value).includes(record.subbrand) ? record.subbrand : "";
         updateProductSubbrandNote();
         productCategoryInput.value = record.category;
         updateProductSubcategoryInput();
@@ -12071,12 +12060,30 @@
           productSubbrandNote.textContent = "Brand and Sub-brand are not used for operational supply classification.";
         } else {
           productBrandInput.disabled = false;
+          updateProductBrandInput();
           updateProductSubbrandInput();
         }
         updateProductSubcategoryInput();
       };
 
       const productEffectiveBrand = () => productSubbrandInput.value || productBrandInput.value;
+
+      const productBrandMasterOptions = () => masterHubData.brand
+        .filter(record => record.status === "Active")
+        .map(record => record.name)
+        .sort((a, b) => a.localeCompare(b));
+
+      const productSubbrandMasterOptions = parentBrand => masterHubData.subbrand
+        .filter(record => record.status === "Active" && (!parentBrand || record.parentBrand === parentBrand))
+        .map(record => record.name)
+        .sort((a, b) => a.localeCompare(b));
+
+      const updateProductBrandInput = () => {
+        const previous = productBrandInput.value;
+        const options = productBrandMasterOptions();
+        productBrandInput.innerHTML = '<option value="">No Brand</option>' + options.map(option => `<option>${escapeProductText(option)}</option>`).join("");
+        productBrandInput.value = options.includes(previous) ? previous : "";
+      };
 
       const updateProductSubbrandNote = () => {
         if (!productBrandInput.value) {
@@ -12091,7 +12098,7 @@
       const updateProductSubbrandInput = () => {
         const previous = productSubbrandInput.value;
         const brand = productBrandInput.value;
-        const options = productSubbrandMap[brand] || [];
+        const options = productSubbrandMasterOptions(brand);
         if (!brand) {
           productSubbrandInput.innerHTML = '<option value="">Select Brand first</option>';
           productSubbrandInput.disabled = true;
@@ -13588,6 +13595,7 @@
         productTagQuickAddStatus.textContent = "Search existing tags or type a new tag and press Enter.";
         productTagQuickAddStatus.classList.remove("is-success");
         updateProductSubcategoryInput();
+        updateProductBrandInput();
         updateProductSubbrandInput();
         updateProductStructurePanels();
         updateProductOnlinePanel();
@@ -15763,6 +15771,7 @@
         renderCustomerLayer();
         renderProductLayer();
         updateProductSubcategoryInput();
+        updateProductBrandInput();
         updateProductSubbrandInput();
         updateProductStructurePanels();
         updateProductOnlinePanel();
