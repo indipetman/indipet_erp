@@ -13693,9 +13693,6 @@
       });
       masterRecordModalClose.addEventListener("click", closeMasterRecordModal);
       masterRecordModalCancel.addEventListener("click", closeMasterRecordModal);
-      masterRecordModal.addEventListener("click", event => {
-        if (event.target === masterRecordModal) closeMasterRecordModal();
-      });
       masterRecordFields.addEventListener("change", event => {
         event.target.removeAttribute("aria-invalid");
         masterRecordModalError.classList.remove("is-visible");
