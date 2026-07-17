@@ -58,22 +58,10 @@ const tableConfig = {
 };
 
 const seedData = {
-  customers: [
-    { code: "LG000155", name: "Ananya Ghosh", phone: "98300 14210", classification: "B2C", tags: ["VIP", "In-store", "Grooming"], bills: 18, netSales: 48620, activePets: 2, totalPets: 2, progress: 96, status: "Active", location: "Lake Gardens", source: "Walk-in", joined: "2026-06-03", lastActivity: "2026-06-19", hasDefaultAddress: true },
-    { code: "RJ000064", name: "Arjun Kennels", phone: "98310 76218", classification: "B2B", tags: ["Breeder", "Wholesale", "Repeat"], bills: 31, netSales: 184500, activePets: 6, totalPets: 7, progress: 88, status: "Active", location: "Rajarhat", source: "Referral", joined: "2026-05-14", lastActivity: "2026-06-18", hasDefaultAddress: true }
-  ],
-  products: [
-    { product: "Ocean Fish Adult Dry Food", brand: "Whiskas", sku: "WHI-OCF-70G", barcode: "8901003107012", variation: "Standard", stockUnit: "pc", packQty: 70, uom: "g", category: "Food", subcategory: "Dry Food", animals: ["Cat"], tags: ["Daily Care"], mrp: 65, selling: 62, online: true, flags: ["Duplicate"], status: "Active", structure: "Standard", attribute: "", hsn: "23091000", gst: "18", created: "2025-11-14", updated: "2026-06-18", lastSale: "2026-06-20" },
-    { product: "Maxi Adult Dry Food", brand: "Royal Canin", sku: "RC-MAX-4KG", barcode: "3182550402220", variation: "Standard", stockUnit: "bag", packQty: 4, uom: "kg", category: "Food", subcategory: "Dry Food", animals: ["Dog"], tags: ["Premium", "Daily Care"], mrp: 3250, selling: 3090, online: true, flags: [], status: "Active", structure: "Standard", attribute: "", hsn: "23091000", gst: "18", created: "2025-08-09", updated: "2026-05-30", lastSale: "2026-06-19" }
-  ],
-  services: [
-    { id: "SRV-GRM-001", name: "Full Grooming", category: "Grooming", subcategory: "Haircut & Styling", department: "Grooming", designations: ["Groomer", "Senior Groomer"], animals: ["Dog", "Cat"], appointment: true, duration: 90, mrp: 1800, selling: 1650, pricing: "Tiered", consumables: 4, online: true, flags: [], status: "Active", tags: ["Popular", "Premium"], sac: "999729", gst: "18", created: "2025-08-12", lastPerformed: "2026-06-21" },
-    { id: "SRV-VET-001", name: "General Veterinary Consultation", category: "Veterinary Care", subcategory: "Consultation", department: "Veterinary", designations: ["Veterinarian", "Veterinary Surgeon"], animals: ["Dog", "Cat"], appointment: true, duration: 30, mrp: 700, selling: 700, pricing: "Fixed", consumables: 1, online: true, flags: [], status: "Active", tags: ["Popular"], sac: "999316", gst: "18", created: "2025-07-02", lastPerformed: "2026-06-22" }
-  ],
-  vendors: [
-    { id: "VEN-001", name: "Pawsome Distribution Pvt Ltd", legalName: "Pawsome Distribution Private Limited", contact: "Rohit Sharma", phone: "98300 44210", type: "Distributor", supplyNature: "Product", supplyCategories: ["Food", "Healthcare"], gstStatus: "Registered", gstin: "19AAJCP1234F1Z7", paymentTerms: "30 Days", paymentStart: "Billing Date", status: "Active", location: "Kolkata", tags: ["Preferred", "Credit"], created: "2026-06-04", flags: [] },
-    { id: "VEN-003", name: "VetCare Pharma Supplies", legalName: "VetCare Pharma Supplies LLP", contact: "Dr. Arindam Basu", phone: "81001 66220", type: "Supplier", supplyNature: "Consumable", supplyCategories: ["Healthcare", "Medicines"], gstStatus: "Registered", gstin: "19AAVFV9900K1Z5", paymentTerms: "7 Days", paymentStart: "Billing Date", status: "Active", location: "Salt Lake", tags: ["Drug License"], created: "2025-12-12", flags: [] }
-  ]
+  customers: [],
+  products: [],
+  services: [],
+  vendors: []
 };
 
 const serializeRecord = (record, headers) => Object.fromEntries(headers.map(header => {

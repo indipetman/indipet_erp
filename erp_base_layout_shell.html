@@ -8025,16 +8025,7 @@
       };
 
       const customerPreviewDate = new Date("2026-06-19T00:00:00");
-      let customerRecords = [
-        { name: "Ananya Ghosh", code: "LG000155", phone: "98300 14210", classification: "B2C", tags: ["VIP", "In-store", "Grooming"], bills: 18, netSales: 48620, activePets: 2, totalPets: 2, progress: 96, status: "Active", location: "Lake Gardens", source: "Walk-in", joined: "2026-06-03", lastActivity: "2026-06-19", hasDefaultAddress: true },
-        { name: "Arjun Kennels", code: "RJ000064", phone: "98310 76218", classification: "B2B", tags: ["Breeder", "Wholesale", "Repeat"], bills: 31, netSales: 184500, activePets: 6, totalPets: 7, progress: 88, status: "Active", location: "Rajarhat", source: "Referral", joined: "2026-05-14", lastActivity: "2026-06-18", hasDefaultAddress: true },
-        { name: "Meera Roy", code: "NT000218", phone: "90070 33815", classification: "B2C", tags: ["Online", "VIP", "Delivery"], bills: 11, netSales: 32750, activePets: 1, totalPets: 1, progress: 82, status: "Active", location: "Newtown", source: "Website", joined: "2026-06-10", lastActivity: "2026-06-16", hasDefaultAddress: true },
-        { name: "Rahul Sen", code: "LG000091", phone: "98309 48122", classification: "B2C", tags: ["In-store"], bills: 3, netSales: 5600, activePets: 0, totalPets: 1, progress: 64, status: "Inactive", location: "Lake Gardens", source: "Walk-in", joined: "2026-04-20", lastActivity: "2026-02-12", hasDefaultAddress: false },
-        { name: "Happy Paws Breeding", code: "NT000044", phone: "81001 55209", classification: "B2B", tags: ["Breeder", "Service", "Repeat"], bills: 22, netSales: 132800, activePets: 5, totalPets: 6, progress: 100, status: "Active", location: "Newtown", source: "Partner", joined: "2026-06-01", lastActivity: "2026-06-19", hasDefaultAddress: true },
-        { name: "Tania Biswas", code: "RJ000129", phone: "62905 19428", classification: "B2C", tags: ["Online", "Wellness"], bills: 7, netSales: 19840, activePets: 1, totalPets: 1, progress: 75, status: "Active", location: "Rajarhat", source: "Instagram", joined: "2026-05-29", lastActivity: "2026-05-30", hasDefaultAddress: true },
-        { name: "Subham Dutta", code: "LG000227", phone: "98312 70964", classification: "B2C", tags: ["Service", "In-store"], bills: 1, netSales: 1800, activePets: 0, totalPets: 0, progress: 58, status: "Active", location: "Lake Gardens", source: "Walk-in", joined: "2026-06-15", lastActivity: "2026-06-17", hasDefaultAddress: false },
-        { name: "Priya Paul", code: "NT000173", phone: "90072 64031", classification: "B2C", tags: ["VIP", "Online", "Grooming", "Delivery"], bills: 24, netSales: 76000, activePets: 0, totalPets: 0, progress: 100, status: "Active", location: "Newtown", source: "Website", joined: "2026-03-08", lastActivity: "2026-06-08", hasDefaultAddress: true }
-      ];
+      let customerRecords = [];
 
       const productPreviewDate = new Date("2026-06-21T00:00:00");
       const productSubcategoryMap = {
@@ -8055,66 +8046,14 @@
         Volume: ["ml", "L"],
         Pack: ["pc", "tablet", "capsule"]
       };
-      const productTagMasterData = ["Prescription Diet", "Grain Free", "Premium", "Daily Care"];
-      let productRecords = [
-        { product: "Ocean Fish Adult Dry Food", brand: "Whiskas", sku: "WHI-OCF-70G", barcode: "8901003107012", variation: "Standard", stockUnit: "pc", packQty: 70, uom: "g", category: "Food", subcategory: "Dry Food", animals: ["Cat"], tags: ["Daily Care"], mrp: 65, selling: 62, online: true, flags: ["Duplicate"], status: "Active", structure: "Standard", attribute: "", hsn: "23091000", gst: "18", created: "2025-11-14", updated: "2026-06-18", lastSale: "2026-06-20" },
-        { product: "Maxi Adult Dry Food", brand: "Royal Canin", sku: "RC-MAX-4KG", barcode: "3182550402220", variation: "Standard", stockUnit: "bag", packQty: 4, uom: "kg", category: "Food", subcategory: "Dry Food", animals: ["Dog"], tags: ["Premium", "Daily Care"], mrp: 3250, selling: 3090, online: true, flags: [], status: "Active", structure: "Standard", attribute: "", hsn: "23091000", gst: "18", created: "2025-08-09", updated: "2026-05-30", lastSale: "2026-06-19" },
-        { product: "Pro Adult Dry Food", brand: "Pedigree", sku: "PED-PRO-3KG-CHK", barcode: "8906002483112", variation: "Weight: 3 kg · Flavour: Chicken", stockUnit: "bag", packQty: 3, uom: "kg", category: "Food", subcategory: "Dry Food", animals: ["Dog"], tags: ["Daily Care"], mrp: 980, selling: 925, online: true, flags: ["New"], status: "Active", structure: "Variable", attribute: "Weight, Flavour", hsn: "23091000", gst: "18", created: "2026-06-06", updated: "2026-06-20", lastSale: "2026-06-20" },
-        { product: "Pro Adult Dry Food", brand: "Pedigree", sku: "PED-PRO-10KG-CHK", barcode: "8906002483129", variation: "Weight: 10 kg · Flavour: Chicken", stockUnit: "bag", packQty: 10, uom: "kg", category: "Food", subcategory: "Dry Food", animals: ["Dog"], tags: ["Daily Care"], mrp: 2850, selling: 2699, online: true, flags: ["New"], status: "Active", structure: "Variable", attribute: "Weight, Flavour", hsn: "23091000", gst: "18", created: "2026-06-06", updated: "2026-06-20", lastSale: "2026-06-18" },
-        { product: "Braided Rope Toy", brand: "Indipet Select", sku: "IDP-ROPE-S-RED", barcode: "8907004101016", variation: "Size: Small · Colour: Red", stockUnit: "pc", packQty: 1, uom: "pc", category: "Accessories", subcategory: "Toys", animals: ["Dog"], tags: ["Daily Care"], mrp: 249, selling: 225, online: false, flags: [], status: "Active", structure: "Variable", attribute: "Size, Colour", hsn: "95030090", gst: "18", created: "2025-09-18", updated: "2026-03-14", lastSale: "2026-05-28" },
-        { product: "Braided Rope Toy", brand: "Indipet Select", sku: "IDP-ROPE-M-RED", barcode: "8907004101023", variation: "Size: Medium · Colour: Red", stockUnit: "pc", packQty: 1, uom: "pc", category: "Accessories", subcategory: "Toys", animals: ["Dog"], tags: ["Daily Care"], mrp: 299, selling: 275, online: false, flags: [], status: "Active", structure: "Variable", attribute: "Size, Colour", hsn: "95030090", gst: "18", created: "2025-09-18", updated: "2026-03-14", lastSale: "2026-05-21" },
-        { product: "Braided Rope Toy", brand: "Indipet Select", sku: "IDP-ROPE-M-BLU", barcode: "8907004101030", variation: "Size: Medium · Colour: Blue", stockUnit: "pc", packQty: 1, uom: "pc", category: "Accessories", subcategory: "Toys", animals: ["Dog"], tags: ["Daily Care"], mrp: 299, selling: 275, online: false, flags: [], status: "Inactive", structure: "Variable", attribute: "Size, Colour", hsn: "95030090", gst: "18", created: "2025-09-18", updated: "2025-12-20", lastSale: "2025-11-12" },
-        { product: "Calcium Support Tablets", brand: "Drools", subbrand: "Focus", sku: "DRO-CAL-30TAB", barcode: "", variation: "Standard", stockUnit: "bottle", packQty: 30, uom: "tablet", category: "Healthcare", subcategory: "Supplements", animals: ["Dog", "Cat"], tags: ["Daily Care"], mrp: 320, selling: 299, online: false, flags: ["Dormant"], status: "Active", structure: "Standard", attribute: "", hsn: "23099090", gst: "18", created: "2023-09-10", updated: "2024-08-12", lastSale: "2024-11-28" },
-        { product: "Ocean Fish Adult Dry Food", brand: "Whiskas", sku: "WHI-OCF-70G-B", barcode: "8901003107098", variation: "Standard", stockUnit: "pc", packQty: 70, uom: "g", category: "Food", subcategory: "Dry Food", animals: ["Cat"], tags: ["Daily Care"], mrp: 65, selling: 62, online: true, flags: ["Duplicate"], status: "Active", structure: "Standard", attribute: "", hsn: "23091000", gst: "18", created: "2026-05-28", updated: "2026-06-16", lastSale: "2026-06-19" }
-      ];
+      const productTagMasterData = [];
+      let productRecords = [];
 
-      const stockOverviewRecords = [
-        { sku: "WHI-OCF-70G", location: "Lake Gardens", opening: 140, stockIn: 60, stockOut: 108, current: 92, closing: 92, stockValue: 4232, expiringStockValue: 1860, expiryDays: 24, lastPurchaseDate: "2026-06-12", lastPurchaseQty: 60, lastSaleDate: "2026-06-20", lastSaleQty: 12, controlStatus: "Active", mismatch: false },
-        { sku: "RC-MAX-4KG", location: "Newtown", opening: 28, stockIn: 16, stockOut: 21, current: 23, closing: 23, stockValue: 60260, expiringStockValue: 0, expiryDays: null, lastPurchaseDate: "2026-06-08", lastPurchaseQty: 16, lastSaleDate: "2026-06-19", lastSaleQty: 2, controlStatus: "Active", mismatch: false },
-        { sku: "PED-PRO-3KG-CHK", location: "Rajarhat", opening: 18, stockIn: 24, stockOut: 29, current: 13, closing: 13, stockValue: 10530, expiringStockValue: 0, expiryDays: 66, lastPurchaseDate: "2026-06-10", lastPurchaseQty: 24, lastSaleDate: "2026-06-20", lastSaleQty: 3, controlStatus: "Active", mismatch: false },
-        { sku: "PED-PRO-10KG-CHK", location: "Lake Gardens", opening: 10, stockIn: 8, stockOut: 6, current: 12, closing: 12, stockValue: 28320, expiringStockValue: 14160, expiryDays: 29, lastPurchaseDate: "2026-06-14", lastPurchaseQty: 8, lastSaleDate: "2026-06-18", lastSaleQty: 1, controlStatus: "On Hold", mismatch: false },
-        { sku: "IDP-ROPE-S-RED", location: "Newtown", opening: 42, stockIn: 20, stockOut: 36, current: 26, closing: 26, stockValue: 3900, expiringStockValue: 0, expiryDays: null, lastPurchaseDate: "2026-06-04", lastPurchaseQty: 20, lastSaleDate: "2026-05-28", lastSaleQty: 4, controlStatus: "Active", mismatch: false },
-        { sku: "IDP-ROPE-M-RED", location: "Rajarhat", opening: 14, stockIn: 0, stockOut: 14, current: 0, closing: 0, stockValue: 0, expiringStockValue: 0, expiryDays: null, lastPurchaseDate: "2026-04-22", lastPurchaseQty: 30, lastSaleDate: "2026-05-21", lastSaleQty: 2, controlStatus: "Active", mismatch: false },
-        { sku: "IDP-ROPE-M-BLU", location: "Lake Gardens", opening: 7, stockIn: 0, stockOut: 2, current: 5, closing: 5, stockValue: 775, expiringStockValue: 0, expiryDays: null, lastPurchaseDate: "2025-12-04", lastPurchaseQty: 12, lastSaleDate: "2025-11-12", lastSaleQty: 1, controlStatus: "Inactive", mismatch: false },
-        { sku: "DRO-CAL-30TAB", location: "Newtown", opening: 31, stockIn: 0, stockOut: 0, current: 31, closing: 31, stockValue: 7440, expiringStockValue: 7440, expiryDays: 18, lastPurchaseDate: "2025-11-18", lastPurchaseQty: 40, lastSaleDate: "2024-11-28", lastSaleQty: 2, controlStatus: "On Hold", mismatch: false },
-        { sku: "WHI-OCF-70G-B", location: "Rajarhat", opening: 4, stockIn: 12, stockOut: 19, current: -3, closing: -3, stockValue: -138, expiringStockValue: 0, expiryDays: 44, lastPurchaseDate: "2026-06-05", lastPurchaseQty: 12, lastSaleDate: "2026-06-19", lastSaleQty: 6, controlStatus: "Active", mismatch: true }
-      ];
+      const stockOverviewRecords = [];
 
       const stockOverviewRowKey = stock => `${stock.sku}||${stock.location}`;
 
-      const stockOverviewBatchRecords = {
-        "WHI-OCF-70G||Lake Gardens": [
-          { batch: "WHI-0626-A", expiry: "2026-08-06", qty: 44, purchase: 45, landing: 53, mrp: 65, selling: 62, variation: "No", source: "Pawsome Distribution", status: "Active" },
-          { batch: "WHI-0526-B", expiry: "2026-07-19", qty: 48, purchase: 43, landing: 51, mrp: 65, selling: 62, variation: "No", source: "Opening Stock", status: "Active" }
-        ],
-        "RC-MAX-4KG||Newtown": [
-          { batch: "RC-0526-MAX", expiry: "2027-02-28", qty: 15, purchase: 2620, landing: 3092, mrp: 3250, selling: 3090, variation: "No", source: "Royal Pet Imports", status: "Active" },
-          { batch: "RC-0626-MAX", expiry: "2027-04-12", qty: 8, purchase: 2655, landing: 3133, mrp: 3250, selling: 3090, variation: "No", source: "Distributor Purchase", status: "Active" }
-        ],
-        "PED-PRO-3KG-CHK||Rajarhat": [
-          { batch: "PED-0626-3K-A", expiry: "2026-09-17", qty: 13, purchase: 780, landing: 920, mrp: 980, selling: 925, variation: "Yes", source: "Pawsome Distribution", status: "Active" }
-        ],
-        "PED-PRO-10KG-CHK||Lake Gardens": [
-          { batch: "PED-0526-10K-A", expiry: "2026-08-11", qty: 7, purchase: 2250, landing: 2655, mrp: 2850, selling: 2699, variation: "Yes", source: "Opening Stock", status: "Inactive" },
-          { batch: "PED-0626-10K-B", expiry: "2026-09-30", qty: 5, purchase: 2280, landing: 2690, mrp: 2850, selling: 2699, variation: "Yes", source: "Pawsome Distribution", status: "Inactive" }
-        ],
-        "IDP-ROPE-S-RED||Newtown": [
-          { batch: "Not tracked", expiry: "Not applicable", qty: 26, purchase: 145, landing: 171, mrp: 249, selling: 225, variation: "Yes", source: "Indipet Select", status: "Active" }
-        ],
-        "IDP-ROPE-M-RED||Rajarhat": [
-          { batch: "Not tracked", expiry: "Not applicable", qty: 0, purchase: 178, landing: 210, mrp: 299, selling: 275, variation: "Yes", source: "Opening Stock", status: "Inactive" }
-        ],
-        "IDP-ROPE-M-BLU||Lake Gardens": [
-          { batch: "Not tracked", expiry: "Not applicable", qty: 5, purchase: 178, landing: 210, mrp: 299, selling: 275, variation: "Yes", source: "Indipet Select", status: "Inactive" }
-        ],
-        "DRO-CAL-30TAB||Newtown": [
-          { batch: "DRO-1125-CAL", expiry: "2026-07-31", qty: 18, purchase: 218, landing: 257, mrp: 320, selling: 299, variation: "No", source: "VetCare Pharma Supplies", status: "Active" },
-          { batch: "DRO-1225-CAL", expiry: "2026-09-15", qty: 13, purchase: 225, landing: 266, mrp: 320, selling: 299, variation: "No", source: "Opening Stock", status: "Inactive" }
-        ],
-        "WHI-OCF-70G-B||Rajarhat": [
-          { batch: "WHI-0626-B", expiry: "2026-08-26", qty: -3, purchase: 45, landing: 53, mrp: 65, selling: 62, variation: "No", source: "Stock Adjustment", status: "Inactive" }
-        ]
-      };
+      const stockOverviewBatchRecords = {};
 
       let expandedStockOverviewRows = new Set();
 
@@ -8131,38 +8070,13 @@
         Training: ["Behaviour", "Obedience", "Puppy Training"],
         "Pet Care": ["Day Care", "Boarding", "Home Visit"]
       };
-      const serviceInventorySkuMaster = [
-        { sku: "GRO-SHP-OAT-5L", label: "Oatmeal Grooming Shampoo 5 L", uom: "ml" },
-        { sku: "GRO-CON-SMO-5L", label: "Smooth Coat Conditioner 5 L", uom: "ml" },
-        { sku: "GRO-SER-COAT-100", label: "Coat Finishing Serum 100 ml", uom: "ml" },
-        { sku: "VET-GLV-M-100", label: "Examination Gloves Medium 100 pc", uom: "pc" },
-        { sku: "VET-SYR-5ML", label: "Disposable Syringe 5 ml", uom: "pc" },
-        { sku: "OPS-PPR-80MM", label: "Thermal Paper Roll 80 mm", uom: "cm" }
-      ];
-      const serviceTagMasterData = ["Add-on", "Home Visit", "Popular", "Premium", "Preventive"];
-      let serviceRecords = [
-        { id: "SRV-GRM-001", name: "Full Grooming", category: "Grooming", subcategory: "Haircut & Styling", department: "Grooming", designations: ["Groomer", "Senior Groomer"], animals: ["Dog", "Cat"], appointment: true, duration: 90, mrp: 1800, selling: 1650, pricing: "Tiered", consumables: 4, online: true, flags: [], status: "Active", tags: ["Popular", "Premium"], sac: "999729", gst: "18", created: "2025-08-12", lastPerformed: "2026-06-21" },
-        { id: "SRV-GRM-002", name: "Bath & Blow Dry", category: "Grooming", subcategory: "Bath & Dry", department: "Grooming", designations: ["Groomer", "Senior Groomer"], animals: ["Dog", "Cat"], appointment: true, duration: 60, mrp: 1100, selling: 999, pricing: "Tiered", consumables: 3, online: true, flags: [], status: "Active", tags: ["Popular"], sac: "999729", gst: "18", created: "2026-06-03", lastPerformed: "2026-06-22" },
-        { id: "SRV-GRM-003", name: "Nail Clipping", category: "Grooming", subcategory: "Nail & Hygiene", department: "Grooming", designations: ["Groomer", "Senior Groomer", "Grooming Supervisor"], animals: ["Dog", "Cat", "Small Animal"], appointment: false, duration: 15, mrp: 250, selling: 225, pricing: "Fixed", consumables: 1, online: true, flags: ["Duplicate"], status: "Active", tags: ["Add-on"], sac: "999729", gst: "18", created: "2025-12-01", lastPerformed: "2026-06-20" },
-        { id: "SRV-GRM-009", name: "Nail Clipping Service", category: "Grooming", subcategory: "Nail & Hygiene", department: "Grooming", designations: ["Groomer", "Senior Groomer"], animals: ["Dog", "Cat"], appointment: false, duration: 15, mrp: 250, selling: 225, pricing: "Fixed", consumables: 0, online: false, flags: ["Duplicate"], status: "Active", tags: ["Add-on"], sac: "999729", gst: "18", created: "2026-05-18", lastPerformed: null },
-        { id: "SRV-VET-001", name: "General Veterinary Consultation", category: "Veterinary Care", subcategory: "Consultation", department: "Veterinary", designations: ["Veterinarian", "Veterinary Surgeon"], animals: ["Dog", "Cat", "Bird", "Small Animal"], appointment: true, duration: 30, mrp: 700, selling: 700, pricing: "Fixed", consumables: 1, online: true, flags: [], status: "Active", tags: ["Popular"], sac: "999316", gst: "18", created: "2025-07-02", lastPerformed: "2026-06-22" },
-        { id: "SRV-VET-004", name: "Annual Wellness Examination", category: "Veterinary Care", subcategory: "Preventive Care", department: "Veterinary", designations: ["Veterinarian"], animals: ["Dog", "Cat"], appointment: true, duration: 45, mrp: 1200, selling: 1099, pricing: "Tiered", consumables: 2, online: true, flags: ["New"], status: "Active", tags: ["Preventive"], sac: "999316", gst: "18", created: "2026-06-14", lastPerformed: "2026-06-18" },
-        { id: "SRV-TRN-001", name: "Basic Obedience Session", category: "Training", subcategory: "Obedience", department: "Training", designations: ["Pet Trainer", "Senior Pet Trainer"], animals: ["Dog"], appointment: true, duration: 60, mrp: 1500, selling: 1350, pricing: "Fixed", consumables: 0, online: true, flags: [], status: "Active", tags: ["Popular"], sac: "999293", gst: "18", created: "2025-09-09", lastPerformed: "2026-05-28" },
-        { id: "SRV-PET-003", name: "Half-Day Pet Care", category: "Pet Care", subcategory: "Day Care", department: "Store Operations", designations: ["Store Associate", "Store Supervisor"], animals: ["Dog", "Cat"], appointment: true, duration: 240, mrp: 900, selling: 850, pricing: "Tiered", consumables: 1, online: false, flags: ["Non-Performed"], status: "Active", tags: [], sac: "999799", gst: "18", created: "2024-01-11", lastPerformed: "2025-05-04" },
-        { id: "SRV-GRM-010", name: "Coat Detangling Add-on", category: "Grooming", subcategory: "Spa & Care", department: "Grooming", designations: ["Senior Groomer"], animals: ["Dog", "Cat"], appointment: false, duration: 20, mrp: 450, selling: 399, pricing: "Fixed", consumables: 2, online: false, flags: ["New"], status: "Inactive", tags: ["Add-on"], sac: "999729", gst: "18", created: "2026-06-19", lastPerformed: null }
-      ];
+      const serviceInventorySkuMaster = [];
+      const serviceTagMasterData = [];
+      let serviceRecords = [];
 
       const vendorPreviewDate = new Date("2026-06-23T00:00:00");
-      const vendorTagMasterData = ["Credit", "Drug License", "Import", "Local", "Preferred"];
-      let vendorRecords = [
-        { id: "VEN-001", name: "Pawsome Distribution Pvt Ltd", legalName: "Pawsome Distribution Private Limited", contact: "Rohit Sharma", phone: "98300 44210", type: "Distributor", supplyNature: "Product", supplyCategories: ["Food", "Healthcare"], gstStatus: "Registered", gstin: "19AAJCP1234F1Z7", paymentTerms: "30 Days", paymentStart: "Billing Date", status: "Active", location: "Kolkata", tags: ["Preferred", "Credit"], created: "2026-06-04", flags: [] },
-        { id: "VEN-002", name: "EcoPet Packaging", legalName: "EcoPet Packaging", contact: "Megha Rao", phone: "90070 77890", type: "Operational Vendor", supplyNature: "Operational", supplyCategories: ["Packaging", "Paper Roll"], gstStatus: "Registered", gstin: "19BBKPE4321H1Z2", paymentTerms: "15 Days", paymentStart: "Shipping / Delivery Date", status: "Active", location: "Howrah", tags: ["Local"], created: "2026-05-16", flags: [] },
-        { id: "VEN-003", name: "VetCare Pharma Supplies", legalName: "VetCare Pharma Supplies LLP", contact: "Dr. Arindam Basu", phone: "81001 66220", type: "Supplier", supplyNature: "Consumable", supplyCategories: ["Healthcare", "Medicines"], gstStatus: "Registered", gstin: "19AAVFV9900K1Z5", paymentTerms: "7 Days", paymentStart: "Billing Date", status: "Active", location: "Salt Lake", tags: ["Drug License"], created: "2025-12-12", flags: [] },
-        { id: "VEN-004", name: "Happy Groom Essentials", legalName: "Happy Groom Essentials", contact: "Nandini Sen", phone: "62905 11928", type: "Supplier", supplyNature: "Consumable", supplyCategories: ["Grooming", "Consumables"], gstStatus: "Registered", gstin: "19ACBPG7812M1Z1", paymentTerms: "Immediate", paymentStart: "Billing Date", status: "Active", location: "Lake Gardens", tags: ["Local", "Preferred"], created: "2026-06-18", flags: ["New"] },
-        { id: "VEN-005", name: "Royal Pet Imports", legalName: "Royal Pet Imports Pvt Ltd", contact: "Siddharth Jain", phone: "98312 65431", type: "Importer", supplyNature: "Product", supplyCategories: ["Food", "Accessories"], gstStatus: "Registered", gstin: "19AARCR2345L1Z9", paymentTerms: "30 Days", paymentStart: "Shipping / Delivery Date", status: "Inactive", location: "Mumbai", tags: ["Import"], created: "2025-08-20", flags: ["Hold"] },
-        { id: "VEN-006", name: "Pawsome Distributors", legalName: "Pawsome Distributors", contact: "R. Sharma", phone: "98300 44211", type: "Distributor", supplyNature: "Product", supplyCategories: ["Food"], gstStatus: "Registered", gstin: "19AAJCP1234F1Z8", paymentTerms: "30 Days", paymentStart: "Billing Date", status: "Inactive", location: "Kolkata", tags: ["Credit"], created: "2026-06-20", flags: ["Duplicate"] },
-        { id: "VEN-007", name: "City Cleaning Supply Co.", legalName: "City Cleaning Supply Co.", contact: "Anil Dey", phone: "98309 11876", type: "Operational Vendor", supplyNature: "Operational", supplyCategories: ["Cleaning Supply"], gstStatus: "Unregistered", gstin: "", paymentTerms: "Immediate", paymentStart: "Billing Date", status: "Active", location: "Kolkata", tags: ["Local"], created: "2024-11-11", flags: [] }
-      ];
+      const vendorTagMasterData = [];
+      let vendorRecords = [];
 
       const erpMockDb = {
         baseUrl: location.protocol.startsWith("http") ? `${location.origin}/api/mock-db` : "http://localhost:4317/api/mock-db",
@@ -9448,57 +9362,18 @@
       };
 
       const masterHubData = {
-        category: [
-          { id: "CAT-001", name: "Food", inventoryType: "Product", code: "CAT-FOD", description: "Food and edible product classifications.", status: "Active" },
-          { id: "CAT-002", name: "Accessories", inventoryType: "Product", code: "CAT-ACC", description: "Pet accessories and supplies.", status: "Active" },
-          { id: "CAT-003", name: "Veterinary Care", inventoryType: "Service", code: "CAT-VET", description: "Veterinary service classifications.", status: "Active" },
-          { id: "CAT-004", name: "Grooming", inventoryType: "Service", code: "CAT-GRM", description: "Grooming service classifications.", status: "Active" }
-        ],
-        subcategory: [
-          { id: "SUB-001", name: "Dry Food", parentCategory: "Food", inventoryType: "Product", code: "SUB-DRY", batchTracking: "Yes", expiryTracking: "Yes", description: "Dry food products.", status: "Active" },
-          { id: "SUB-002", name: "Toys", parentCategory: "Accessories", inventoryType: "Product", code: "SUB-TOY", batchTracking: "No", expiryTracking: "No", description: "Play and enrichment products.", status: "Active" },
-          { id: "SUB-003", name: "Consultation", parentCategory: "Veterinary Care", inventoryType: "Service", code: "SUB-CON", batchTracking: "No", expiryTracking: "No", description: "Veterinary consultation services.", status: "Active" },
-          { id: "SUB-004", name: "Bath & Dry", parentCategory: "Grooming", inventoryType: "Service", code: "SUB-BTH", batchTracking: "Yes", expiryTracking: "Yes", description: "Bathing and coat-drying services.", status: "Active" }
-        ],
-        brand: [
-          { id: "BRD-001", name: "Royal Canin", code: "BRD-RC", country: "France", description: "Product Brand Master record.", status: "Active" },
-          { id: "BRD-002", name: "Drools", code: "BRD-DRL", country: "India", description: "Product Brand Master record.", status: "Active" },
-          { id: "BRD-003", name: "Pedigree", code: "BRD-PED", country: "United States", description: "Product Brand Master record.", status: "Active" },
-          { id: "BRD-004", name: "Indipet Select", code: "BRD-IDP", country: "India", description: "Indipet product Brand record.", status: "Active" }
-        ],
-        subbrand: [
-          { id: "SBR-001", name: "Purepet", parentBrand: "Drools", code: "SBR-PUR", description: "Drools Sub-brand record.", status: "Active" },
-          { id: "SBR-002", name: "Focus", parentBrand: "Drools", code: "SBR-FOC", description: "Drools Sub-brand record.", status: "Active" },
-          { id: "SBR-003", name: "Canine Creek", parentBrand: "Drools", code: "SBR-CCR", description: "Drools Sub-brand record.", status: "Active" }
-        ],
-        operationalSupplyType: [
-          { id: "OST-001", name: "Paper Roll", code: "OST-PPR", description: "Operational consumable used for billing and store operations.", status: "Active" },
-          { id: "OST-002", name: "Bags", code: "OST-BAG", description: "Carry bags and packing bags used in operations.", status: "Active" },
-          { id: "OST-003", name: "Cleaning Supply", code: "OST-CLN", description: "Cleaning and housekeeping operational supplies.", status: "Active" },
-          { id: "OST-004", name: "Packaging", code: "OST-PKG", description: "Packaging material used by store or service teams.", status: "Active" }
-        ],
-        unit: [
-          { id: "UNT-001", name: "Gram", symbol: "g", purpose: "Measurement", unitGroup: "Weight", relatedUnit: "", conversionFactor: "", description: "Base measurement unit for weight.", status: "Active" },
-          { id: "UNT-002", name: "Kilogram", symbol: "kg", purpose: "Measurement", unitGroup: "Weight", relatedUnit: "Gram", conversionFactor: "1000", description: "1 kg equals 1000 g.", status: "Active" },
-          { id: "UNT-003", name: "Millilitre", symbol: "ml", purpose: "Measurement", unitGroup: "Volume", relatedUnit: "", conversionFactor: "", description: "Base measurement unit for volume.", status: "Active" },
-          { id: "UNT-004", name: "Litre", symbol: "L", purpose: "Measurement", unitGroup: "Volume", relatedUnit: "Millilitre", conversionFactor: "1000", description: "1 L equals 1000 ml.", status: "Active" },
-          { id: "UNT-005", name: "Piece", symbol: "pc", purpose: "Both", unitGroup: "Count", relatedUnit: "", conversionFactor: "", description: "Main count unit for stock, accounts and display when an item is sold as one piece.", status: "Active" },
-          { id: "UNT-006", name: "Box", symbol: "box", purpose: "Stock", unitGroup: "Count", relatedUnit: "", conversionFactor: "", description: "Stock unit; item-specific conversion can be handled later.", status: "Active" },
-          { id: "UNT-007", name: "Bag", symbol: "bag", purpose: "Stock", unitGroup: "Count", relatedUnit: "", conversionFactor: "", description: "Stock unit for packed food items.", status: "Active" },
-          { id: "UNT-008", name: "Bottle", symbol: "bottle", purpose: "Stock", unitGroup: "Count", relatedUnit: "", conversionFactor: "", description: "Stock unit for bottled items.", status: "Active" },
-          { id: "UNT-009", name: "Roll", symbol: "roll", purpose: "Stock", unitGroup: "Count", relatedUnit: "", conversionFactor: "", description: "Stock unit for paper rolls and similar supplies.", status: "Active" }
-        ],
-        productTag: productTagMasterData.map((name, index) => ({ id: `PTG-${String(index + 1).padStart(3, "0")}`, name, description: "Product classification tag.", status: "Active" })),
-        serviceTag: serviceTagMasterData.map((name, index) => ({ id: `STG-${String(index + 1).padStart(3, "0")}`, name, description: "Service classification tag.", status: "Active" })),
-        pet: [
-          { id: "PETM-001", recordType: "Animal", name: "Dog", parentAnimal: "", code: "ANM-DOG", description: "Universal Animal Master record.", status: "Active" },
-          { id: "PETM-002", recordType: "Animal", name: "Cat", parentAnimal: "", code: "ANM-CAT", description: "Universal Animal Master record.", status: "Active" },
-          { id: "PETM-003", recordType: "Breed", name: "Labrador", parentAnimal: "Dog", code: "BRD-LAB", description: "Dog breed record.", status: "Active" },
-          { id: "PETM-004", recordType: "Breed", name: "Persian", parentAnimal: "Cat", code: "BRD-PER", description: "Cat breed record.", status: "Active" }
-        ]
+        category: [],
+        subcategory: [],
+        brand: [],
+        subbrand: [],
+        operationalSupplyType: [],
+        unit: [],
+        productTag: [],
+        serviceTag: [],
+        pet: []
       };
 
-      const masterHubStorageKey = "indipet.erp.masterHubData.v1";
+      const masterHubStorageKey = "indipet.erp.masterHubData.v2";
 
       const loadMasterHubData = () => {
         try {
