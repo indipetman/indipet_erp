@@ -7980,7 +7980,7 @@
       };
 
       const customerPreviewDate = new Date("2026-06-19T00:00:00");
-      const customerRecords = [
+      let customerRecords = [
         { name: "Ananya Ghosh", code: "LG000155", phone: "98300 14210", classification: "B2C", tags: ["VIP", "In-store", "Grooming"], bills: 18, netSales: 48620, activePets: 2, totalPets: 2, progress: 96, status: "Active", location: "Lake Gardens", source: "Walk-in", joined: "2026-06-03", lastActivity: "2026-06-19", hasDefaultAddress: true },
         { name: "Arjun Kennels", code: "RJ000064", phone: "98310 76218", classification: "B2B", tags: ["Breeder", "Wholesale", "Repeat"], bills: 31, netSales: 184500, activePets: 6, totalPets: 7, progress: 88, status: "Active", location: "Rajarhat", source: "Referral", joined: "2026-05-14", lastActivity: "2026-06-18", hasDefaultAddress: true },
         { name: "Meera Roy", code: "NT000218", phone: "90070 33815", classification: "B2C", tags: ["Online", "VIP", "Delivery"], bills: 11, netSales: 32750, activePets: 1, totalPets: 1, progress: 82, status: "Active", location: "Newtown", source: "Website", joined: "2026-06-10", lastActivity: "2026-06-16", hasDefaultAddress: true },
@@ -8011,7 +8011,7 @@
         Pack: ["pc", "tablet", "capsule"]
       };
       const productTagMasterData = ["Prescription Diet", "Grain Free", "Premium", "Daily Care"];
-      const productRecords = [
+      let productRecords = [
         { product: "Ocean Fish Adult Dry Food", brand: "Whiskas", sku: "WHI-OCF-70G", barcode: "8901003107012", variation: "Standard", stockUnit: "pc", packQty: 70, uom: "g", category: "Food", subcategory: "Dry Food", animals: ["Cat"], tags: ["Daily Care"], mrp: 65, selling: 62, online: true, flags: ["Duplicate"], status: "Active", structure: "Standard", attribute: "", hsn: "23091000", gst: "18", created: "2025-11-14", updated: "2026-06-18", lastSale: "2026-06-20" },
         { product: "Maxi Adult Dry Food", brand: "Royal Canin", sku: "RC-MAX-4KG", barcode: "3182550402220", variation: "Standard", stockUnit: "bag", packQty: 4, uom: "kg", category: "Food", subcategory: "Dry Food", animals: ["Dog"], tags: ["Premium", "Daily Care"], mrp: 3250, selling: 3090, online: true, flags: [], status: "Active", structure: "Standard", attribute: "", hsn: "23091000", gst: "18", created: "2025-08-09", updated: "2026-05-30", lastSale: "2026-06-19" },
         { product: "Pro Adult Dry Food", brand: "Pedigree", sku: "PED-PRO-3KG-CHK", barcode: "8906002483112", variation: "Weight: 3 kg · Flavour: Chicken", stockUnit: "bag", packQty: 3, uom: "kg", category: "Food", subcategory: "Dry Food", animals: ["Dog"], tags: ["Daily Care"], mrp: 980, selling: 925, online: true, flags: ["New"], status: "Active", structure: "Variable", attribute: "Weight, Flavour", hsn: "23091000", gst: "18", created: "2026-06-06", updated: "2026-06-20", lastSale: "2026-06-20" },
@@ -8095,7 +8095,7 @@
         { sku: "OPS-PPR-80MM", label: "Thermal Paper Roll 80 mm", uom: "cm" }
       ];
       const serviceTagMasterData = ["Add-on", "Home Visit", "Popular", "Premium", "Preventive"];
-      const serviceRecords = [
+      let serviceRecords = [
         { id: "SRV-GRM-001", name: "Full Grooming", category: "Grooming", subcategory: "Haircut & Styling", department: "Grooming", designations: ["Groomer", "Senior Groomer"], animals: ["Dog", "Cat"], appointment: true, duration: 90, mrp: 1800, selling: 1650, pricing: "Tiered", consumables: 4, online: true, flags: [], status: "Active", tags: ["Popular", "Premium"], sac: "999729", gst: "18", created: "2025-08-12", lastPerformed: "2026-06-21" },
         { id: "SRV-GRM-002", name: "Bath & Blow Dry", category: "Grooming", subcategory: "Bath & Dry", department: "Grooming", designations: ["Groomer", "Senior Groomer"], animals: ["Dog", "Cat"], appointment: true, duration: 60, mrp: 1100, selling: 999, pricing: "Tiered", consumables: 3, online: true, flags: [], status: "Active", tags: ["Popular"], sac: "999729", gst: "18", created: "2026-06-03", lastPerformed: "2026-06-22" },
         { id: "SRV-GRM-003", name: "Nail Clipping", category: "Grooming", subcategory: "Nail & Hygiene", department: "Grooming", designations: ["Groomer", "Senior Groomer", "Grooming Supervisor"], animals: ["Dog", "Cat", "Small Animal"], appointment: false, duration: 15, mrp: 250, selling: 225, pricing: "Fixed", consumables: 1, online: true, flags: ["Duplicate"], status: "Active", tags: ["Add-on"], sac: "999729", gst: "18", created: "2025-12-01", lastPerformed: "2026-06-20" },
@@ -8109,7 +8109,7 @@
 
       const vendorPreviewDate = new Date("2026-06-23T00:00:00");
       const vendorTagMasterData = ["Credit", "Drug License", "Import", "Local", "Preferred"];
-      const vendorRecords = [
+      let vendorRecords = [
         { id: "VEN-001", name: "Pawsome Distribution Pvt Ltd", legalName: "Pawsome Distribution Private Limited", contact: "Rohit Sharma", phone: "98300 44210", type: "Distributor", supplyNature: "Product", supplyCategories: ["Food", "Healthcare"], gstStatus: "Registered", gstin: "19AAJCP1234F1Z7", paymentTerms: "30 Days", paymentStart: "Billing Date", status: "Active", location: "Kolkata", tags: ["Preferred", "Credit"], created: "2026-06-04", flags: [] },
         { id: "VEN-002", name: "EcoPet Packaging", legalName: "EcoPet Packaging", contact: "Megha Rao", phone: "90070 77890", type: "Operational Vendor", supplyNature: "Operational", supplyCategories: ["Packaging", "Paper Roll"], gstStatus: "Registered", gstin: "19BBKPE4321H1Z2", paymentTerms: "15 Days", paymentStart: "Shipping / Delivery Date", status: "Active", location: "Howrah", tags: ["Local"], created: "2026-05-16", flags: [] },
         { id: "VEN-003", name: "VetCare Pharma Supplies", legalName: "VetCare Pharma Supplies LLP", contact: "Dr. Arindam Basu", phone: "81001 66220", type: "Supplier", supplyNature: "Consumable", supplyCategories: ["Healthcare", "Medicines"], gstStatus: "Registered", gstin: "19AAVFV9900K1Z5", paymentTerms: "7 Days", paymentStart: "Billing Date", status: "Active", location: "Salt Lake", tags: ["Drug License"], created: "2025-12-12", flags: [] },
@@ -8118,6 +8118,235 @@
         { id: "VEN-006", name: "Pawsome Distributors", legalName: "Pawsome Distributors", contact: "R. Sharma", phone: "98300 44211", type: "Distributor", supplyNature: "Product", supplyCategories: ["Food"], gstStatus: "Registered", gstin: "19AAJCP1234F1Z8", paymentTerms: "30 Days", paymentStart: "Billing Date", status: "Inactive", location: "Kolkata", tags: ["Credit"], created: "2026-06-20", flags: ["Duplicate"] },
         { id: "VEN-007", name: "City Cleaning Supply Co.", legalName: "City Cleaning Supply Co.", contact: "Anil Dey", phone: "98309 11876", type: "Operational Vendor", supplyNature: "Operational", supplyCategories: ["Cleaning Supply"], gstStatus: "Unregistered", gstin: "", paymentTerms: "Immediate", paymentStart: "Billing Date", status: "Active", location: "Kolkata", tags: ["Local"], created: "2024-11-11", flags: [] }
       ];
+
+      const erpMockDb = {
+        baseUrl: location.protocol.startsWith("http") ? `${location.origin}/api/mock-db` : "http://localhost:4317/api/mock-db",
+        connected: false,
+        lastError: ""
+      };
+
+      const currentIsoDate = () => new Date().toISOString().slice(0, 10);
+      const asNumber = value => {
+        const number = Number(String(value || "").replace(/,/g, ""));
+        return Number.isFinite(number) ? number : 0;
+      };
+      const checkedValues = selector => [...document.querySelectorAll(`${selector}:checked`)].map(input => input.value);
+      const upsertRecord = (records, key, record) => {
+        const index = records.findIndex(item => item[key] === record[key]);
+        if (index >= 0) records.splice(index, 1, { ...records[index], ...record });
+        else records.unshift(record);
+      };
+      const nextMasterId = (prefix, records, key) => {
+        const max = records.reduce((value, record) => {
+          const match = String(record[key] || "").match(/(\d+)$/);
+          return match ? Math.max(value, Number(match[1])) : value;
+        }, 0);
+        return `${prefix}-${String(max + 1).padStart(3, "0")}`;
+      };
+
+      const loadErpMockDb = async () => {
+        try {
+          const response = await fetch(erpMockDb.baseUrl);
+          if (!response.ok) throw new Error(`Mock DB returned ${response.status}`);
+          const data = await response.json();
+          if (Array.isArray(data.customers)) customerRecords = data.customers;
+          if (Array.isArray(data.products)) productRecords = data.products;
+          if (Array.isArray(data.services)) serviceRecords = data.services;
+          if (Array.isArray(data.vendors)) vendorRecords = data.vendors;
+          erpMockDb.connected = true;
+          erpMockDb.lastError = "";
+        } catch (error) {
+          erpMockDb.connected = false;
+          erpMockDb.lastError = error.message;
+          console.warn("Excel mock database not connected. Using in-page preview data.", error);
+        }
+      };
+
+      const saveErpMockTable = async (tableName, records) => {
+        if (!erpMockDb.connected) return false;
+        try {
+          const response = await fetch(`${erpMockDb.baseUrl}/${tableName}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(records)
+          });
+          if (!response.ok) throw new Error(`Save failed with ${response.status}`);
+          return true;
+        } catch (error) {
+          erpMockDb.lastError = error.message;
+          console.warn(`Could not save ${tableName} to Excel mock database.`, error);
+          return false;
+        }
+      };
+
+      const renderCustomerLayer = () => {
+        renderCustomerSummary();
+        renderCustomerFilterOptions();
+        updateCustomerTagFilterSummary();
+        renderCustomerColumnOrganizer();
+        renderCustomerTable();
+      };
+
+      const renderProductLayer = () => {
+        renderProductSummary();
+        renderProductFilterOptions();
+        updateProductAnimalFilterSummary();
+        renderProductColumnOrganizer();
+        renderProductTable();
+        renderStockOverview();
+      };
+
+      const renderServiceLayer = () => {
+        renderServiceSummary();
+        renderServiceFilters();
+        renderServiceColumnOrganizer();
+        renderServiceTable();
+      };
+
+      const renderVendorLayer = () => {
+        renderVendorSummary();
+        renderVendorFilterOptions();
+        renderVendorColumnOrganizer();
+        renderVendorTable();
+      };
+
+      const customerRecordFromForm = () => {
+        const existing = activeCustomerRecordCode ? customerRecordByCode(activeCustomerRecordCode) : null;
+        const firstName = customerForm.querySelector('[data-customer-form-field="first_name"]').value.trim();
+        const lastName = customerForm.querySelector('[data-customer-form-field="last_name"]').value.trim();
+        const relationship = customerForm.querySelector('[name="customer_relationship"]:checked')?.value || "Regular Customer";
+        const addressCount = customerAddressList.querySelectorAll(".customer-repeater-card").length;
+        const petCount = customerPetList.querySelectorAll(".customer-repeater-card").length;
+        return {
+          ...(existing || {}),
+          code: existing?.code || nextMasterId("CUST", customerRecords, "code"),
+          name: `${firstName} ${lastName}`.trim() || existing?.name || "New Customer",
+          phone: customerForm.querySelector('[data-customer-form-field="phone"]').value.trim(),
+          classification: relationship === "Regular Customer" ? "B2C" : "B2B",
+          tags: relationship === "Regular Customer" ? ["Retail"] : ["Business"],
+          bills: existing?.bills || 0,
+          netSales: existing?.netSales || 0,
+          activePets: petCount,
+          totalPets: petCount,
+          progress: Number(String(customerReadinessValue.textContent || "0").replace(/\D/g, "")) || existing?.progress || 0,
+          status: customerForm.querySelector('[data-customer-form-field="status"]').value,
+          location: existing?.location || "Lake Gardens",
+          source: customerForm.querySelector('[data-customer-form-field="source"]').value,
+          joined: existing?.joined || currentIsoDate(),
+          lastActivity: currentIsoDate(),
+          hasDefaultAddress: addressCount > 0 && !!customerAddressList.querySelector("[data-default-address]:checked")
+        };
+      };
+
+      const productRecordsFromForm = () => {
+        const existing = activeProductRecordSku ? productRecordBySku(activeProductRecordSku) : null;
+        const today = currentIsoDate();
+        const base = {
+          ...(existing || {}),
+          product: productNameInput.value.trim() || existing?.product || "New Product",
+          brand: productBrandInput.value,
+          subbrand: productSubbrandInput.value,
+          category: productCategoryInput.value,
+          subcategory: productSubcategoryInput.value,
+          animals: checkedValues("[data-product-animal]"),
+          tags: selectedProductFormTags(),
+          online: productOnlineToggle.value === "Yes",
+          status: productParentStatus.value,
+          hsn: productHsnInput.value.trim(),
+          gst: productGstInput.value,
+          updated: today,
+          created: existing?.created || today,
+          lastSale: existing?.lastSale || ""
+        };
+        if (productStructureValue() !== "Variable") {
+          return [{
+            ...base,
+            sku: existing?.sku || (standardSkuPreview.value.includes("Generated") ? productSkuPrefix() : standardSkuPreview.value),
+            barcode: standardBarcode.value.trim(),
+            variation: "Standard",
+            stockUnit: standardStockUnit.value,
+            packQty: asNumber(standardPackQty.value),
+            uom: standardUom.value,
+            mrp: asNumber(standardMrp.value),
+            selling: asNumber(standardSelling.value),
+            flags: existing?.flags || [],
+            structure: "Standard",
+            attribute: ""
+          }];
+        }
+        const attributes = productAttributeDefinitions().map(item => item.name).filter(Boolean).join(", ");
+        return [...productSkuList.querySelectorAll("[data-product-sku-card]")].map(card => ({
+          ...base,
+          sku: card.querySelector(".customer-form-field input[readonly]")?.value || productSkuPrefix(),
+          barcode: card.querySelector('.customer-form-field.span-2 input:not([readonly])')?.value?.trim() || "",
+          variation: card.querySelector(".product-sku-head strong")?.textContent || "Variable",
+          stockUnit: card.querySelector("[data-variant-stock-unit]")?.value || "",
+          packQty: asNumber(card.querySelector("[data-variant-pack]")?.value),
+          uom: card.querySelector("[data-variant-uom]")?.value || "",
+          mrp: asNumber(card.querySelector("[data-variant-mrp]")?.value),
+          selling: asNumber(card.querySelector("[data-variant-selling]")?.value),
+          flags: existing?.flags || ["New"],
+          structure: "Variable",
+          attribute: attributes
+        }));
+      };
+
+      const serviceRecordFromForm = () => {
+        const existing = activeServiceRecordId ? serviceRecordById(activeServiceRecordId) : null;
+        return {
+          ...(existing || {}),
+          id: existing?.id || nextMasterId("SRV", serviceRecords, "id"),
+          name: serviceNameInput.value.trim() || existing?.name || "New Service",
+          category: serviceCategoryInput.value,
+          subcategory: serviceSubcategoryInput.value,
+          department: serviceDepartmentInput.value,
+          designations: [...selectedServiceDesignations],
+          animals: checkedValues("[data-service-animal]"),
+          appointment: serviceAppointmentInput.value === "Yes",
+          duration: asNumber(serviceDurationInput.value),
+          mrp: asNumber(serviceMrpInput.value),
+          selling: asNumber(serviceSellingInput.value),
+          pricing: servicePricingStructure(),
+          consumables: serviceConsumableList.querySelectorAll("[data-service-consumable-card]").length,
+          online: serviceOnlineInput.value === "Yes",
+          flags: existing?.flags || [],
+          status: serviceStatusInput.value,
+          tags: [...selectedServiceTags],
+          sac: serviceSacInput.value.trim(),
+          gst: serviceGstInput.value,
+          created: existing?.created || currentIsoDate(),
+          lastPerformed: existing?.lastPerformed || ""
+        };
+      };
+
+      const vendorRecordFromForm = () => {
+        const existing = activeVendorRecordId ? vendorRecordById(activeVendorRecordId) : null;
+        const supplyCategories = [
+          ...selectedVendorSupplyMappings.productCategories,
+          ...selectedVendorSupplyMappings.serviceCategories,
+          ...selectedVendorSupplyMappings.operationalTypes
+        ];
+        return {
+          ...(existing || {}),
+          id: existing?.id || nextMasterId("VEN", vendorRecords, "id"),
+          name: vendorNameInput.value.trim() || existing?.name || "New Vendor",
+          legalName: vendorLegalNameInput.value.trim(),
+          contact: vendorContactInput.value.trim(),
+          phone: vendorPrimaryPhone.value.trim(),
+          type: vendorTypeInput.value,
+          supplyNature: vendorSupplyNatureInput.value,
+          supplyCategories,
+          gstStatus: vendorGstApplicable.value === "Yes" ? "Registered" : "Unregistered",
+          gstin: vendorGstinInput.value.trim(),
+          paymentTerms: vendorPaymentTerms.value,
+          paymentStart: vendorPaymentStartInput.value,
+          status: vendorStatusInput.value,
+          location: existing?.location || "Kolkata",
+          tags: [...selectedVendorTags],
+          created: existing?.created || currentIsoDate(),
+          flags: existing?.flags || []
+        };
+      };
 
       const formatIndianCurrency = value => new Intl.NumberFormat("en-IN", {
         style: "currency",
@@ -13700,7 +13929,7 @@
           }
         }
       });
-      serviceForm.addEventListener("submit", event => {
+      serviceForm.addEventListener("submit", async event => {
         event.preventDefault();
         clearServiceFormMessage();
         for (let sectionIndex = 0; sectionIndex < 5; sectionIndex += 1) {
@@ -13710,7 +13939,11 @@
           return;
         }
         setServiceStep(5);
-        showServiceFormMessage("Service validation is complete. No data was saved because Service Master and connected Master services are not yet connected.", [], true);
+        const record = serviceRecordFromForm();
+        upsertRecord(serviceRecords, "id", record);
+        renderServiceLayer();
+        const saved = await saveErpMockTable("services", serviceRecords);
+        showServiceFormMessage(`Service ${serviceFormMode === "edit" ? "updated" : "created"} locally${saved ? " and saved to Excel" : "; Excel server is offline, so only this browser session changed"}.`, [], true);
       });
 
       openVendorFormButton.addEventListener("click", showVendorForm);
@@ -13849,7 +14082,7 @@
         if (!event.target.closest("[data-vendor-document-placeholder]")) return;
         showVendorFormMessage("Document upload is UI-ready. Secure file storage is not connected in this prototype.", [], true);
       });
-      vendorForm.addEventListener("submit", event => {
+      vendorForm.addEventListener("submit", async event => {
         event.preventDefault();
         clearVendorFormMessage();
         for (let sectionIndex = 0; sectionIndex < 4; sectionIndex += 1) {
@@ -13857,7 +14090,11 @@
           if (!validateVendorStep(sectionIndex)) return;
         }
         setVendorStep(4);
-        showVendorFormMessage("Vendor validation is complete. No data was saved because Vendor Master services are not connected.", [], true);
+        const record = vendorRecordFromForm();
+        upsertRecord(vendorRecords, "id", record);
+        renderVendorLayer();
+        const saved = await saveErpMockTable("vendors", vendorRecords);
+        showVendorFormMessage(`Vendor ${vendorFormMode === "edit" ? "updated" : "created"} locally${saved ? " and saved to Excel" : "; Excel server is offline, so only this browser session changed"}.`, [], true);
       });
 
       customerAdvancedFilterButton.addEventListener("click", () => {
@@ -15326,7 +15563,7 @@
       document.addEventListener("mousemove", updateProductRichImageResize);
       document.addEventListener("mouseup", stopProductRichImageResize);
 
-      productForm.addEventListener("submit", event => {
+      productForm.addEventListener("submit", async event => {
         event.preventDefault();
         clearProductFormMessage();
         for (let sectionIndex = 0; sectionIndex < 4; sectionIndex += 1) {
@@ -15336,7 +15573,11 @@
           return;
         }
         setProductStep(4);
-        showProductFormMessage(`${productFormMode === "edit" ? "Product update" : "Product validation"} is complete. No data was saved because Product Master services are not connected.`, [], true);
+        const records = productRecordsFromForm();
+        records.forEach(record => upsertRecord(productRecords, "sku", record));
+        renderProductLayer();
+        const saved = await saveErpMockTable("products", productRecords);
+        showProductFormMessage(`${records.length} product SKU${records.length === 1 ? "" : "s"} ${productFormMode === "edit" ? "updated" : "created"} locally${saved ? " and saved to Excel" : "; Excel server is offline, so only this browser session changed"}.`, [], true);
       });
 
       whatsappSameAsPhone.addEventListener("change", () => {
@@ -15398,7 +15639,7 @@
         updateCustomerReadiness();
       });
 
-      customerForm.addEventListener("submit", event => {
+      customerForm.addEventListener("submit", async event => {
         event.preventDefault();
         clearCustomerFormMessage();
         for (let sectionIndex = 0; sectionIndex < 4; sectionIndex += 1) {
@@ -15408,43 +15649,37 @@
           return;
         }
         setCustomerStep(4);
-        showCustomerFormMessage(`${customerFormMode === "edit" ? "Customer update" : "Customer form"} validation is complete. No data was saved because backend integration is not connected.`, [], true);
+        const record = customerRecordFromForm();
+        upsertRecord(customerRecords, "code", record);
+        renderCustomerLayer();
+        const saved = await saveErpMockTable("customers", customerRecords);
+        showCustomerFormMessage(`Customer ${customerFormMode === "edit" ? "updated" : "created"} locally${saved ? " and saved to Excel" : "; Excel server is offline, so only this browser session changed"}.`, [], true);
       });
 
-      pinnableTables.forEach(initializePinnableTable);
-      renderCustomerSummary();
-      renderCustomerFilterOptions();
-      updateCustomerTagFilterSummary();
-      renderCustomerColumnOrganizer();
-      renderCustomerTable();
-      renderProductSummary();
-      renderProductFilterOptions();
-      updateProductAnimalFilterSummary();
-      renderProductColumnOrganizer();
-      renderProductTable();
-      renderStockOverview();
-      updateProductSubcategoryInput();
-      updateProductSubbrandInput();
-      updateProductStructurePanels();
-      updateProductOnlinePanel();
-      renderServiceSummary();
-      renderServiceFilters();
-      renderServiceColumnOrganizer();
-      renderServiceTable();
-      updateServiceSubcategoryInput();
-      updateServiceDesignationInput();
-      renderServiceTagChoices([]);
-      closeServiceTagDropdown();
-      updateServicePricingStructure();
-      renderVendorSummary();
-      renderVendorFilterOptions();
-      renderVendorColumnOrganizer();
-      renderVendorTable();
-      renderVendorTagChoices([]);
-      closeVendorTagDropdown();
-      renderMasterHubSummary();
-      renderMasterHubTiles();
-      renderMasterHubRecords();
+      const initializeErpWorkspace = async () => {
+        await loadErpMockDb();
+        pinnableTables.forEach(initializePinnableTable);
+        renderCustomerLayer();
+        renderProductLayer();
+        updateProductSubcategoryInput();
+        updateProductSubbrandInput();
+        updateProductStructurePanels();
+        updateProductOnlinePanel();
+        renderServiceLayer();
+        updateServiceSubcategoryInput();
+        updateServiceDesignationInput();
+        renderServiceTagChoices([]);
+        closeServiceTagDropdown();
+        updateServicePricingStructure();
+        renderVendorLayer();
+        renderVendorTagChoices([]);
+        closeVendorTagDropdown();
+        renderMasterHubSummary();
+        renderMasterHubTiles();
+        renderMasterHubRecords();
+      };
+
+      initializeErpWorkspace();
 
       window.addEventListener("keydown", (event) => {
         if (!erpAppShell.hidden && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {

@@ -1,0 +1,13 @@
+{
+  "name": "indipet-erp-mock",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "mock:init": "node server.mjs --init",
+    "mock:server": "node server.mjs"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
