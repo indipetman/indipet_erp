@@ -5817,6 +5817,54 @@
       color: var(--text-secondary);
     }
 
+    .erp-save-toast {
+      position: fixed;
+      top: 86px;
+      right: 22px;
+      z-index: 90;
+      width: min(340px, calc(100vw - 32px));
+      display: grid;
+      grid-template-columns: 30px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      background: #f0fdf4;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, 0.16);
+      color: #14532d;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .erp-save-toast[hidden] { display: none; }
+
+    .erp-save-toast-icon {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .erp-save-toast-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .erp-save-toast strong {
+      display: block;
+      margin-bottom: 1px;
+      color: #14532d;
+      font-size: 11.5px;
+    }
+
+    .erp-save-toast span {
+      color: #166534;
+    }
+
     .master-modal-backdrop {
       position: fixed;
       inset: 0;
@@ -7404,6 +7452,11 @@
           <span><strong id="masterHubToastTitle">Delete blocked</strong><span id="masterHubToastText">You cannot delete this record because a transaction has already been done.</span></span>
         </div>
 
+        <div class="erp-save-toast" id="erpSaveToast" role="status" aria-live="polite" hidden>
+          <span class="erp-save-toast-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span><strong id="erpSaveToastTitle">Saved</strong><span id="erpSaveToastText">Your changes have been saved.</span></span>
+        </div>
+
         <section class="workspace-view" id="stockOverviewWorkspaceView" aria-label="Stock Overview workspace">
           <section class="page-header" data-component="PageHeader">
             <div>
@@ -7988,6 +8041,9 @@
       const masterHubToast = document.getElementById("masterHubToast");
       const masterHubToastTitle = document.getElementById("masterHubToastTitle");
       const masterHubToastText = document.getElementById("masterHubToastText");
+      const erpSaveToast = document.getElementById("erpSaveToast");
+      const erpSaveToastTitle = document.getElementById("erpSaveToastTitle");
+      const erpSaveToastText = document.getElementById("erpSaveToastText");
       const stockOverviewNavLink = document.querySelector('.sidebar-nav-child[href="#stock-overview"]');
       const stockOverviewWorkspaceView = document.getElementById("stockOverviewWorkspaceView");
       const stockOverviewSummaryGrid = document.getElementById("stockOverviewSummaryGrid");
@@ -8063,6 +8119,7 @@
       let lastMasterHubModalTrigger = null;
       let masterRecordAfterSave = null;
       let masterHubToastTimer = null;
+      let erpSaveToastTimer = null;
       let stockOverviewExpiryRenderTimer = null;
 
       const pinnableTables = [masterHubTable];
@@ -9975,6 +10032,16 @@
         masterHubToastTimer = setTimeout(() => {
           masterHubToast.hidden = true;
         }, 5200);
+      };
+
+      const showErpSaveToast = (title = "Saved", message = "Your changes have been saved.") => {
+        erpSaveToastTitle.textContent = title;
+        erpSaveToastText.textContent = message;
+        erpSaveToast.hidden = false;
+        clearTimeout(erpSaveToastTimer);
+        erpSaveToastTimer = setTimeout(() => {
+          erpSaveToast.hidden = true;
+        }, 3600);
       };
 
       const masterRecordUsageReason = (type, record) => {
@@ -14870,6 +14937,7 @@
         renderServiceLayer();
         const saveStatus = await saveErpMockTable("services", serviceRecords);
         showServiceFormMessage(`Service ${serviceFormMode === "edit" ? "updated" : "created"} locally${erpMockSaveStatusText(saveStatus)}.`, [], true);
+        showErpSaveToast("Service saved", `Service ${serviceFormMode === "edit" ? "updated" : "created"} successfully.`);
       });
 
       openVendorFormButton.addEventListener("click", showVendorForm);
@@ -15022,6 +15090,7 @@
         renderVendorLayer();
         const saveStatus = await saveErpMockTable("vendors", vendorRecords);
         showVendorFormMessage(`Vendor ${vendorFormMode === "edit" ? "updated" : "created"} locally${erpMockSaveStatusText(saveStatus)}.`, [], true);
+        showErpSaveToast("Vendor saved", `Vendor ${vendorFormMode === "edit" ? "updated" : "created"} successfully.`);
       });
 
       customerAdvancedFilterButton.addEventListener("click", () => {
@@ -16555,6 +16624,7 @@
         const saveStatus = await saveErpMockTable("products", productRecords);
         showProductFormMessage(`${records.length} product SKU${records.length === 1 ? "" : "s"} ${productFormMode === "edit" ? "updated" : "created"} locally${erpMockSaveStatusText(saveStatus)}.`, [], true);
         showProductWorkspace();
+        showErpSaveToast("Product saved", `${records.length} product SKU${records.length === 1 ? "" : "s"} ${productFormMode === "edit" ? "updated" : "created"} successfully.`);
       });
 
       whatsappSameAsPhone.addEventListener("change", () => {
@@ -16631,6 +16701,7 @@
         renderCustomerLayer();
         const saveStatus = await saveErpMockTable("customers", customerRecords);
         showCustomerFormMessage(`Customer ${customerFormMode === "edit" ? "updated" : "created"} locally${erpMockSaveStatusText(saveStatus)}.`, [], true);
+        showErpSaveToast("Customer saved", `Customer ${customerFormMode === "edit" ? "updated" : "created"} successfully.`);
       });
 
       const initializeErpWorkspace = async () => {
