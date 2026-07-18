@@ -8225,6 +8225,12 @@
 
       function productRecordCodeLooksCorrupted(value, record) {
         const text = String(value || "").trim();
+        if (!text) return true;
+        return !/^[A-Z0-9]{13}$/.test(text);
+      }
+
+      function productBarcodeLooksCorrupted(value, record) {
+        const text = String(value || "").trim();
         const productName = String(record?.product || "").trim().toLowerCase();
         if (!text) return true;
         if (/\s/.test(text)) return true;
@@ -8233,12 +8239,13 @@
       }
 
       function buildRepairedProductSku(record) {
-        const effectiveBrand = record?.subbrand || record?.brand || "";
-        const brandPrefix = effectiveBrand ? `${productSkuToken(String(effectiveBrand)).slice(0, 3)}-` : "";
-        const productPrefix = productSkuToken(String(record?.product || "PRODUCT")).split("-").slice(0, 2).join("-");
-        const variationSuffix = productRecordVariationValuesForRepair(record).map(value => productSkuToken(String(value))).join("-");
-        const fallbackSuffix = !variationSuffix && record?.packQty && record?.uom ? `${productSkuToken(String(record.packQty))}-${productSkuToken(String(record.uom))}` : "";
-        return [brandPrefix ? `${brandPrefix}${productPrefix}` : productPrefix, variationSuffix || fallbackSuffix].filter(Boolean).join("-");
+        const variationValues = productRecordVariationValuesForRepair(record);
+        const fallbackValues = !variationValues.length && record?.packQty && record?.uom ? [`${record.packQty}${record.uom}`] : [];
+        return productSkuCode({
+          brand: record?.subbrand || record?.brand || "",
+          product: record?.product || "Product",
+          variationValues: variationValues.length ? variationValues : fallbackValues
+        });
       }
 
       function repairProductRecords(records) {
@@ -8252,20 +8259,20 @@
             sku = buildRepairedProductSku(record);
             changed = true;
           }
-          const baseSku = sku || productSkuToken(String(record?.product || "PRODUCT"));
+          const baseSku = (sku || buildRepairedProductSku(record)).toUpperCase().replace(/[^A-Z0-9]/g, "").padEnd(13, "0").slice(0, 13);
           let uniqueSku = baseSku;
-          let counter = 2;
-          while (usedSkus.has(uniqueSku.toLowerCase())) {
-            uniqueSku = `${baseSku}-${counter}`;
+          let counter = Number(baseSku.slice(9)) || 1;
+          while (usedSkus.has(uniqueSku)) {
             counter += 1;
+            uniqueSku = `${baseSku.slice(0, 9)}${String(counter).padStart(4, "0")}`.slice(0, 13);
           }
-          usedSkus.add(uniqueSku.toLowerCase());
+          usedSkus.add(uniqueSku);
           if (next.sku !== uniqueSku) {
             next.sku = uniqueSku;
             changed = true;
           }
           const barcode = String(next.barcode || "").trim();
-          if (!barcode || barcode === originalSku || productRecordCodeLooksCorrupted(barcode, record)) {
+          if (!barcode || barcode === originalSku || productBarcodeLooksCorrupted(barcode, record)) {
             if (next.barcode) changed = true;
             next.barcode = "";
           } else {
@@ -13797,14 +13804,46 @@
         return parsed ? { ...parsed, source: unitItem.name } : null;
       };
 
-      const productSkuToken = value => value.toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 12) || "ITEM";
-
-      const productSkuPrefix = () => {
-        const product = productNameInput.value || "PRODUCT";
-        const effectiveBrand = productEffectiveBrand();
-        const brandPrefix = effectiveBrand ? `${productSkuToken(effectiveBrand).slice(0, 3)}-` : "";
-        return `${brandPrefix}${productSkuToken(product).split("-").slice(0, 2).join("-")}`;
+      const productSkuToken = value => String(value || "").toUpperCase().replace(/[^A-Z0-9]+/g, "");
+      const productSkuWords = value => String(value || "").toUpperCase().match(/[A-Z0-9]+/g) || [];
+      const productSkuSegment = (value, length, fallback) => {
+        const words = productSkuWords(value);
+        const initials = words.map(word => word[0]).join("");
+        const compact = productSkuToken(value);
+        const source = words.length >= length ? initials : compact;
+        return (source + compact + fallback).slice(0, length).padEnd(length, fallback[0]);
       };
+      const productSkuVariantSegment = variationValues => {
+        const compact = productSkuToken((variationValues || []).join(""));
+        return (compact || "STD").slice(0, 3).padEnd(3, "0");
+      };
+      const productSkuUsedSet = (excludeSkus = []) => {
+        const excluded = new Set(excludeSkus.filter(Boolean).map(sku => String(sku).toUpperCase()));
+        return new Set(productRecords.map(record => String(record.sku || "").toUpperCase()).filter(sku => sku && !excluded.has(sku)));
+      };
+      const productSkuCode = ({ brand = "", product = "", variationValues = [], index = 0, reserved = new Set(), excludeSkus = [] } = {}) => {
+        const prefix = [
+          productSkuSegment(brand, 3, "GEN"),
+          productSkuSegment(product, 3, "PRD"),
+          productSkuVariantSegment(variationValues)
+        ].join("");
+        const used = productSkuUsedSet(excludeSkus);
+        let serial = Math.max(1, index + 1);
+        let code = "";
+        do {
+          code = `${prefix}${String(serial).padStart(4, "0")}`.slice(0, 13);
+          serial += 1;
+        } while (used.has(code) || reserved.has(code));
+        reserved.add(code);
+        return code;
+      };
+
+      const productSkuPrefix = () => productSkuCode({
+        brand: productEffectiveBrand(),
+        product: productNameInput.value || "Product",
+        variationValues: productStructureValue() === "Variable" ? [] : ["STD"],
+        excludeSkus: activeProductRecordSku ? [activeProductRecordSku] : []
+      });
 
       const composeProductDisplayName = (packQty, uom, variationValues = []) => {
         if (!productNameInput.value.trim() || !packQty || !uom) return "Enter Product Name, Net Content and Measurement UoM";
@@ -14092,15 +14131,23 @@
           return;
         }
         const combinations = productCombinations(definitions);
+        const reservedSkuCodes = new Set();
         productSkuList.innerHTML = combinations.map((combination, index) => {
           const label = combination.map(item => `${item.name}: ${item.value}`).join(" · ");
-          const suffix = combination.map(item => productSkuToken(item.value)).join("-");
+          const skuCode = productSkuCode({
+            brand: productEffectiveBrand(),
+            product: productNameInput.value || "Product",
+            variationValues: combination.map(item => item.value),
+            index,
+            reserved: reservedSkuCodes,
+            excludeSkus: activeProductGroupRecords().map(record => record.sku)
+          });
           const derivedMeasurement = productCombinationMeasurement(combination);
           return `
             <article class="product-sku-card" data-product-sku-card data-purchase-driver="purchase" data-retail-driver="discount">
               <div class="product-sku-head"><strong>${label}</strong><span>SKU ${index + 1} of ${combinations.length}</span></div>
               <div class="product-sku-body"><div class="product-sku-grid">
-                <label class="customer-form-field span-2"><span class="customer-form-label">SKU ID</span><input value="${productSkuPrefix()}-${suffix}" readonly></label>
+                <label class="customer-form-field span-2"><span class="customer-form-label">SKU ID</span><input value="${skuCode}" readonly></label>
                 <label class="customer-form-field span-2"><span class="customer-form-label">Barcode</span><input placeholder="Optional unique barcode"><span class="product-form-field-note">SKU becomes the fallback identifier when empty.</span></label>
                 <label class="customer-form-field"><span class="customer-form-label">Stock Unit <span class="customer-required">Required</span></span><select data-product-variant-required data-variant-stock-unit>${productStockUnitSelectMarkup(productCommonStockUnit.value)}</select><span class="product-form-field-note">Stock movement unit.</span></label>
                 <label class="customer-form-field ${derivedMeasurement ? "product-derived-unit-control" : ""}"><span class="customer-form-label">Net Content Qty <span class="customer-required">Required</span></span><input data-product-variant-required data-variant-pack type="number" min="0.01" step="0.01" placeholder="Quantity" value="${derivedMeasurement ? derivedMeasurement.packQty : ""}" ${derivedMeasurement ? "readonly" : ""}>${derivedMeasurement ? `<span class="product-form-field-note">Derived from ${derivedMeasurement.source}</span>` : ""}</label>
