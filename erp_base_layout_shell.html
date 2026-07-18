@@ -8153,6 +8153,9 @@
         const number = Number(String(value || "").replace(/,/g, ""));
         return Number.isFinite(number) ? number : 0;
       };
+      const asFormNumber = (value, fallback = "") => String(value ?? "").trim() === "" && fallback !== undefined && fallback !== null && String(fallback) !== ""
+        ? asNumber(fallback)
+        : asNumber(value);
       const formStoredValue = (...values) => {
         const value = values.find(item => item !== undefined && item !== null && String(item) !== "");
         return value === undefined ? "" : String(value);
@@ -8325,6 +8328,9 @@
           animals: checkedValues("[data-product-animal]"),
           tags: selectedProductFormTags(),
           online: productOnlineToggle.value === "Yes",
+          onlineName: productOnlineNameInput.value.trim(),
+          slug: productSlugInput.value.trim(),
+          contentSections: productContentSectionsForStorage(),
           status: productParentStatus.value,
           hsn: productHsnInput.value.trim(),
           gst: productGstInput.value,
@@ -8339,12 +8345,12 @@
             barcode: standardBarcode.value.trim(),
             variation: "Standard",
             stockUnit: standardStockUnit.value,
-            packQty: asNumber(standardPackQty.value),
+            packQty: asFormNumber(standardPackQty.value, existing?.packQty),
             uom: standardUom.value,
-            mrp: asNumber(standardMrp.value),
-            purchase: asNumber(standardPurchase.value),
-            landing: asNumber(standardLanding.value),
-            selling: asNumber(standardSelling.value),
+            mrp: asFormNumber(standardMrp.value, existing?.mrp),
+            purchase: asFormNumber(standardPurchase.value, existing?.purchase),
+            landing: asFormNumber(standardLanding.value, existing?.landing),
+            selling: asFormNumber(standardSelling.value, existing?.selling),
             flags: existing?.flags || [],
             structure: "Standard",
             attribute: ""
@@ -8374,12 +8380,12 @@
             barcode: card.querySelector('.customer-form-field.span-2 input:not([readonly])')?.value?.trim() || "",
             variation: card.querySelector(".product-sku-head strong")?.textContent || "Variable",
             stockUnit: card.querySelector("[data-variant-stock-unit]")?.value || "",
-            packQty: asNumber(card.querySelector("[data-variant-pack]")?.value),
+            packQty: asFormNumber(card.querySelector("[data-variant-pack]")?.value, existingVariant?.packQty),
             uom: card.querySelector("[data-variant-uom]")?.value || "",
-            mrp: asNumber(card.querySelector("[data-variant-mrp]")?.value),
-            purchase: asNumber(card.querySelector("[data-variant-purchase]")?.value),
-            landing: asNumber(card.querySelector("[data-variant-landing]")?.value),
-            selling: asNumber(card.querySelector("[data-variant-selling]")?.value),
+            mrp: asFormNumber(card.querySelector("[data-variant-mrp]")?.value, existingVariant?.mrp),
+            purchase: asFormNumber(card.querySelector("[data-variant-purchase]")?.value, existingVariant?.purchase),
+            landing: asFormNumber(card.querySelector("[data-variant-landing]")?.value, existingVariant?.landing),
+            selling: asFormNumber(card.querySelector("[data-variant-selling]")?.value, existingVariant?.selling),
             online: card.querySelector("[data-variant-online]")?.value === "Online",
             status: card.querySelector("[data-variant-status]")?.value || base.status,
             flags: existingVariant?.flags || existing?.flags || ["New"],
@@ -12066,7 +12072,18 @@
         const groupRecords = productGroupRecords(record);
         const batch = productFirstBatchRecord(record);
         productNameInput.value = record.product;
-        syncProductOnlineName(true);
+        if (record.onlineName) {
+          productOnlineNameInput.value = record.onlineName;
+          productOnlineNameAutoValue = record.onlineName;
+        } else {
+          syncProductOnlineName(true);
+        }
+        if (record.slug) {
+          productSlugInput.value = record.slug;
+          productSlugAutoValue = record.slug;
+        } else {
+          syncProductSlug(true);
+        }
         productParentStatus.value = record.status;
         productOnlineToggle.value = record.structure === "Variable" ? (groupRecords.some(item => item.online) ? "Yes" : "No") : (record.online ? "Yes" : "No");
         updateProductBrandInput();
@@ -12087,6 +12104,7 @@
         if (structureInput) structureInput.checked = true;
         updateProductStructurePanels();
         updateProductOnlinePanel();
+        loadProductContentSectionsFromRecord(record.contentSections);
         standardStockUnit.value = record.stockUnit;
         standardPackQty.value = record.packQty;
         standardUom.value = record.uom;
@@ -12474,6 +12492,43 @@
         productContentSectionSequence = 0;
         productContentBlockSequence = 0;
         productContentSections = [createProductContentSection("Overview")];
+        renderProductContentSections();
+      };
+
+      const productContentSectionsForStorage = () => productContentSections.map(section => ({
+        id: section.id,
+        title: section.title || "",
+        tabLabel: section.tabLabel || "",
+        visibility: section.visibility || "Visible",
+        blocks: (section.blocks || []).map(block => {
+          if (block.type === "image") return { id: block.id, type: "image", imageUrl: "", imageName: block.imageName || "", alt: block.alt || "", caption: block.caption || "" };
+          if (block.type === "table") return { id: block.id, type: "table", rows: Array.isArray(block.rows) ? block.rows.map(row => [...row]) : [["Feature", "Details"], ["", ""]] };
+          return { id: block.id, type: "text", html: block.html || "" };
+        })
+      }));
+
+      const loadProductContentSectionsFromRecord = sections => {
+        if (!Array.isArray(sections) || !sections.length) return;
+        revokeProductContentImages();
+        productContentSectionSequence = 0;
+        productContentBlockSequence = 0;
+        productContentSections = sections.map(section => {
+          productContentSectionSequence += 1;
+          const blocks = Array.isArray(section.blocks) && section.blocks.length ? section.blocks : [{ type: "text", html: "" }];
+          return {
+            id: `section-${productContentSectionSequence}`,
+            title: section.title || "Overview",
+            tabLabel: section.tabLabel || section.title || "Overview",
+            visibility: section.visibility === "Hidden" ? "Hidden" : "Visible",
+            blocks: blocks.map(block => {
+              productContentBlockSequence += 1;
+              const type = ["image", "table", "text"].includes(block.type) ? block.type : "text";
+              if (type === "image") return { id: `block-${productContentBlockSequence}`, type, imageUrl: "", imageName: block.imageName || "", alt: block.alt || "", caption: block.caption || "" };
+              if (type === "table") return { id: `block-${productContentBlockSequence}`, type, rows: Array.isArray(block.rows) ? block.rows.map(row => [...row]) : [["Feature", "Details"], ["", ""]] };
+              return { id: `block-${productContentBlockSequence}`, type: "text", html: block.html || "" };
+            })
+          };
+        });
         renderProductContentSections();
       };
 
@@ -13952,6 +14007,8 @@
         window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       };
 
+      const isOnlineDetailsEditSubmit = () => productFormMode === "edit" && activeProductStep === 4;
+
       const validateProductSection = sectionIndex => {
         const section = productForm.querySelector(`[data-product-section="${sectionIndex}"]`);
         if (sectionIndex === 3 && productStructureValue() === "Variable") {
@@ -13959,7 +14016,11 @@
           restoreProductSkuDraftSnapshotsToCards();
         }
         const requiredFields = [...section.querySelectorAll("[required], [data-product-variant-required]")].filter(field => !field.disabled && !field.closest("[hidden]"));
-        const missing = requiredFields.filter(field => !field.value.trim());
+        const missing = requiredFields.filter(field => {
+          if (field.value.trim()) return false;
+          const deferPricingField = sectionIndex === 3 && isOnlineDetailsEditSubmit() && (field === standardPurchase || field === standardLanding || field.matches("[data-variant-purchase], [data-variant-landing]"));
+          return !deferPricingField;
+        });
         if (sectionIndex === 1 && !productForm.querySelector("[data-product-animal]:checked")) {
           showProductFormMessage("Select at least one applicable Animal.");
           return false;
