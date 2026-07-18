@@ -13652,8 +13652,59 @@
         } : null;
       };
 
+      const productSkuCardSnapshot = card => ({
+        key: card.querySelector(".product-sku-head strong")?.textContent || "",
+        sku: card.querySelector(".customer-form-field input[readonly]")?.value || "",
+        barcode: card.querySelector('.customer-form-field.span-2 input:not([readonly])')?.value || "",
+        stockUnit: card.querySelector("[data-variant-stock-unit]")?.value || "",
+        packQty: card.querySelector("[data-variant-pack]")?.value || "",
+        uom: card.querySelector("[data-variant-uom]")?.value || "",
+        mrp: card.querySelector("[data-variant-mrp]")?.value || "",
+        purchase: card.querySelector("[data-variant-purchase]")?.value || "",
+        landing: card.querySelector("[data-variant-landing]")?.value || "",
+        discount: card.querySelector("[data-variant-discount]")?.value || "",
+        selling: card.querySelector("[data-variant-selling]")?.value || "",
+        online: card.querySelector("[data-variant-online]")?.value || "",
+        status: card.querySelector("[data-variant-status]")?.value || "",
+        purchaseDriver: card.dataset.purchaseDriver || "purchase",
+        retailDriver: card.dataset.retailDriver || "discount"
+      });
+
+      const productSkuSnapshotMap = () => new Map(
+        [...productSkuList.querySelectorAll("[data-product-sku-card]")]
+          .map(productSkuCardSnapshot)
+          .filter(snapshot => snapshot.key)
+          .map(snapshot => [snapshot.key, snapshot])
+      );
+
+      const restoreProductSkuCardSnapshot = (card, snapshot) => {
+        if (!snapshot) return;
+        const inputs = card.querySelectorAll("input");
+        if (inputs[0] && snapshot.sku) inputs[0].value = snapshot.sku;
+        if (inputs[1]) inputs[1].value = snapshot.barcode;
+        const assign = (selector, value) => {
+          const field = card.querySelector(selector);
+          if (field && value !== "") field.value = value;
+        };
+        assign("[data-variant-stock-unit]", snapshot.stockUnit);
+        assign("[data-variant-pack]", snapshot.packQty);
+        assign("[data-variant-uom]", snapshot.uom);
+        assign("[data-variant-mrp]", snapshot.mrp);
+        assign("[data-variant-purchase]", snapshot.purchase);
+        assign("[data-variant-landing]", snapshot.landing);
+        assign("[data-variant-discount]", snapshot.discount);
+        assign("[data-variant-selling]", snapshot.selling);
+        assign("[data-variant-online]", snapshot.online);
+        assign("[data-variant-status]", snapshot.status);
+        card.dataset.purchaseDriver = snapshot.purchaseDriver;
+        card.dataset.retailDriver = snapshot.retailDriver;
+        updateVariantDisplayName(card);
+        card.querySelector("[data-variant-margin]").textContent = calculateProductMargin(card.querySelector("[data-variant-landing]").value, card.querySelector("[data-variant-selling]").value);
+      };
+
       const renderProductSkuCombinations = () => {
         if (productStructureValue() !== "Variable") return;
+        const existingSnapshots = productSkuSnapshotMap();
         const definitions = productAttributeDefinitions();
         const valid = definitions.length && definitions.every(definition => definition.name && definition.values.length);
         const unitDefinitions = definitions.filter(definition => definition.unitDefining);
@@ -13706,7 +13757,12 @@
               </div></div>
             </article>`;
         }).join("");
-        productSkuList.querySelectorAll("[data-product-sku-card]").forEach(updateVariantDisplayName);
+        productSkuList.querySelectorAll("[data-product-sku-card]").forEach(card => {
+          const key = card.querySelector(".product-sku-head strong")?.textContent || "";
+          const snapshot = existingSnapshots.get(key);
+          if (snapshot) restoreProductSkuCardSnapshot(card, snapshot);
+          else updateVariantDisplayName(card);
+        });
         if (productCommonStockUnit.value || (!hasDerivedUnit && productCommonPackQty.value && productCommonUom.value)) applyProductCommonUnit(false);
       };
 
