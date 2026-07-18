@@ -12727,7 +12727,7 @@
         handle.className = "product-rich-image-resize-handle";
         handle.dataset.productOnlineField = "true";
         handle.dataset.productRichImageResizeHandle = "true";
-        handle.title = "Drag to resize image";
+        handle.title = "Drag to resize image. Hold Shift to keep proportions.";
         handle.innerHTML = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 11h6V5"/><path d="m5 5 6 6"/></svg>';
         handle.style.left = `${Math.round(imageRect.right - editorRect.left - 8)}px`;
         handle.style.top = `${Math.round(imageRect.bottom - editorRect.top - 8)}px`;
@@ -12905,7 +12905,8 @@
           startX: event.clientX,
           startY: event.clientY,
           startWidth: rect.width,
-          startHeight: rect.height
+          startHeight: rect.height,
+          aspectRatio: rect.width / Math.max(1, rect.height)
         };
         document.body.classList.add("is-product-rich-resizing");
         document.body.style.cursor = "nwse-resize";
@@ -12916,8 +12917,14 @@
       const updateProductRichImageResize = event => {
         if (!productRichImageResize) return;
         const resize = productRichImageResize;
-        const width = Math.max(48, resize.startWidth + event.clientX - resize.startX);
-        const height = Math.max(48, resize.startHeight + event.clientY - resize.startY);
+        let width = Math.max(48, resize.startWidth + event.clientX - resize.startX);
+        let height = Math.max(48, resize.startHeight + event.clientY - resize.startY);
+        if (event.shiftKey) {
+          const widthFromHeight = height * resize.aspectRatio;
+          const heightFromWidth = width / resize.aspectRatio;
+          if (Math.abs(width - resize.startWidth) >= Math.abs(height - resize.startHeight)) height = Math.max(48, heightFromWidth);
+          else width = Math.max(48, widthFromHeight);
+        }
         resize.image.style.width = `${Math.round(width)}px`;
         resize.image.style.height = `${Math.round(height)}px`;
         resize.image.style.maxWidth = "100%";
