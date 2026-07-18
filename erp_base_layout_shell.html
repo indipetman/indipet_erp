@@ -12104,6 +12104,13 @@
           if (button.matches("[data-product-step]")) return;
           button.disabled = readOnly;
         });
+        productForm.querySelectorAll("[data-product-rich-canvas]").forEach(canvas => {
+          canvas.contentEditable = readOnly ? "false" : "true";
+          canvas.setAttribute("aria-readonly", String(readOnly));
+        });
+        productForm.querySelectorAll("[data-product-rich-command], [data-product-rich-action], [data-product-rich-color], [data-product-rich-table-fill], [data-product-rich-table-border], [data-product-rich-table-border-size]").forEach(control => {
+          control.disabled = readOnly;
+        });
         if (!readOnly) {
           standardSkuPreview.readOnly = true;
           standardDisplayNamePreview.readOnly = true;
@@ -12802,6 +12809,7 @@
           </article>
         `).join("");
         updateProductOnlinePanel();
+        if (productFormMode === "view") setProductFormReadOnly(true);
       };
 
       const updateProductContentValue = field => {
@@ -13205,6 +13213,7 @@
       };
 
       const runProductRichCommand = trigger => {
+        if (productFormMode === "view") return;
         const canvas = activeProductRichCanvas(trigger);
         if (!canvas) return;
         canvas.focus();
@@ -13403,6 +13412,7 @@
       };
 
       const applyProductRichTableFill = (canvas, color) => {
+        if (productFormMode === "view") return;
         const cell = productRichSelectedCell(canvas);
         if (!cell) {
           showProductFormMessage("Select a table cell before applying fill colour.");
@@ -13414,6 +13424,7 @@
       };
 
       const applyProductRichTableBorder = (canvas, color) => {
+        if (productFormMode === "view") return;
         const cell = productRichSelectedCell(canvas);
         const table = cell?.closest("table");
         if (!cell || !table) {
@@ -13426,6 +13437,7 @@
       };
 
       const applyProductRichTableBorderSize = (canvas, size) => {
+        if (productFormMode === "view") return;
         const cell = productRichSelectedCell(canvas);
         const table = cell?.closest("table");
         if (!cell || !table) {
@@ -13438,6 +13450,7 @@
       };
 
       const handleProductRichAction = trigger => {
+        if (productFormMode === "view") return;
         const canvas = activeProductRichCanvas(trigger);
         if (!canvas) return;
         const action = trigger.dataset.productRichAction;
@@ -14128,11 +14141,16 @@
 
       const updateProductOnlinePanel = () => {
         const enabled = productOnlineToggle.value === "Yes";
+        const readOnly = productFormMode === "view";
         productOnlineDisabledMessage.hidden = enabled;
         productOnlinePanel.classList.toggle("product-online-disabled", !enabled);
-        productOnlinePanel.querySelectorAll("[data-product-online-field]").forEach(field => { field.disabled = !enabled; });
+        productOnlinePanel.querySelectorAll("[data-product-online-field]").forEach(field => { field.disabled = !enabled || readOnly; });
+        productOnlinePanel.querySelectorAll("[data-product-rich-canvas]").forEach(canvas => {
+          canvas.contentEditable = readOnly || !enabled ? "false" : "true";
+          canvas.setAttribute("aria-readonly", String(readOnly || !enabled));
+        });
         if (productSlugInput) productSlugInput.readOnly = true;
-        if (enabled) syncProductOnlineName();
+        if (enabled && !readOnly) syncProductOnlineName();
       };
 
       const updateProductConsumptionUsage = () => {
