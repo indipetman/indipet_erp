@@ -7178,8 +7178,8 @@
                 <div class="customer-form-grid">
                   <label class="customer-form-field"><span class="customer-form-label">Service ID</span><input id="serviceIdInput" value="Generated after service creation" readonly></label>
                   <label class="customer-form-field span-2"><span class="customer-form-label">Service Name <span class="customer-required">Required</span></span><input id="serviceNameInput" data-service-required required placeholder="Enter the service name"></label>
-                  <label class="customer-form-field"><span class="customer-form-label">Department <span class="customer-required">Department Master</span></span><select id="serviceDepartmentInput" data-service-required required><option value="">Select department</option><option>Grooming</option><option>Veterinary</option><option>Training</option><option>Store Operations</option></select><span class="product-form-field-note">The responsible operating department.</span></label>
-                  <div class="customer-form-field span-2"><span class="customer-form-label">Eligible Designations <span class="customer-required">Required</span></span><div class="service-designation-select" id="serviceDesignationSelect"><div class="service-designation-control" id="serviceDesignationControl" role="combobox" aria-expanded="false" aria-controls="serviceDesignationDropdown"><span class="service-designation-selected" id="serviceDesignationSelected"></span><input id="serviceDesignationSearch" type="search" placeholder="Select department first" autocomplete="off" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></div><div class="service-designation-dropdown" id="serviceDesignationDropdown" hidden></div></div><span class="product-form-field-note">Selections come only from Designation Master and are filtered by Department.</span></div>
+                  <label class="customer-form-field"><span class="customer-form-label">Department <span class="customer-required">HRMS Master</span></span><select id="serviceDepartmentInput" data-service-required required><option value="">Loading HRMS departments</option></select><span class="product-form-field-note">Fetched from HRMS Department Master.</span></label>
+                  <div class="customer-form-field span-2"><span class="customer-form-label">Eligible Designations <span class="customer-required">Required</span></span><div class="service-designation-select" id="serviceDesignationSelect"><div class="service-designation-control" id="serviceDesignationControl" role="combobox" aria-expanded="false" aria-controls="serviceDesignationDropdown"><span class="service-designation-selected" id="serviceDesignationSelected"></span><input id="serviceDesignationSearch" type="search" placeholder="Select department first" autocomplete="off" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></div><div class="service-designation-dropdown" id="serviceDesignationDropdown" hidden></div></div><span class="product-form-field-note">Selections come from HRMS Designation Master and are filtered by HRMS Department.</span></div>
                   <label class="customer-form-field"><span class="customer-form-label">Service Status <span class="customer-required">Required</span></span><select id="serviceStatusInput" data-service-required required><option>Active</option><option>Inactive</option></select></label>
                   <label class="customer-form-field span-2"><span class="customer-form-label">Online <span class="customer-required">Required</span></span><select id="serviceOnlineInput" data-service-required required><option value="No">No</option><option value="Yes">Yes</option></select><span class="product-form-field-note">Online catalogue content can be maintained later.</span></label>
                 </div>
@@ -8367,12 +8367,15 @@
       let expandedStockOverviewRows = new Set();
 
       const servicePreviewDate = new Date("2026-06-22T00:00:00");
-      const serviceDesignationMaster = {
-        Grooming: ["Groomer", "Senior Groomer", "Grooming Supervisor"],
-        Veterinary: ["Veterinarian", "Veterinary Assistant", "Veterinary Surgeon"],
-        Training: ["Pet Trainer", "Senior Pet Trainer"],
-        "Store Operations": ["Store Associate", "Store Supervisor"]
+      const hrmsDefaultDepartmentDesignationMaster = {
+        "HR & Admin": ["HR Manager"],
+        "Retail & Store Sales": ["Area Manager", "Store Manager", "Store Assistant Manager", "Sales Associate"],
+        Grooming: ["Senior Groomer", "Groomer"],
+        "Veterinary Clinic": ["Clinic Manager", "Veterinary Doctor", "Vet Assistant"],
+        "Inventory & Procurement": ["Inventory Executive"],
+        "Finance & Compliance": ["Finance Executive"]
       };
+      let serviceDesignationMaster = { ...hrmsDefaultDepartmentDesignationMaster };
       const serviceSubcategoryMap = {
         Grooming: ["Bath & Dry", "Haircut & Styling", "Nail & Hygiene", "Spa & Care"],
         "Veterinary Care": ["Consultation", "Diagnostics", "Preventive Care", "Minor Procedure"],
@@ -11374,6 +11377,158 @@
         if (values.includes(current)) serviceSubcategoryInput.value = current;
       };
 
+      const normalizeHrmsMasterName = value => String(value ?? "").replace(/\s+/g, " ").trim();
+
+      const addServiceHrmsDepartmentDesignation = (master, department, designation = "") => {
+        const departmentName = normalizeHrmsMasterName(department);
+        const designationName = normalizeHrmsMasterName(designation);
+        if (!departmentName) return;
+        if (!master[departmentName]) master[departmentName] = [];
+        if (designationName && !master[departmentName].includes(designationName)) master[departmentName].push(designationName);
+      };
+
+      const sortedServiceHrmsMaster = master => Object.fromEntries(Object.entries(master)
+        .filter(([department]) => department)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([department, designations]) => [department, [...new Set(designations.filter(Boolean))].sort((a, b) => a.localeCompare(b))]));
+
+      const mergeServiceHrmsMaster = (target, source) => {
+        Object.entries(source || {}).forEach(([department, designations]) => {
+          addServiceHrmsDepartmentDesignation(target, department);
+          (Array.isArray(designations) ? designations : []).forEach(designation => addServiceHrmsDepartmentDesignation(target, department, designation));
+        });
+        return target;
+      };
+
+      const serviceHrmsRecordValue = (record, keys) => {
+        if (!record || typeof record !== "object") return "";
+        for (const key of keys) {
+          const value = normalizeHrmsMasterName(record[key]);
+          if (value) return value;
+        }
+        return "";
+      };
+
+      const serviceHrmsMasterFromPayload = payload => {
+        const master = {};
+        const departmentLookup = {};
+        const addDepartmentRecord = record => {
+          if (Array.isArray(record)) {
+            const code = normalizeHrmsMasterName(record[0]);
+            const name = normalizeHrmsMasterName(record[1]);
+            if (name) addServiceHrmsDepartmentDesignation(master, name);
+            if (code && name) departmentLookup[code] = name;
+            return;
+          }
+          const name = serviceHrmsRecordValue(record, ["department", "departmentName", "department_name", "name", "title", "label"]);
+          const code = serviceHrmsRecordValue(record, ["departmentId", "department_id", "departmentCode", "department_code", "code", "id"]);
+          if (name) addServiceHrmsDepartmentDesignation(master, name);
+          if (code && name) departmentLookup[code] = name;
+        };
+        const addDesignationRecord = record => {
+          if (Array.isArray(record)) return;
+          const designation = serviceHrmsRecordValue(record, ["designation", "designationName", "designation_name", "jobTitle", "job_title", "name", "title", "label"]);
+          const departmentCode = serviceHrmsRecordValue(record, ["departmentId", "department_id", "departmentCode", "department_code"]);
+          const department = serviceHrmsRecordValue(record, ["department", "departmentName", "department_name"]) || departmentLookup[departmentCode];
+          if (department && designation) addServiceHrmsDepartmentDesignation(master, department, designation);
+        };
+        const addEmployeeRecord = record => {
+          if (Array.isArray(record)) return;
+          const departmentCode = serviceHrmsRecordValue(record, ["departmentId", "department_id", "departmentCode", "department_code"]);
+          const department = serviceHrmsRecordValue(record, ["department", "departmentName", "department_name"]) || departmentLookup[departmentCode];
+          const designation = serviceHrmsRecordValue(record, ["designation", "designationName", "designation_name", "jobTitle", "job_title"]);
+          if (department && designation) addServiceHrmsDepartmentDesignation(master, department, designation);
+        };
+        const consumeObject = value => {
+          if (!value || typeof value !== "object") return;
+          if (!Array.isArray(value) && Object.values(value).every(item => Array.isArray(item))) {
+            Object.entries(value).forEach(([department, designations]) => {
+              if (designations.every(item => typeof item === "string")) {
+                designations.forEach(designation => addServiceHrmsDepartmentDesignation(master, department, designation));
+              }
+            });
+          }
+          const departments = value.departments || value.departmentMaster || value.department_master || value.departmentMasters;
+          const designations = value.designations || value.designationMaster || value.designation_master || value.designationMasters;
+          const employees = value.employees || value.employeeMaster || value.employee_master || value.employeeMasters;
+          const pageConfig = value.pageConfig || value.pages || value.modules;
+          (Array.isArray(departments) ? departments : []).forEach(addDepartmentRecord);
+          (Array.isArray(pageConfig?.["department-master"]?.rows) ? pageConfig["department-master"].rows : []).forEach(addDepartmentRecord);
+          (Array.isArray(designations) ? designations : []).forEach(addDesignationRecord);
+          (Array.isArray(employees) ? employees : []).forEach(addEmployeeRecord);
+        };
+        if (Array.isArray(payload)) payload.forEach(item => {
+          addDepartmentRecord(item);
+          addDesignationRecord(item);
+          addEmployeeRecord(item);
+        });
+        else consumeObject(payload);
+        return sortedServiceHrmsMaster(master);
+      };
+
+      const readServiceHrmsMasterFromStorage = () => {
+        const master = {};
+        try {
+          for (let index = 0; index < localStorage.length; index += 1) {
+            const key = localStorage.key(index) || "";
+            if (!/hrms/i.test(key)) continue;
+            const value = localStorage.getItem(key);
+            if (!value || !/department|designation|employee/i.test(value)) continue;
+            mergeServiceHrmsMaster(master, serviceHrmsMasterFromPayload(JSON.parse(value)));
+          }
+        } catch (error) {
+          console.warn("Could not read HRMS master data from browser storage.", error);
+        }
+        return sortedServiceHrmsMaster(master);
+      };
+
+      const readServiceHrmsMasterFromApi = async () => {
+        const api = window.IndipetHRMS?.api;
+        if (!api) return {};
+        const master = {};
+        try {
+          const departments = typeof api.departments?.list === "function" ? await api.departments.list() : [];
+          const designations = typeof api.designations?.list === "function" ? await api.designations.list() : [];
+          mergeServiceHrmsMaster(master, serviceHrmsMasterFromPayload({ departments, designations }));
+        } catch (error) {
+          console.warn("Could not fetch HRMS Department/Designation Master.", error);
+        }
+        if (!Object.keys(master).length && typeof api.employees?.list === "function") {
+          try {
+            mergeServiceHrmsMaster(master, serviceHrmsMasterFromPayload({ employees: await api.employees.list() }));
+          } catch (error) {
+            console.warn("Could not derive service eligibility from HRMS employees.", error);
+          }
+        }
+        return sortedServiceHrmsMaster(master);
+      };
+
+      const serviceDepartmentOptions = () => Object.keys(serviceDesignationMaster).sort((a, b) => a.localeCompare(b));
+
+      const renderServiceDepartmentOptions = (preferredValue = serviceDepartmentInput.value, options = {}) => {
+        const current = normalizeHrmsMasterName(preferredValue);
+        const departments = serviceDepartmentOptions();
+        const values = options.preserveUnknown && current && !departments.includes(current) ? [...departments, current].sort((a, b) => a.localeCompare(b)) : departments;
+        serviceDepartmentInput.innerHTML = `<option value="">${values.length ? "Select department" : "No HRMS departments found"}</option>${values.map(value => `<option value="${escapeProductText(value)}">${escapeProductText(value)}</option>`).join("")}`;
+        if (current && values.includes(current)) serviceDepartmentInput.value = current;
+      };
+
+      const applyServiceHrmsMaster = master => {
+        const normalized = sortedServiceHrmsMaster(master);
+        serviceDesignationMaster = Object.keys(normalized).length ? normalized : { ...hrmsDefaultDepartmentDesignationMaster };
+        renderServiceDepartmentOptions();
+        updateServiceDesignationInput();
+        renderServiceFilters();
+      };
+
+      const loadServiceHrmsMaster = async () => {
+        const apiMaster = await readServiceHrmsMasterFromApi();
+        const storageMaster = readServiceHrmsMasterFromStorage();
+        const merged = mergeServiceHrmsMaster({}, apiMaster);
+        mergeServiceHrmsMaster(merged, storageMaster);
+        applyServiceHrmsMaster(Object.keys(merged).length ? merged : hrmsDefaultDepartmentDesignationMaster);
+      };
+
       const renderServiceDesignationSelection = () => {
         serviceDesignationSelected.innerHTML = selectedServiceDesignations.map(value => `<span class="service-designation-chip"><span>${escapeProductText(value)}</span><button type="button" data-remove-service-designation="${escapeProductText(value)}" aria-label="Remove ${escapeProductText(value)}">&times;</button></span>`).join("");
       };
@@ -11381,7 +11536,7 @@
       const renderServiceDesignationOptions = () => {
         const query = serviceDesignationSearch.value.trim().toLowerCase();
         const options = (serviceDesignationMaster[serviceDepartmentInput.value] || []).filter(value => !selectedServiceDesignations.includes(value) && (!query || value.toLowerCase().includes(query)));
-        serviceDesignationDropdown.innerHTML = options.length ? options.map(value => `<button class="service-designation-option" type="button" data-service-designation-value="${escapeProductText(value)}">${escapeProductText(value)}</button>`).join("") : `<div class="service-designation-empty">${serviceDepartmentInput.value ? "No matching designations" : "Select a Department first"}</div>`;
+        serviceDesignationDropdown.innerHTML = options.length ? options.map(value => `<button class="service-designation-option" type="button" data-service-designation-value="${escapeProductText(value)}">${escapeProductText(value)}</button>`).join("") : `<div class="service-designation-empty">${serviceDepartmentInput.value ? "No HRMS designations for this Department" : "Select a Department first"}</div>`;
       };
 
       const openServiceDesignationDropdown = () => {
@@ -11400,7 +11555,7 @@
         const valid = serviceDesignationMaster[serviceDepartmentInput.value] || [];
         selectedServiceDesignations = selectedServiceDesignations.filter(value => valid.includes(value));
         serviceDesignationSearch.disabled = !serviceDepartmentInput.value;
-        serviceDesignationSearch.placeholder = serviceDepartmentInput.value ? "Search and select designations" : "Select department first";
+        serviceDesignationSearch.placeholder = serviceDepartmentInput.value ? (valid.length ? "Search and select designations" : "No HRMS designations for department") : "Select department first";
         renderServiceDesignationSelection();
         renderServiceDesignationOptions();
       };
@@ -11601,6 +11756,7 @@
         closeServiceTagDropdown();
         serviceTagQuickAddStatus.textContent = "Search existing tags or type a new tag and press Enter.";
         serviceTagQuickAddStatus.classList.remove("is-success");
+        renderServiceDepartmentOptions();
         updateServiceDesignationInput();
         updateServiceSubcategoryInput();
         updateServicePricingStructure();
@@ -11705,6 +11861,7 @@
         serviceNameInput.value = record.name;
         serviceStatusInput.value = record.status;
         serviceOnlineInput.value = record.online ? "Yes" : "No";
+        renderServiceDepartmentOptions(record.department, { preserveUnknown: true });
         serviceDepartmentInput.value = record.department;
         selectedServiceDesignations = [...record.designations];
         updateServiceDesignationInput();
@@ -17230,6 +17387,7 @@
       const initializeErpWorkspace = async () => {
         await loadErpMockDb();
         initializeCountrySelects();
+        await loadServiceHrmsMaster();
         pinnableTables.forEach(initializePinnableTable);
         renderCustomerLayer();
         renderProductLayer();
@@ -17241,6 +17399,7 @@
         updateProductStructurePanels();
         updateProductOnlinePanel();
         renderServiceLayer();
+        renderServiceDepartmentOptions();
         updateServiceSubcategoryInput();
         updateServiceDesignationInput();
         renderServiceTagChoices([]);
