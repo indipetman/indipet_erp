@@ -7947,6 +7947,7 @@
       let activeProductRecordSku = "";
       let activeProductGroupKey = "";
       let productAttributeSequence = 0;
+      let productSkuDraftSnapshots = new Map();
       let selectedProductTags = [];
       let productOnlineNameAutoValue = "";
       let productSlugAutoValue = "";
@@ -12140,6 +12141,7 @@
             if (online) online.value = variantRecord.online ? "Online" : "Offline";
             if (status) status.value = variantRecord.status;
             updateVariantDisplayName(skuCard);
+            rememberProductSkuCardSnapshot(skuCard);
           });
         }
         setProductStep(0);
@@ -13663,8 +13665,10 @@
         } : null;
       };
 
+      const productSkuCardKey = card => card.querySelector(".product-sku-head strong")?.textContent || "";
+
       const productSkuCardSnapshot = card => ({
-        key: card.querySelector(".product-sku-head strong")?.textContent || "",
+        key: productSkuCardKey(card),
         sku: card.querySelector(".customer-form-field input[readonly]")?.value || "",
         barcode: card.querySelector('.customer-form-field.span-2 input:not([readonly])')?.value || "",
         stockUnit: card.querySelector("[data-variant-stock-unit]")?.value || "",
@@ -13681,12 +13685,20 @@
         retailDriver: card.dataset.retailDriver || "discount"
       });
 
-      const productSkuSnapshotMap = () => new Map(
-        [...productSkuList.querySelectorAll("[data-product-sku-card]")]
-          .map(productSkuCardSnapshot)
-          .filter(snapshot => snapshot.key)
-          .map(snapshot => [snapshot.key, snapshot])
-      );
+      const rememberProductSkuCardSnapshot = card => {
+        const snapshot = productSkuCardSnapshot(card);
+        if (snapshot.key) productSkuDraftSnapshots.set(snapshot.key, snapshot);
+        return snapshot;
+      };
+
+      const productSkuSnapshotMap = () => {
+        const snapshots = new Map(productSkuDraftSnapshots);
+        productSkuList.querySelectorAll("[data-product-sku-card]").forEach(card => {
+          const snapshot = rememberProductSkuCardSnapshot(card);
+          if (snapshot.key) snapshots.set(snapshot.key, snapshot);
+        });
+        return snapshots;
+      };
 
       const restoreProductSkuCardSnapshot = (card, snapshot) => {
         if (!snapshot) return;
@@ -13711,6 +13723,7 @@
         card.dataset.retailDriver = snapshot.retailDriver;
         updateVariantDisplayName(card);
         card.querySelector("[data-variant-margin]").textContent = calculateProductMargin(card.querySelector("[data-variant-landing]").value, card.querySelector("[data-variant-selling]").value);
+        productSkuDraftSnapshots.set(snapshot.key, productSkuCardSnapshot(card));
       };
 
       const renderProductSkuCombinations = () => {
@@ -13769,7 +13782,7 @@
             </article>`;
         }).join("");
         productSkuList.querySelectorAll("[data-product-sku-card]").forEach(card => {
-          const key = card.querySelector(".product-sku-head strong")?.textContent || "";
+          const key = productSkuCardKey(card);
           const snapshot = existingSnapshots.get(key);
           if (snapshot) restoreProductSkuCardSnapshot(card, snapshot);
           else updateVariantDisplayName(card);
@@ -13927,6 +13940,7 @@
         renderProductImagePreviews();
         if (productImageInput) productImageInput.value = "";
         resetProductContentSections();
+        productSkuDraftSnapshots = new Map();
         productAttributeList.innerHTML = "";
         productSkuList.innerHTML = "";
         productAttributeSequence = 0;
@@ -15825,11 +15839,13 @@
         if (event.target.matches("[data-variant-purchase], [data-variant-landing], [data-variant-mrp], [data-variant-discount], [data-variant-selling]")) {
           card.querySelector("[data-variant-margin]").textContent = calculateProductMargin(card.querySelector("[data-variant-landing]").value, card.querySelector("[data-variant-selling]").value);
         }
+        rememberProductSkuCardSnapshot(card);
       });
 
       productSkuList.addEventListener("change", event => {
         const card = event.target.closest("[data-product-sku-card]");
         if (card && event.target.matches("[data-variant-uom]")) updateVariantDisplayName(card);
+        if (card) rememberProductSkuCardSnapshot(card);
       });
 
       productForm.addEventListener("input", event => {
