@@ -12556,6 +12556,18 @@
           </button>`;
       };
 
+      const syncProductModeChrome = () => {
+        const viewMode = productFormMode === "view";
+        const editMode = productFormMode === "edit";
+        const activeRecord = activeProductRecordSku ? productRecordBySku(activeProductRecordSku) : null;
+        productFormView.classList.toggle("is-product-view-mode", viewMode);
+        productFormView.setAttribute("aria-label", viewMode ? "View Product profile" : editMode ? "Edit Product workflow" : "Add New Product workflow");
+        productViewActions.hidden = !viewMode;
+        productFormActions.hidden = viewMode;
+        if (viewMode) renderProductViewActions(activeRecord);
+        else renderProductViewActions(null);
+      };
+
       const syncProductStepperState = () => {
         const viewMode = productFormMode === "view";
         productStepper.classList.toggle("is-view-stepper", viewMode);
@@ -12598,12 +12610,8 @@
             ? `Update the product profile for ${formRecordTitle}.`
             : "Create the product definition and generate its standard or variation SKU records.";
         submitProductForm.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>${mode === "edit" ? "Save Changes" : "Create Product"}`;
-        productFormView.classList.toggle("is-product-view-mode", mode === "view");
-        productFormView.setAttribute("aria-label", mode === "view" ? "View Product profile" : mode === "edit" ? "Edit Product workflow" : "Add New Product workflow");
-        productViewActions.hidden = mode !== "view";
-        productFormActions.hidden = mode === "view";
-        renderProductViewActions(mode === "view" ? record : null);
         setProductFormReadOnly(mode === "view");
+        syncProductModeChrome();
         syncProductStepperState();
       };
 
@@ -13074,7 +13082,7 @@
         const base = { id: `block-${productContentBlockSequence}`, type };
         if (type === "image") return { ...base, imageUrl: "", imageName: "", alt: "", caption: "" };
         if (type === "table") return { ...base, rows: [["Feature", "Details"], ["", ""]] };
-        return { ...base, html: "" };
+        return { ...base, html: "", align: "", verticalAlign: "top" };
       };
 
       const createProductContentSection = (title = "Overview") => {
@@ -13090,8 +13098,8 @@
 
       const revokeProductContentImages = () => {
         productContentSections.forEach(section => {
-          section.blocks.forEach(block => {
-            if (block.type === "image" && block.imageUrl) URL.revokeObjectURL(block.imageUrl);
+          (Array.isArray(section?.blocks) ? section.blocks : []).forEach(block => {
+            if (block?.type === "image" && block.imageUrl) URL.revokeObjectURL(block.imageUrl);
           });
         });
       };
@@ -13113,6 +13121,22 @@
 
       const productRichAlignmentValue = value => ["left", "center", "right", "justify"].includes(value) ? value : "";
       const productRichVerticalAlignmentValue = value => ["top", "middle", "bottom"].includes(value) ? value : "top";
+      const productContentTableRows = rows => {
+        if (!Array.isArray(rows) || !rows.length) return [["Feature", "Details"], ["", ""]];
+        const safeRows = rows
+          .filter(row => Array.isArray(row))
+          .map(row => row.length ? row.map(cell => String(cell ?? "")) : [""])
+          .filter(row => row.length);
+        return safeRows.length ? safeRows : [["Feature", "Details"], ["", ""]];
+      };
+      const normalizeProductContentBlockForLoad = block => {
+        productContentBlockSequence += 1;
+        const source = block && typeof block === "object" ? block : {};
+        const type = ["image", "table", "text"].includes(source.type) ? source.type : "text";
+        if (type === "image") return { id: `block-${productContentBlockSequence}`, type, imageUrl: "", imageName: source.imageName || "", alt: source.alt || "", caption: source.caption || "" };
+        if (type === "table") return { id: `block-${productContentBlockSequence}`, type, rows: productContentTableRows(source.rows) };
+        return { id: `block-${productContentBlockSequence}`, type: "text", html: source.html || "", align: productRichAlignmentValue(source.align), verticalAlign: productRichVerticalAlignmentValue(source.verticalAlign) };
+      };
 
       const productContentSectionsForStorage = () => {
         syncProductContentDomToState();
@@ -13122,9 +13146,10 @@
         tabLabel: section.tabLabel || "",
         visibility: section.visibility || "Visible",
         blocks: (section.blocks || []).map(block => {
-          if (block.type === "image") return { id: block.id, type: "image", imageUrl: "", imageName: block.imageName || "", alt: block.alt || "", caption: block.caption || "" };
-          if (block.type === "table") return { id: block.id, type: "table", rows: Array.isArray(block.rows) ? block.rows.map(row => [...row]) : [["Feature", "Details"], ["", ""]] };
-          return { id: block.id, type: "text", html: block.html || "", align: productRichAlignmentValue(block.align), verticalAlign: productRichVerticalAlignmentValue(block.verticalAlign) };
+          const safeBlock = block && typeof block === "object" ? block : createProductContentBlock("text");
+          if (safeBlock.type === "image") return { id: safeBlock.id, type: "image", imageUrl: "", imageName: safeBlock.imageName || "", alt: safeBlock.alt || "", caption: safeBlock.caption || "" };
+          if (safeBlock.type === "table") return { id: safeBlock.id, type: "table", rows: productContentTableRows(safeBlock.rows) };
+          return { id: safeBlock.id, type: "text", html: safeBlock.html || "", align: productRichAlignmentValue(safeBlock.align), verticalAlign: productRichVerticalAlignmentValue(safeBlock.verticalAlign) };
         })
         }));
       };
@@ -13136,19 +13161,14 @@
         productContentBlockSequence = 0;
         productContentSections = sections.map(section => {
           productContentSectionSequence += 1;
-          const blocks = Array.isArray(section.blocks) && section.blocks.length ? section.blocks : [{ type: "text", html: "" }];
+          const safeSection = section && typeof section === "object" ? section : {};
+          const blocks = Array.isArray(safeSection.blocks) && safeSection.blocks.length ? safeSection.blocks.filter(Boolean) : [{ type: "text", html: "" }];
           return {
             id: `section-${productContentSectionSequence}`,
-            title: section.title || "Overview",
-            tabLabel: section.tabLabel || section.title || "Overview",
-            visibility: section.visibility === "Hidden" ? "Hidden" : "Visible",
-            blocks: blocks.map(block => {
-              productContentBlockSequence += 1;
-              const type = ["image", "table", "text"].includes(block.type) ? block.type : "text";
-              if (type === "image") return { id: `block-${productContentBlockSequence}`, type, imageUrl: "", imageName: block.imageName || "", alt: block.alt || "", caption: block.caption || "" };
-              if (type === "table") return { id: `block-${productContentBlockSequence}`, type, rows: Array.isArray(block.rows) ? block.rows.map(row => [...row]) : [["Feature", "Details"], ["", ""]] };
-              return { id: `block-${productContentBlockSequence}`, type: "text", html: block.html || "", align: productRichAlignmentValue(block.align), verticalAlign: productRichVerticalAlignmentValue(block.verticalAlign) };
-            })
+            title: safeSection.title || "Overview",
+            tabLabel: safeSection.tabLabel || safeSection.title || "Overview",
+            visibility: safeSection.visibility === "Hidden" ? "Hidden" : "Visible",
+            blocks: blocks.length ? blocks.map(normalizeProductContentBlockForLoad) : [normalizeProductContentBlockForLoad({ type: "text", html: "" })]
           };
         });
         renderProductContentSections();
@@ -13162,6 +13182,10 @@
       };
 
       const productContentBlockMarkup = (section, block, blockIndex) => {
+        if (!block || typeof block !== "object") block = { id: `missing-block-${blockIndex}`, type: "text", html: "", align: "", verticalAlign: "top" };
+        if (block.type === "table") block.rows = productContentTableRows(block.rows);
+        if (block.type === "image") block = { imageUrl: "", imageName: "", alt: "", caption: "", ...block };
+        if (!["image", "table", "text"].includes(block.type)) block.type = "text";
         const blockTitle = block.type === "image" ? "Image Block" : block.type === "table" ? "Table Block" : "Text Block";
         const actionButtons = `
           <div class="product-content-block-actions">
@@ -13326,8 +13350,9 @@
           </article>
         `).join("");
         updateProductOnlinePanel();
-        productContentSectionList.querySelectorAll("[data-product-rich-canvas]").forEach(updateProductRichToolbarState);
+        productContentSectionList.querySelectorAll("[data-product-rich-canvas]").forEach(canvas => updateProductRichToolbarState(canvas));
         if (productFormMode === "view") setProductFormReadOnly(true);
+        syncProductModeChrome();
       };
 
       const updateProductContentValue = field => {
@@ -14881,6 +14906,12 @@
         backProductStep.disabled = activeProductStep === 0;
         nextProductStep.hidden = activeProductStep === 4;
         submitProductForm.hidden = activeProductStep !== 4;
+        if (productFormMode === "view") {
+          backProductStep.disabled = true;
+          nextProductStep.hidden = true;
+          submitProductForm.hidden = true;
+        }
+        syncProductModeChrome();
         clearProductFormMessage();
         scrollProductFormToTop();
       };
@@ -14943,6 +14974,9 @@
       };
 
       const resetProductForm = () => {
+        productFormMode = "create";
+        activeProductRecordSku = "";
+        activeProductGroupKey = "";
         productForm.classList.remove("is-readonly");
         productFormActions.hidden = false;
         productViewActions.hidden = true;
