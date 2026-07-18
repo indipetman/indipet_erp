@@ -10712,6 +10712,10 @@
 
       const serviceRecordById = id => serviceRecords.find(record => record.id === id);
 
+      const serviceDeleteBlockedReason = record => record?.lastPerformed
+        ? "This Service has performance or billing transaction history. Delete is blocked; set it Inactive instead."
+        : "";
+
       const setServiceRecordStatus = (record, status) => {
         if (!record) return;
         record.status = status;
@@ -11908,6 +11912,31 @@
       const activeProductGroupRecords = () => activeProductGroupKey
         ? productRecords.filter(record => productRecordGroupKey(record) === activeProductGroupKey)
         : [];
+
+      const productRecordHasTransaction = record => {
+        if (!record) return false;
+        if (record.lastSale) return true;
+        const hasStockMovement = stockOverviewRecords.some(stock =>
+          stock.sku === record.sku && (
+            Number(stock.availableQty) > 0 ||
+            Number(stock.lastSaleQty) > 0 ||
+            Boolean(stock.lastSaleDate) ||
+            Boolean(stock.lastPurchaseDate)
+          )
+        );
+        if (hasStockMovement) return true;
+        return Object.entries(stockOverviewBatchRecords).some(([key, batches]) =>
+          key.startsWith(`${record.sku}||`) && Array.isArray(batches) && batches.length > 0
+        );
+      };
+
+      const productDeleteBlockedReason = record => {
+        const records = productGroupRecords(record);
+        if (!records.length) return "";
+        return records.some(productRecordHasTransaction)
+          ? "This Product/SKU has stock, batch, sale, or other transaction history. Delete is blocked; set it Inactive instead."
+          : "";
+      };
 
       const productStatusToStockControlStatus = status => status === "Inactive" ? "Inactive" : "Active";
       const stockControlStatusToProductStatus = status => status === "Inactive" ? "Inactive" : "Active";
@@ -15183,9 +15212,16 @@
           return;
         }
         if (profileAction.dataset.productViewAction === "delete") {
-          if (!window.confirm(`Delete ${productDisplayName(record)} from this preview list?`)) return;
-          const index = productRecords.findIndex(item => item.sku === record.sku);
-          if (index >= 0) productRecords.splice(index, 1);
+          const blockedReason = productDeleteBlockedReason(record);
+          if (blockedReason) {
+            showProductFormMessage(blockedReason);
+            return;
+          }
+          const recordsToDelete = productGroupRecords(record);
+          const deleteLabel = record.structure === "Variable" ? `${record.product} and ${recordsToDelete.length} variation SKU${recordsToDelete.length === 1 ? "" : "s"}` : productDisplayName(record);
+          if (!window.confirm(`Delete ${deleteLabel} from this preview list?`)) return;
+          const deleteSkus = new Set(recordsToDelete.map(item => item.sku));
+          productRecords = productRecords.filter(item => !deleteSkus.has(item.sku));
           renderProductSummary();
           renderProductFilterOptions();
           renderProductTable();
@@ -15236,6 +15272,11 @@
           return;
         }
         if (profileAction.dataset.serviceViewAction === "delete") {
+          const blockedReason = serviceDeleteBlockedReason(record);
+          if (blockedReason) {
+            showServiceFormMessage(blockedReason);
+            return;
+          }
           if (!window.confirm(`Delete ${record.name} from this preview list?`)) return;
           const index = serviceRecords.findIndex(item => item.id === record.id);
           if (index >= 0) serviceRecords.splice(index, 1);
