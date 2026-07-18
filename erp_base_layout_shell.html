@@ -7481,12 +7481,12 @@
         writeErpStorage(erpActiveLayerStorageKey, layer);
       };
 
-      const showAuthenticatedErpShell = () => {
+      const showAuthenticatedErpShell = ({ revealShell = true } = {}) => {
         loginPage.hidden = true;
-        erpAppShell.hidden = false;
+        if (revealShell) erpAppShell.hidden = false;
       };
 
-      if (isErpAuthenticated()) showAuthenticatedErpShell();
+      if (isErpAuthenticated()) showAuthenticatedErpShell({ revealShell: false });
       const sidebar = document.getElementById("sidebar");
       const collapseButton = document.getElementById("collapseSidebar");
       const mobileMenuButton = document.getElementById("mobileMenu");
@@ -16138,7 +16138,10 @@
         renderMasterHubSummary();
         renderMasterHubTiles();
         renderMasterHubRecords();
-        if (isErpAuthenticated()) restoreErpLayer();
+        if (isErpAuthenticated()) {
+          restoreErpLayer();
+          showAuthenticatedErpShell();
+        }
       };
 
       initializeErpWorkspace();
