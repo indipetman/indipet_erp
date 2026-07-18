@@ -12351,12 +12351,42 @@
         return entry ? entry[1][0] : null;
       };
 
+      const productRecordAttributeNames = record => String(record?.attribute || "").split(",").map(name => name.trim()).filter(Boolean);
+
+      const inferredProductVariationAttributeName = (record, value, index) => {
+        const attributeNames = productRecordAttributeNames(record);
+        if (attributeNames[index]) return attributeNames[index];
+        if (attributeNames.length === 1) return attributeNames[0];
+        const measurementAttribute = productMeasurementDefiningAttributeGroups.find(attribute => parseProductMeasurementValue(attribute, value));
+        return measurementAttribute || "";
+      };
+
       const parseProductVariationPairs = record => record.structure === "Variable"
-        ? record.variation.split(/\s*(?:·|·)\s*/).map(part => {
-            const separator = part.indexOf(": ");
-            return separator > -1 ? { name: part.slice(0, separator).trim(), value: part.slice(separator + 2).trim() } : null;
+        ? String(record.variation || "").split(/\s*·\s*/).map((part, index) => {
+            const text = part.trim();
+            if (!text || text.toLowerCase() === "variable") return null;
+            const labelled = text.match(/^([^:]+):\s*(.+)$/);
+            if (labelled) return { name: labelled[1].trim(), value: labelled[2].trim() };
+            const inferredName = inferredProductVariationAttributeName(record, text, index);
+            return inferredName ? { name: inferredName, value: text } : null;
           }).filter(Boolean)
         : [];
+
+      const productVariationValueKey = values => values.map(value => String(value || "").trim().toLowerCase()).filter(Boolean).join("||");
+
+      const productVariationLabelValueKey = label => productVariationValueKey(String(label || "").split(/\s*·\s*/).map(part => {
+        const labelled = part.match(/^([^:]+):\s*(.+)$/);
+        return labelled ? labelled[2] : part;
+      }));
+
+      const productRecordVariationValueKey = record => productVariationValueKey(productRecordVariationValuesForRepair(record));
+
+      const productRecordMatchesSkuCard = (record, label, sku = "") => {
+        if (!record) return false;
+        if (record.variation === label || (sku && record.sku === sku)) return true;
+        const labelKey = productVariationLabelValueKey(label);
+        return Boolean(labelKey && productRecordVariationValueKey(record) === labelKey);
+      };
 
       const setProductFormReadOnly = readOnly => {
         productForm.classList.toggle("is-readonly", readOnly);
@@ -12510,12 +12540,15 @@
           productCommonStockUnit.value = record.stockUnit;
           productCommonPackQty.value = record.packQty;
           productCommonUom.value = record.uom;
-          productSkuManualOrder = groupRecords.map(item => item.variation).filter(Boolean);
+          productSkuManualOrder = groupRecords.map(item => {
+            const pairs = parseProductVariationPairs(item);
+            return pairs.length ? productSkuCombinationLabel(pairs) : item.variation;
+          }).filter(Boolean);
           renderProductSkuCombinations();
           productSkuList.querySelectorAll("[data-product-sku-card]").forEach(skuCard => {
             const label = skuCard.querySelector(".product-sku-head strong")?.textContent || "";
             const generatedSku = skuCard.querySelector(".customer-form-field input[readonly]")?.value || "";
-            const variantRecord = groupRecords.find(item => item.variation === label) || groupRecords.find(item => item.sku === generatedSku);
+            const variantRecord = groupRecords.find(item => productRecordMatchesSkuCard(item, label, generatedSku));
             if (!variantRecord) return;
             const variantBatch = productFirstBatchRecord(variantRecord);
             const inputs = skuCard.querySelectorAll("input");
@@ -14514,7 +14547,7 @@
         productSkuList.querySelectorAll("[data-product-sku-card]").forEach(card => {
           const label = productSkuCardKey(card);
           const sku = card.querySelector(".customer-form-field input[readonly]")?.value || "";
-          const record = records.find(item => item.variation === label) || records.find(item => item.sku === sku);
+          const record = records.find(item => productRecordMatchesSkuCard(item, label, sku));
           if (!record) return;
           const current = mergeProductSkuSnapshot(productSkuDraftSnapshots.get(label), productSkuCardSnapshot(card));
           restoreProductSkuCardSnapshot(card, fillMissingProductSkuSnapshot(current, productSkuRecordSnapshot(record)));
