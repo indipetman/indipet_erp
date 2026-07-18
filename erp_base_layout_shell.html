@@ -8090,6 +8090,7 @@
       let productOnlineNameAutoValue = "";
       let productSlugAutoValue = "";
       let productImagePreviewRecords = [];
+      let productImageReadPromises = [];
       let productContentSections = [];
       let productContentSectionSequence = 0;
       let productContentBlockSequence = 0;
@@ -8547,6 +8548,7 @@
           metaDescription: productMetaDescriptionInput.value.trim(),
           manufacturerDetails: productManufacturerDetailsInput.value.trim(),
           countryOfOrigin: productCountryOfOriginInput.value,
+          productImages: productStoredImages(),
           contentSections: productContentSectionsForStorage(),
           status: productParentStatus.value,
           hsn: productHsnInput.value.trim(),
@@ -8597,6 +8599,7 @@
             metaDescription: base.metaDescription,
             manufacturerDetails: base.manufacturerDetails,
             countryOfOrigin: base.countryOfOrigin,
+            productImages: base.productImages,
             contentSections: base.contentSections,
             updated: today,
             created: existingVariant?.created || base.created,
@@ -12312,7 +12315,7 @@
         resetProductForm();
         const groupRecords = productGroupRecords(record);
         const onlineSourceRecord = record.structure === "Variable"
-          ? groupRecords.find(item => item.onlineName || item.slug || item.metaTitle || item.metaDescription || item.manufacturerDetails || item.countryOfOrigin || (Array.isArray(item.contentSections) && item.contentSections.length)) || record
+          ? groupRecords.find(item => item.onlineName || item.slug || item.metaTitle || item.metaDescription || item.manufacturerDetails || item.countryOfOrigin || (Array.isArray(item.productImages) && item.productImages.length) || (Array.isArray(item.contentSections) && item.contentSections.length)) || record
           : record;
         const batch = productFirstBatchRecord(record);
         productNameInput.value = record.product;
@@ -12353,6 +12356,7 @@
         productMetaDescriptionInput.value = onlineSourceRecord.metaDescription || "";
         productManufacturerDetailsInput.value = onlineSourceRecord.manufacturerDetails || "";
         productCountryOfOriginInput.value = countryOptions.includes(onlineSourceRecord.countryOfOrigin) ? onlineSourceRecord.countryOfOrigin : "";
+        restoreProductImagePreviews(onlineSourceRecord.productImages);
         standardStockUnit.value = record.stockUnit;
         standardPackQty.value = record.packQty;
         standardUom.value = record.uom;
@@ -12682,27 +12686,78 @@
             <button class="product-image-remove" type="button" data-product-image-remove="${index}" aria-label="Remove ${escapeProductText(record.name)}">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
             </button>
-            <img src="${record.url}" alt="${escapeProductText(record.name)} preview">
+            <img src="${record.dataUrl || record.url}" alt="${escapeProductText(record.name)} preview">
             <div class="product-image-thumb-meta">
               <span class="product-image-thumb-name">${escapeProductText(record.name)}</span>
-              <span class="product-image-thumb-status">${index === 0 ? "Primary catalogue image" : "Catalogue image"}</span>
+              <span class="product-image-thumb-status">${record.dataUrl ? (index === 0 ? "Primary catalogue image" : "Catalogue image") : "Preparing preview"}</span>
             </div>
           </article>
         `).join("");
       };
 
       const revokeProductImagePreviews = () => {
-        productImagePreviewRecords.forEach(record => URL.revokeObjectURL(record.url));
+        productImagePreviewRecords.forEach(record => {
+          if (record.url?.startsWith("blob:")) URL.revokeObjectURL(record.url);
+        });
         productImagePreviewRecords = [];
+        productImageReadPromises = [];
+      };
+
+      const productImageFileToDataUrl = file => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(reader.error || new Error("Could not read product image."));
+        reader.readAsDataURL(file);
+      });
+
+      const productStoredImages = () => productImagePreviewRecords
+        .map(record => ({
+          name: record.name || "Product image",
+          type: record.type || "",
+          size: record.size || 0,
+          lastModified: record.lastModified || 0,
+          dataUrl: record.dataUrl || (record.url?.startsWith("data:") ? record.url : "")
+        }))
+        .filter(record => record.dataUrl);
+
+      const restoreProductImagePreviews = images => {
+        revokeProductImagePreviews();
+        productImagePreviewRecords = (Array.isArray(images) ? images : [])
+          .map(image => ({
+            name: image.name || "Product image",
+            type: image.type || "",
+            size: Number(image.size) || 0,
+            lastModified: Number(image.lastModified) || 0,
+            dataUrl: image.dataUrl || "",
+            url: image.dataUrl || ""
+          }))
+          .filter(image => image.dataUrl);
+        renderProductImagePreviews();
       };
 
       const handleProductImageSelection = files => {
         const imageFiles = Array.from(files || []).filter(file => file.type.startsWith("image/"));
         imageFiles.forEach(file => {
-          productImagePreviewRecords.push({
+          const record = {
             name: file.name,
+            type: file.type,
+            size: file.size,
+            lastModified: file.lastModified,
+            dataUrl: "",
             url: URL.createObjectURL(file)
-          });
+          };
+          productImagePreviewRecords.push(record);
+          const readPromise = productImageFileToDataUrl(file)
+            .then(dataUrl => {
+              record.dataUrl = dataUrl;
+              if (record.url?.startsWith("blob:")) URL.revokeObjectURL(record.url);
+              record.url = dataUrl;
+              renderProductImagePreviews();
+            })
+            .catch(error => {
+              console.warn("Could not store product image preview.", error);
+            });
+          productImageReadPromises.push(readPromise);
         });
         renderProductImagePreviews();
         if (productImageInput) productImageInput.value = "";
@@ -16576,7 +16631,7 @@
         if (removeImage) {
           const index = Number(removeImage.dataset.productImageRemove);
           const [record] = productImagePreviewRecords.splice(index, 1);
-          if (record) URL.revokeObjectURL(record.url);
+          if (record?.url?.startsWith("blob:")) URL.revokeObjectURL(record.url);
           renderProductImagePreviews();
           return;
         }
@@ -16613,6 +16668,7 @@
           return;
         }
         setProductStep(4);
+        await Promise.allSettled(productImageReadPromises);
         const repairedProductFormRecords = repairProductRecords(productRecordsFromForm());
         const records = repairedProductFormRecords.records;
         if (productFormMode === "edit" && activeProductGroupKey && productStructureValue() === "Variable") {
