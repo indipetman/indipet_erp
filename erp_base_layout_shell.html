@@ -6809,9 +6809,9 @@
 
                   <div id="productStandardPhysicalPanel">
                     <div class="customer-form-grid">
-                      <label class="customer-form-field"><span class="customer-form-label">Stock Unit <span class="customer-required">Required</span></span><select id="standardStockUnit" data-product-standard-required><option value="">Select stock unit</option><option value="pc">Pc</option><option value="box">Box</option><option value="bag">Bag</option><option value="bottle">Bottle</option><option value="roll">Roll</option></select><span class="product-form-field-note">Used for stock movement and accounting quantity.</span></label>
+                      <label class="customer-form-field"><span class="customer-form-label">Stock Unit <span class="customer-required">Required</span></span><select id="standardStockUnit" data-product-standard-required><option value="">Select stock unit</option></select><span class="product-form-field-note">Used for stock movement and accounting quantity.</span></label>
                       <label class="customer-form-field"><span class="customer-form-label">Net Content Qty <span class="customer-required">Required</span></span><input id="standardPackQty" data-product-standard-required type="number" min="0.01" step="0.01" placeholder="Example: 10"></label>
-                      <label class="customer-form-field"><span class="customer-form-label">Measurement UoM <span class="customer-required">Required</span></span><select id="standardUom" data-product-standard-required><option value="">Select measurement</option><option>g</option><option>kg</option><option>ml</option><option>L</option><option>pc</option><option>tablet</option><option>capsule</option><option>cm</option></select><span class="product-form-field-note">Used for display, consumption and price-per-unit context.</span></label>
+                      <label class="customer-form-field"><span class="customer-form-label">Measurement UoM <span class="customer-required">Required</span></span><select id="standardUom" data-product-standard-required><option value="">Select measurement</option></select><span class="product-form-field-note">Used for display, consumption and price-per-unit context.</span></label>
                       <div class="customer-form-field"><span class="customer-form-label">Dimensions (CM)</span><div class="product-dimension-controls"><input id="standardLength" type="number" min="0" step="0.1" aria-label="Length" placeholder="L"><input id="standardHeight" type="number" min="0" step="0.1" aria-label="Height" placeholder="H"><input id="standardWidth" type="number" min="0" step="0.1" aria-label="Width" placeholder="W"></div></div>
                       <label class="customer-form-field span-3"><span class="customer-form-label">System Display Name</span><input id="standardDisplayNamePreview" value="Enter Product Name, Net Content and Measurement UoM" readonly><span class="product-form-field-note">Brand remains a separate optional master value.</span></label>
                     </div>
@@ -6848,9 +6848,9 @@
                     <div class="customer-conditional-panel" id="productCommonUnitPanel" hidden>
                       <div><h3 class="customer-subsection-title">Common Stock & Measurement</h3><p class="customer-subsection-copy">Apply one Stock Unit to generated SKUs. If measurement is not derived from an attribute, also apply Net Content Qty and Measurement UoM.</p></div>
                       <div class="customer-form-grid">
-                        <label class="customer-form-field"><span class="customer-form-label">Stock Unit</span><select id="productCommonStockUnit"><option value="">Select stock unit</option><option value="pc">Pc</option><option value="box">Box</option><option value="bag">Bag</option><option value="bottle">Bottle</option><option value="roll">Roll</option></select></label>
+                        <label class="customer-form-field"><span class="customer-form-label">Stock Unit</span><select id="productCommonStockUnit"><option value="">Select stock unit</option></select></label>
                         <label class="customer-form-field"><span class="customer-form-label">Net Content Qty</span><input id="productCommonPackQty" type="number" min="0.01" step="0.01" placeholder="Example: 1"></label>
-                        <label class="customer-form-field"><span class="customer-form-label">Measurement UoM</span><select id="productCommonUom"><option value="">Select measurement</option><option>g</option><option>kg</option><option>ml</option><option>L</option><option>pc</option><option>tablet</option><option>capsule</option><option>cm</option></select></label>
+                        <label class="customer-form-field"><span class="customer-form-label">Measurement UoM</span><select id="productCommonUom"><option value="">Select measurement</option></select></label>
                         <div class="customer-form-field"><span class="customer-form-label">Apply</span><button class="action-button" id="applyProductCommonUnit" type="button">Apply to All SKUs</button></div>
                       </div>
                     </div>
@@ -8211,16 +8211,12 @@
       const productPreviewDate = new Date("2026-06-21T00:00:00");
       const unitGroupOptions = ["Count", "Weight", "Volume", "Length", "Other"];
       const productAttributeOptions = [...unitGroupOptions, "Pack", "Size", "Colour", "Flavour", "Material"];
-      const productStockUnitOptions = ["pc", "box", "bag", "bottle", "roll"];
-      const productMeasurementUnitOptions = ["g", "kg", "ml", "L", "pc", "tablet", "capsule", "cm"];
       const productMeasurementAttributeLabel = "Count, Weight, Volume, Length or Pack";
-      const productUnitAttributeUnits = {
-        Count: ["pc", "tablet", "capsule"],
-        Weight: ["g", "kg"],
-        Volume: ["ml", "L"],
-        Length: ["cm"],
-        Pack: ["pc", "tablet", "capsule"]
-      };
+      const productMeasurementDefiningAttributeGroups = ["Count", "Weight", "Volume", "Length", "Pack"];
+      const productUnitAttributeUnits = new Proxy({}, {
+        get: (target, property) => productMeasurementDefiningAttributeGroups.includes(property) ? productMeasurementUnitOptionsForGroup(property) : undefined,
+        has: (target, property) => productMeasurementDefiningAttributeGroups.includes(property)
+      });
       const productTagMasterData = [];
       let productRecords = [];
 
@@ -9126,9 +9122,88 @@
         : '<span class="product-cell-stack"><small>—</small></span>';
 
       const renderProductAnimals = animals => `<span class="product-flag-list">${animals.map(animal => `<span class="product-variation-chip">${animal}</span>`).join("")}</span>`;
-      const productStockUnitLabel = unit => ({ pc: "Pc", box: "Box", bag: "Bag", bottle: "Bottle", roll: "Roll" }[unit] || unit || "—");
-      const productStockUnitSelectMarkup = (selected = "") => `<option value="">Select stock unit</option>${productStockUnitOptions.map(unit => `<option value="${unit}" ${selected === unit ? "selected" : ""}>${productStockUnitLabel(unit)}</option>`).join("")}`;
-      const productMeasurementUomSelectMarkup = (selected = "") => `<option value="">Select measurement</option>${productMeasurementUnitOptions.map(unit => `<option ${selected === unit ? "selected" : ""}>${unit}</option>`).join("")}`;
+      const normalizeProductUnitPurpose = value => String(value || "").trim().toLowerCase();
+      const normalizeProductUnitGroup = value => {
+        const normalized = String(value || "").trim().toLowerCase();
+        return normalized === "pack" ? "count" : normalized;
+      };
+      const productUnitValue = unit => String(unit?.symbol || unit?.name || "").trim();
+      const activeProductUnitRecords = () => masterHubData.unit.filter(unit => unit.status === "Active" && productUnitValue(unit));
+      const productUnitOptionsByPurpose = purpose => {
+        const normalizedPurpose = normalizeProductUnitPurpose(purpose);
+        const options = activeProductUnitRecords()
+          .filter(unit => {
+            const unitPurpose = normalizeProductUnitPurpose(unit.purpose);
+            return unitPurpose === "both" || unitPurpose === normalizedPurpose;
+          })
+          .map(unit => ({
+            value: productUnitValue(unit),
+            label: unit.name && unit.symbol && unit.name !== unit.symbol ? `${unit.name} (${unit.symbol})` : productUnitValue(unit),
+            group: unit.unitGroup || ""
+          }));
+        return [...new Map(options.map(option => [option.value.toLowerCase(), option])).values()].sort((a, b) => a.label.localeCompare(b.label));
+      };
+      const productStockUnitOptions = () => productUnitOptionsByPurpose("Stock");
+      const productMeasurementUnitOptions = () => productUnitOptionsByPurpose("Measurement");
+      const productMeasurementUnitOptionsForGroup = group => {
+        const normalizedGroup = normalizeProductUnitGroup(group);
+        return productMeasurementUnitOptions()
+          .filter(unit => normalizeProductUnitGroup(unit.group) === normalizedGroup)
+          .map(unit => unit.value);
+      };
+      const productStockUnitLabel = unit => {
+        const value = String(unit || "").trim();
+        const option = productStockUnitOptions().find(item => item.value.toLowerCase() === value.toLowerCase());
+        return option?.label || value || "—";
+      };
+      const optionStillAvailableMarkup = (selected, options) => {
+        const value = String(selected || "").trim();
+        if (!value || options.some(option => option.value.toLowerCase() === value.toLowerCase())) return "";
+        return `<option value="${escapeProductText(value)}" selected>${escapeProductText(value)} (not in Unit Master)</option>`;
+      };
+      const productStockUnitSelectMarkup = (selected = "") => {
+        const options = productStockUnitOptions();
+        return `<option value="">${options.length ? "Select stock unit" : "Add Stock Unit in Unit Master"}</option>${optionStillAvailableMarkup(selected, options)}${options.map(unit => `<option value="${escapeProductText(unit.value)}" ${selected === unit.value ? "selected" : ""}>${escapeProductText(unit.label)}</option>`).join("")}`;
+      };
+      const productMeasurementUomSelectMarkup = (selected = "") => {
+        const options = productMeasurementUnitOptions();
+        return `<option value="">${options.length ? "Select measurement" : "Add Measurement Unit in Unit Master"}</option>${optionStillAvailableMarkup(selected, options)}${options.map(unit => `<option value="${escapeProductText(unit.value)}" ${selected === unit.value ? "selected" : ""}>${escapeProductText(unit.value)}</option>`).join("")}`;
+      };
+      const refreshSelectMarkup = (select, markup, selected = select?.value || "") => {
+        if (!select) return;
+        select.innerHTML = markup(selected);
+        select.value = selected && [...select.options].some(option => option.value === selected) ? selected : "";
+      };
+      const refreshProductUnitSelects = () => {
+        refreshSelectMarkup(standardStockUnit, productStockUnitSelectMarkup);
+        refreshSelectMarkup(productCommonStockUnit, productStockUnitSelectMarkup);
+        refreshSelectMarkup(standardUom, productMeasurementUomSelectMarkup);
+        refreshSelectMarkup(productCommonUom, productMeasurementUomSelectMarkup);
+        productSkuList.querySelectorAll("[data-variant-stock-unit]").forEach(select => refreshSelectMarkup(select, productStockUnitSelectMarkup));
+        productSkuList.querySelectorAll("[data-variant-uom]").forEach(select => {
+          const selected = select.value;
+          const disabled = select.disabled;
+          refreshSelectMarkup(select, productMeasurementUomSelectMarkup, selected);
+          select.disabled = disabled;
+        });
+      };
+      const refreshProductUnitsFromMaster = () => {
+        refreshProductUnitSelects();
+        productAttributeList.querySelectorAll(".product-attribute-card").forEach(updateProductAttributeGuidance);
+        if (productStructureValue() === "Variable") renderProductSkuCombinations();
+        updateAllProductDisplayNames();
+      };
+      const productAttributeMeasurementExample = attribute => {
+        const units = productUnitAttributeUnits[attribute] || [];
+        const unit = units[0];
+        if (!unit) return "Add matching Measurement Unit in Unit Master first";
+        const quantity = attribute === "Volume" ? "200" : attribute === "Length" ? "10" : attribute === "Count" || attribute === "Pack" ? "12" : "1";
+        return `Type ${quantity} ${unit} and press Enter`;
+      };
+      const productAttributeAllowedUnitText = attribute => {
+        const units = productUnitAttributeUnits[attribute] || [];
+        return units.length ? units.join(", ") : "No matching active Unit Master records";
+      };
 
       const productDisplayName = record => {
         const packLabel = `${record.packQty} ${record.uom}`.toLowerCase();
@@ -9942,7 +10017,7 @@
             masterModalField({ name: "purpose", label: "Unit Purpose", value: record.purpose || "", required: true, options: [{ value: "", label: "Select purpose" }, "Stock", "Measurement", "Both"] }),
             masterModalField({ name: "unitGroup", label: "Unit Group", value: record.unitGroup || "", required: true, options: [{ value: "", label: "Select group" }, ...unitGroupOptions] }),
             masterModalField({ name: "name", label: "Unit Name", value: record.name, required: true, placeholder: "Enter unit name" }),
-            masterModalField({ name: "symbol", label: "Symbol", value: record.symbol, required: true, placeholder: "kg, g, L, ml, pc" }),
+            masterModalField({ name: "symbol", label: "Symbol", value: record.symbol, required: true, placeholder: "Enter unit symbol" }),
             masterModalField({ name: "relatedUnit", label: "Related / Base Unit", value: record.relatedUnit || "", options: [{ value: "", label: "No relation / base unit" }, ...relatedUnits] }),
             masterModalField({ name: "conversionFactor", label: "Conversion Factor", value: record.conversionFactor || "", type: "number", placeholder: "Example: 1000" }),
             masterModalField({ name: "status", label: "Status", value: record.status || "Active", required: true, options: statuses }),
@@ -10089,6 +10164,7 @@
         renderMasterHubTiles();
         renderMasterHubRecords();
         updateProductClassificationLayout();
+        if (activeMasterHubType === "unit") refreshProductUnitsFromMaster();
         renderVendorSupplyMapping();
       };
 
@@ -10180,6 +10256,7 @@
         renderMasterHubTiles();
         renderMasterHubRecords();
         updateProductClassificationLayout();
+        if (savedType === "unit") refreshProductUnitsFromMaster();
         renderVendorSupplyMapping();
         if (afterSave) afterSave(savedType, record);
       };
@@ -13974,7 +14051,7 @@
           <div class="product-attribute-head"><strong>Attribute ${productAttributeList.children.length + 1}</strong><button class="customer-repeater-remove" type="button" data-remove-product-attribute>Remove</button></div>
           <div class="product-attribute-body"><div class="product-attribute-grid">
             <div class="customer-form-field"><span class="customer-form-label">Attribute <span class="customer-required">Required</span></span><select data-product-attribute-name data-last-value="${escapeProductText(attribute)}">${productAttributeSelectMarkup(attribute)}</select><div class="product-attribute-new-panel" data-product-attribute-new-panel hidden><input data-new-product-attribute-name placeholder="New descriptive attribute"><button type="button" data-create-product-attribute>Add</button><button type="button" data-cancel-product-attribute>Cancel</button></div></div>
-            <div class="customer-form-field"><span class="customer-form-label">Values <span class="customer-required">Required</span></span><div class="product-attribute-value-control" data-product-attribute-value-control><span data-product-attribute-value-chips></span><input class="product-attribute-value-entry" data-product-attribute-value-entry placeholder="${unitDefining ? "Type 1 kg and press Enter" : "Type a value and press Enter"}"><input type="hidden" data-product-attribute-values value="${escapeProductText(values)}"></div><span class="product-form-field-note" data-product-attribute-note>${unitDefining ? "Net content and Measurement UoM will populate generated SKUs automatically." : "Each value participates in the generated SKU combinations."}</span></div>
+            <div class="customer-form-field"><span class="customer-form-label">Values <span class="customer-required">Required</span></span><div class="product-attribute-value-control" data-product-attribute-value-control><span data-product-attribute-value-chips></span><input class="product-attribute-value-entry" data-product-attribute-value-entry placeholder="${unitDefining ? escapeProductText(productAttributeMeasurementExample(attribute)) : "Type a value and press Enter"}"><input type="hidden" data-product-attribute-values value="${escapeProductText(values)}"></div><span class="product-form-field-note" data-product-attribute-note>${unitDefining ? "Net content and Measurement UoM will populate generated SKUs automatically." : "Each value participates in the generated SKU combinations."}</span></div>
           </div></div>`;
         productAttributeList.appendChild(card);
         setProductAttributeValues(card, values.split(","));
@@ -13988,8 +14065,8 @@
         const note = card.querySelector("[data-product-attribute-note]");
         const units = productUnitAttributeUnits[name];
         if (units) {
-          valueEntry.placeholder = name === "Weight" ? "Type 1 kg and press Enter" : name === "Volume" ? "Type 200 ml and press Enter" : name === "Length" ? "Type 10 cm and press Enter" : "Type 12 pc and press Enter";
-          note.textContent = `Measurement-defining attribute. Use Quantity + Measurement UoM (${units.join(", ")}); generated SKU net content will be locked.`;
+          valueEntry.placeholder = productAttributeMeasurementExample(name);
+          note.textContent = `Measurement-defining attribute. Use Quantity + Measurement UoM (${productAttributeAllowedUnitText(name)}); generated SKU net content will be locked.`;
         } else {
           valueEntry.placeholder = "Type a value and press Enter";
           note.textContent = "Descriptive attribute. Stock Unit, Net Content Qty and Measurement UoM will be assigned separately.";
@@ -14346,7 +14423,7 @@
         const invalidUnitDefinition = unitDefinitions.find(definition => definition.values.some(value => !parseProductMeasurementValue(definition.name, value)));
         if (invalidUnitDefinition) {
           productDerivedUnitMessage.hidden = true;
-          productSkuList.innerHTML = `<div class="customer-repeater-empty"><strong>Check ${invalidUnitDefinition.name} values</strong><span>Use Quantity + Measurement UoM. Allowed units: ${productUnitAttributeUnits[invalidUnitDefinition.name].join(", ")}.</span></div>`;
+          productSkuList.innerHTML = `<div class="customer-repeater-empty"><strong>Check ${invalidUnitDefinition.name} values</strong><span>Use Quantity + Measurement UoM. Allowed units: ${productAttributeAllowedUnitText(invalidUnitDefinition.name)}.</span></div>`;
           return;
         }
         const combinations = productCombinations(definitions);
@@ -14522,7 +14599,7 @@
           }
           const invalidUnitDefinition = unitDefinitions.find(definition => definition.values.some(value => !parseProductMeasurementValue(definition.name, value)));
           if (invalidUnitDefinition) {
-            showProductFormMessage(`${invalidUnitDefinition.name} values must use Quantity + Measurement UoM. Allowed units: ${productUnitAttributeUnits[invalidUnitDefinition.name].join(", ")}.`);
+            showProductFormMessage(`${invalidUnitDefinition.name} values must use Quantity + Measurement UoM. Allowed units: ${productAttributeAllowedUnitText(invalidUnitDefinition.name)}.`);
             return false;
           }
         }
@@ -14577,6 +14654,7 @@
         updateProductSubcategoryInput();
         updateProductBrandInput();
         updateProductSubbrandInput();
+        refreshProductUnitsFromMaster();
         renderProductAnimalChoices([]);
         updateProductStructurePanels();
         updateProductOnlinePanel();
