@@ -3497,6 +3497,39 @@
       width: 132px;
     }
 
+    .product-table-delete-button {
+      width: 32px;
+      height: 32px;
+      display: inline-grid;
+      place-items: center;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: #dc2626;
+      cursor: pointer;
+    }
+
+    .product-table-delete-button:hover,
+    .product-table-delete-button:focus-visible {
+      border-color: #fecaca;
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .product-table-delete-button svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    #productFormView .page-actions {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    #productFormView .customer-form-view-actions {
+      flex: 0 0 auto;
+    }
+
     .stock-sku-cell {
       display: inline-flex;
       align-items: center;
@@ -9359,7 +9392,8 @@
         { key: "gst", label: "GST Rate", width: 95, defaultVisible: false, cell: record => `${escapeProductText(record.gst)}%` },
         { key: "created", label: "Created Date", width: 125, defaultVisible: false, cell: record => `<strong>${escapeProductText(formatDisplayDate(record.created))}</strong>` },
         { key: "updated", label: "Updated Date", width: 125, defaultVisible: false, cell: record => `<strong>${escapeProductText(formatDisplayDate(record.updated))}</strong>` },
-        { key: "lastSale", label: "Last Sale Date", width: 125, defaultVisible: false, cell: record => `<strong>${escapeProductText(formatDisplayDate(record.lastSale))}</strong>` }
+        { key: "lastSale", label: "Last Sale Date", width: 125, defaultVisible: false, cell: record => `<strong>${escapeProductText(formatDisplayDate(record.lastSale))}</strong>` },
+        { key: "actions", label: "Actions", width: 82, locked: true, cell: record => `<button class="product-table-delete-button" type="button" data-product-table-delete="${escapeProductText(record.sku)}" aria-label="Delete ${escapeProductText(productDisplayName(record))}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5"/></svg></button>` }
       ];
 
       const productColumnDefinitionByKey = key => productColumnDefinitions.find(column => column.key === key);
@@ -12369,6 +12403,28 @@
         return records.some(productRecordHasTransaction)
           ? "This Product/SKU has stock, batch, sale, or other transaction history. Delete is blocked; set it Inactive instead."
           : "";
+      };
+
+      const deleteProductRecordGroup = (record, { returnToList = false } = {}) => {
+        const blockedReason = productDeleteBlockedReason(record);
+        if (blockedReason) {
+          if (productFormView.classList.contains("is-active")) showProductFormMessage(blockedReason);
+          else window.alert(blockedReason);
+          return false;
+        }
+        const recordsToDelete = productGroupRecords(record);
+        const deleteLabel = record.structure === "Variable" ? `${record.product} and ${recordsToDelete.length} variation SKU${recordsToDelete.length === 1 ? "" : "s"}` : productDisplayName(record);
+        if (!window.confirm(`Delete ${deleteLabel} from this preview list?`)) return false;
+        const deleteSkus = new Set(recordsToDelete.map(item => item.sku));
+        productRecords = productRecords.filter(item => !deleteSkus.has(item.sku));
+        renderProductSummary();
+        renderProductFilterOptions();
+        renderProductTable();
+        renderStockOverview();
+        persistErpMockTable("products", productRecords);
+        showErpSaveToast("Product deleted", `${recordsToDelete.length} SKU${recordsToDelete.length === 1 ? "" : "s"} removed successfully.`);
+        if (returnToList) showProductWorkspace();
+        return true;
       };
 
       const productStatusToStockControlStatus = status => status === "Inactive" ? "Inactive" : "Active";
@@ -16265,22 +16321,7 @@
           return;
         }
         if (profileAction.dataset.productViewAction === "delete") {
-          const blockedReason = productDeleteBlockedReason(record);
-          if (blockedReason) {
-            showProductFormMessage(blockedReason);
-            return;
-          }
-          const recordsToDelete = productGroupRecords(record);
-          const deleteLabel = record.structure === "Variable" ? `${record.product} and ${recordsToDelete.length} variation SKU${recordsToDelete.length === 1 ? "" : "s"}` : productDisplayName(record);
-          if (!window.confirm(`Delete ${deleteLabel} from this preview list?`)) return;
-          const deleteSkus = new Set(recordsToDelete.map(item => item.sku));
-          productRecords = productRecords.filter(item => !deleteSkus.has(item.sku));
-          renderProductSummary();
-          renderProductFilterOptions();
-          renderProductTable();
-          renderStockOverview();
-          persistErpMockTable("products", productRecords);
-          showProductWorkspace();
+          deleteProductRecordGroup(record, { returnToList: true });
         }
       });
 
@@ -16566,6 +16607,15 @@
       [productTableSearch, productHsnFilter].forEach(control => control.addEventListener("input", renderProductTable));
 
       productTableBody.addEventListener("click", event => {
+        const productDeleteButton = event.target.closest("[data-product-table-delete]");
+        if (productDeleteButton) {
+          event.preventDefault();
+          event.stopPropagation();
+          const record = productRecordBySku(productDeleteButton.dataset.productTableDelete);
+          if (record) deleteProductRecordGroup(record);
+          return;
+        }
+
         const productViewLink = event.target.closest("[data-product-open-view]");
         if (productViewLink) {
           event.preventDefault();
