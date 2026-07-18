@@ -13501,6 +13501,33 @@
         return `${formatIndianCurrency(amount)} (${percentage.toFixed(2)}%)`;
       };
 
+      const productPriceBelowCostMessage = (purchase, landing, selling) => {
+        if ([purchase, landing, selling].some(value => value === "" || Number.isNaN(Number(value)))) return "";
+        const purchaseValue = Number(purchase);
+        const landingValue = Number(landing);
+        const sellingValue = Number(selling);
+        const minimumSelling = Math.max(purchaseValue, landingValue);
+        return sellingValue < minimumSelling ? "Selling Price cannot be less than Purchase Price or Landing Cost." : "";
+      };
+
+      const invalidProductPricingFields = () => {
+        if (productStructureValue() !== "Variable") {
+          const message = productPriceBelowCostMessage(standardPurchase.value, standardLanding.value, standardSelling.value);
+          return message ? { message, fields: [standardSelling] } : null;
+        }
+        const invalidCard = [...productSkuList.querySelectorAll("[data-product-sku-card]")].find(card =>
+          productPriceBelowCostMessage(
+            card.querySelector("[data-variant-purchase]").value,
+            card.querySelector("[data-variant-landing]").value,
+            card.querySelector("[data-variant-selling]").value
+          )
+        );
+        return invalidCard ? {
+          message: "Selling Price cannot be less than Purchase Price or Landing Cost for any generated SKU.",
+          fields: [invalidCard.querySelector("[data-variant-selling]")]
+        } : null;
+      };
+
       const renderProductSkuCombinations = () => {
         if (productStructureValue() !== "Variable") return;
         const definitions = productAttributeDefinitions();
@@ -13675,6 +13702,14 @@
           showProductFormMessage("Complete the required fields before continuing.", missing);
           missing[0].focus();
           return false;
+        }
+        if (sectionIndex === 3) {
+          const invalidPricing = invalidProductPricingFields();
+          if (invalidPricing) {
+            showProductFormMessage(invalidPricing.message, invalidPricing.fields);
+            invalidPricing.fields[0]?.focus();
+            return false;
+          }
         }
         return true;
       };
