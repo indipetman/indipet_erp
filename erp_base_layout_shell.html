@@ -4757,10 +4757,10 @@
     }
 
     .product-rich-table-menu {
-      position: absolute;
-      top: calc(100% + 7px);
+      position: fixed;
+      top: 0;
       left: 0;
-      z-index: 240;
+      z-index: 360;
       min-width: 178px;
       display: grid;
       gap: 8px;
@@ -13596,6 +13596,31 @@
         menu.querySelectorAll("[data-product-rich-action='table-size']").forEach(cell => cell.classList.remove("is-preview"));
       };
 
+      const positionProductRichTableMenu = (trigger, menu) => {
+        if (!trigger || !menu) return;
+        menu.hidden = false;
+        menu.style.position = "fixed";
+        menu.style.top = "0px";
+        menu.style.left = "0px";
+        const triggerRect = trigger.getBoundingClientRect();
+        const menuWidth = menu.offsetWidth || 178;
+        const menuHeight = menu.offsetHeight || 220;
+        const left = Math.max(8, Math.min(window.innerWidth - menuWidth - 8, triggerRect.left));
+        const belowTop = triggerRect.bottom + 8;
+        const top = belowTop + menuHeight > window.innerHeight - 8
+          ? Math.max(8, triggerRect.top - menuHeight - 8)
+          : belowTop;
+        menu.style.left = `${left}px`;
+        menu.style.top = `${top}px`;
+      };
+
+      const repositionOpenProductRichTableMenus = () => {
+        productForm.querySelectorAll("[data-product-rich-table-menu]:not([hidden])").forEach(menu => {
+          const trigger = menu.closest("[data-product-rich-table-picker]")?.querySelector("[data-product-rich-action='table-picker']");
+          if (trigger?.isConnected) positionProductRichTableMenu(trigger, menu);
+        });
+      };
+
       const updateProductRichTablePreview = cell => {
         const menu = cell.closest("[data-product-rich-table-menu]");
         const rows = Number(cell.dataset.tableRows);
@@ -13611,6 +13636,7 @@
         productForm.querySelectorAll("[data-product-rich-table-menu]").forEach(menu => {
           if (menu !== except) {
             menu.hidden = true;
+            menu.removeAttribute("style");
             menu.closest("[data-product-rich-table-picker]")?.querySelector("[data-product-rich-action='table-picker']")?.setAttribute("aria-expanded", "false");
             resetProductRichTablePreview(menu);
           }
@@ -13854,7 +13880,12 @@
           closeProductRichTableMenus(menu);
           menu.hidden = !willOpen;
           trigger.setAttribute("aria-expanded", String(willOpen));
-          if (willOpen) resetProductRichTablePreview(menu);
+          if (willOpen) {
+            resetProductRichTablePreview(menu);
+            positionProductRichTableMenu(trigger, menu);
+          } else {
+            menu.removeAttribute("style");
+          }
           return;
         }
         canvas.focus();
@@ -16874,6 +16905,8 @@
         const canvas = node?.closest?.("[data-product-rich-canvas]");
         if (canvas && productForm.contains(canvas)) updateProductRichToolbarState(canvas);
       });
+      window.addEventListener("resize", repositionOpenProductRichTableMenus);
+      window.addEventListener("scroll", repositionOpenProductRichTableMenus, true);
 
       productForm.addEventListener("submit", async event => {
         event.preventDefault();
