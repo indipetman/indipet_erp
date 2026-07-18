@@ -12591,6 +12591,8 @@
         });
       };
 
+      const productRichAlignmentValue = value => ["left", "center", "right", "justify"].includes(value) ? value : "";
+
       const productContentSectionsForStorage = () => {
         syncProductContentDomToState();
         return productContentSections.map(section => ({
@@ -12601,7 +12603,7 @@
         blocks: (section.blocks || []).map(block => {
           if (block.type === "image") return { id: block.id, type: "image", imageUrl: "", imageName: block.imageName || "", alt: block.alt || "", caption: block.caption || "" };
           if (block.type === "table") return { id: block.id, type: "table", rows: Array.isArray(block.rows) ? block.rows.map(row => [...row]) : [["Feature", "Details"], ["", ""]] };
-          return { id: block.id, type: "text", html: block.html || "" };
+          return { id: block.id, type: "text", html: block.html || "", align: productRichAlignmentValue(block.align) };
         })
         }));
       };
@@ -12624,7 +12626,7 @@
               const type = ["image", "table", "text"].includes(block.type) ? block.type : "text";
               if (type === "image") return { id: `block-${productContentBlockSequence}`, type, imageUrl: "", imageName: block.imageName || "", alt: block.alt || "", caption: block.caption || "" };
               if (type === "table") return { id: `block-${productContentBlockSequence}`, type, rows: Array.isArray(block.rows) ? block.rows.map(row => [...row]) : [["Feature", "Details"], ["", ""]] };
-              return { id: `block-${productContentBlockSequence}`, type: "text", html: block.html || "" };
+              return { id: `block-${productContentBlockSequence}`, type: "text", html: block.html || "", align: productRichAlignmentValue(block.align) };
             })
           };
         });
@@ -12753,7 +12755,7 @@
                 <button type="button" data-product-online-field data-product-rich-action="source" title="Source view">&lt;/&gt;</button>
                 ${actionButtons}
               </div>
-              <div class="product-rich-canvas" contenteditable="true" data-product-online-field data-product-rich-canvas data-section-id="${section.id}" data-block-id="${block.id}" data-placeholder="Write customer-facing content here">${block.html || ""}</div>
+              <div class="product-rich-canvas" contenteditable="true" data-product-online-field data-product-rich-canvas data-section-id="${section.id}" data-block-id="${block.id}" data-placeholder="Write customer-facing content here" style="${productRichAlignmentValue(block.align) ? `text-align: ${productRichAlignmentValue(block.align)};` : ""}">${block.html || ""}</div>
             </div>
           </article>
         `;
@@ -12812,6 +12814,7 @@
         }
         if (field.matches("[data-product-rich-canvas]")) {
           block.html = field.innerHTML;
+          block.align = productRichAlignmentValue(field.style.textAlign);
           return;
         }
         if (field.matches("[data-product-content-table-cell]")) {
@@ -12829,7 +12832,10 @@
       const syncProductRichCanvasBlock = canvas => {
         if (!canvas) return;
         const block = productContentBlockById(canvas.dataset.sectionId, canvas.dataset.blockId);
-        if (block) block.html = canvas.innerHTML;
+        if (block) {
+          block.html = canvas.innerHTML;
+          block.align = productRichAlignmentValue(canvas.style.textAlign);
+        }
       };
 
       let activeProductRichCell = null;
@@ -13136,6 +13142,7 @@
         productRichSelectionBlocks(canvas).forEach(block => {
           block.style.textAlign = alignment;
         });
+        canvas.style.textAlign = alignment;
         syncProductRichCanvasBlock(canvas);
         return true;
       };
