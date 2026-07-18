@@ -4081,6 +4081,55 @@
       font-size: 10px;
     }
 
+    .product-sku-head-title {
+      min-width: 0;
+    }
+
+    .product-sku-head-title strong {
+      display: block;
+      overflow-wrap: anywhere;
+    }
+
+    .product-sku-head-actions {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex: 0 0 auto;
+    }
+
+    .product-sku-reorder-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .product-sku-reorder-button:hover:not(:disabled),
+    .product-sku-reorder-button:focus-visible {
+      border-color: var(--primary-border);
+      color: var(--primary);
+      background: var(--primary-soft);
+      outline: 0;
+    }
+
+    .product-sku-reorder-button:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    .product-sku-reorder-button svg {
+      width: 15px;
+      height: 15px;
+    }
+
     .product-sku-head span {
       color: var(--text-secondary);
       font-size: 8.5px;
@@ -8083,6 +8132,7 @@
       let activeProductGroupKey = "";
       let productAttributeSequence = 0;
       let productSkuDraftSnapshots = new Map();
+      let productSkuManualOrder = [];
       let selectedProductTags = [];
       let productOnlineNameAutoValue = "";
       let productSlugAutoValue = "";
@@ -12460,6 +12510,7 @@
           productCommonStockUnit.value = record.stockUnit;
           productCommonPackQty.value = record.packQty;
           productCommonUom.value = record.uom;
+          productSkuManualOrder = groupRecords.map(item => item.variation).filter(Boolean);
           renderProductSkuCombinations();
           productSkuList.querySelectorAll("[data-product-sku-card]").forEach(skuCard => {
             const label = skuCard.querySelector(".product-sku-head strong")?.textContent || "";
@@ -12493,6 +12544,7 @@
             updateVariantDisplayName(skuCard);
             rememberProductSkuCardSnapshot(skuCard);
           });
+          updateProductSkuCardPositions();
         }
         setProductStep(0);
       };
@@ -14093,6 +14145,45 @@
 
       const productCombinations = definitions => definitions.reduce((combinations, definition) => combinations.flatMap(combination => definition.values.map(value => [...combination, { name: definition.name, value }])), [[]]);
 
+      const productSkuCombinationLabel = combination => combination.map(item => `${item.name}: ${item.value}`).join(" · ");
+
+      const orderedProductSkuCombinations = combinations => {
+        const labels = combinations.map(productSkuCombinationLabel);
+        const currentOrder = productSkuManualOrder.filter(label => labels.includes(label));
+        const newLabels = labels.filter(label => !currentOrder.includes(label));
+        productSkuManualOrder = [...currentOrder, ...newLabels];
+        return [...combinations].sort((first, second) => productSkuManualOrder.indexOf(productSkuCombinationLabel(first)) - productSkuManualOrder.indexOf(productSkuCombinationLabel(second)));
+      };
+
+      const updateProductSkuCardPositions = () => {
+        const cards = [...productSkuList.querySelectorAll("[data-product-sku-card]")];
+        productSkuManualOrder = cards.map(productSkuCardKey).filter(Boolean);
+        cards.forEach((card, index) => {
+          const total = cards.length;
+          const position = card.querySelector("[data-product-sku-position]");
+          const upButton = card.querySelector("[data-product-sku-reorder='up']");
+          const downButton = card.querySelector("[data-product-sku-reorder='down']");
+          if (position) position.textContent = `SKU ${index + 1} of ${total}`;
+          if (upButton) upButton.disabled = index === 0;
+          if (downButton) downButton.disabled = index === total - 1;
+        });
+      };
+
+      const moveProductSkuCard = trigger => {
+        const card = trigger.closest("[data-product-sku-card]");
+        if (!card) return;
+        rememberProductSkuCardSnapshot(card);
+        const direction = trigger.dataset.productSkuReorder;
+        if (direction === "up" && card.previousElementSibling) {
+          productSkuList.insertBefore(card, card.previousElementSibling);
+        }
+        if (direction === "down" && card.nextElementSibling) {
+          productSkuList.insertBefore(card.nextElementSibling, card);
+        }
+        updateProductSkuCardPositions();
+        card.scrollIntoView({ block: "nearest", inline: "nearest" });
+      };
+
       const productCombinationMeasurement = combination => {
         const unitItem = combination.find(item => productUnitAttributeUnits[item.name]);
         if (!unitItem) return null;
@@ -14426,10 +14517,10 @@
           productSkuList.innerHTML = `<div class="customer-repeater-empty"><strong>Check ${invalidUnitDefinition.name} values</strong><span>Use Quantity + Measurement UoM. Allowed units: ${productAttributeAllowedUnitText(invalidUnitDefinition.name)}.</span></div>`;
           return;
         }
-        const combinations = productCombinations(definitions);
+        const combinations = orderedProductSkuCombinations(productCombinations(definitions));
         const reservedSkuCodes = new Set();
         productSkuList.innerHTML = combinations.map((combination, index) => {
-          const label = combination.map(item => `${item.name}: ${item.value}`).join(" · ");
+          const label = productSkuCombinationLabel(combination);
           const skuCode = productSkuCode({
             brand: productEffectiveBrand(),
             product: productNameInput.value || "Product",
@@ -14441,7 +14532,18 @@
           const derivedMeasurement = productCombinationMeasurement(combination);
           return `
             <article class="product-sku-card" data-product-sku-card data-purchase-driver="purchase" data-retail-driver="discount">
-              <div class="product-sku-head"><strong>${label}</strong><span>SKU ${index + 1} of ${combinations.length}</span></div>
+              <div class="product-sku-head">
+                <div class="product-sku-head-title"><strong>${label}</strong></div>
+                <div class="product-sku-head-actions">
+                  <button class="product-sku-reorder-button" type="button" data-product-sku-reorder="up" title="Move variation up" aria-label="Move ${escapeProductText(label)} up">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m18 15-6-6-6 6"/></svg>
+                  </button>
+                  <button class="product-sku-reorder-button" type="button" data-product-sku-reorder="down" title="Move variation down" aria-label="Move ${escapeProductText(label)} down">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                  </button>
+                  <span data-product-sku-position>SKU ${index + 1} of ${combinations.length}</span>
+                </div>
+              </div>
               <div class="product-sku-body"><div class="product-sku-grid">
                 <label class="customer-form-field span-2"><span class="customer-form-label">SKU ID</span><input value="${skuCode}" readonly></label>
                 <label class="customer-form-field span-2"><span class="customer-form-label">Barcode</span><input placeholder="Optional unique barcode"><span class="product-form-field-note">SKU becomes the fallback identifier when empty.</span></label>
@@ -14468,6 +14570,7 @@
           if (snapshot) restoreProductSkuCardSnapshot(card, snapshot);
           else updateVariantDisplayName(card);
         });
+        updateProductSkuCardPositions();
         if (productCommonStockUnit.value || (!hasDerivedUnit && productCommonPackQty.value && productCommonUom.value)) applyProductCommonUnit(false);
       };
 
@@ -14642,6 +14745,7 @@
         if (productImageInput) productImageInput.value = "";
         resetProductContentSections();
         productSkuDraftSnapshots = new Map();
+        productSkuManualOrder = [];
         productAttributeList.innerHTML = "";
         productSkuList.innerHTML = "";
         productAttributeSequence = 0;
@@ -16703,6 +16807,11 @@
 
       productForm.addEventListener("click", event => {
         if (!event.target.closest("[data-product-rich-table-picker]")) closeProductRichTableMenus();
+        const skuReorder = event.target.closest("[data-product-sku-reorder]");
+        if (skuReorder) {
+          moveProductSkuCard(skuReorder);
+          return;
+        }
         const clickedRichImage = event.target.closest("[data-product-rich-canvas] img");
         if (clickedRichImage) {
           setProductRichActiveImage(clickedRichImage);
@@ -16783,7 +16892,7 @@
           productRecords = productRecords.filter(record => productRecordGroupKey(record) !== activeProductGroupKey);
           activeProductGroupKey = records[0] ? productRecordGroupKey(records[0]) : "";
         }
-        records.forEach(record => upsertRecord(productRecords, "sku", record));
+        [...records].reverse().forEach(record => upsertRecord(productRecords, "sku", record));
         renderProductLayer();
         const saveStatus = await saveErpMockTable("products", productRecords);
         showProductFormMessage(`${records.length} product SKU${records.length === 1 ? "" : "s"} ${productFormMode === "edit" ? "updated" : "created"} locally${erpMockSaveStatusText(saveStatus)}.`, [], true);
