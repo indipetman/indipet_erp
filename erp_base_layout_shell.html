@@ -4862,6 +4862,24 @@
       line-height: 1.65;
     }
 
+    .product-rich-canvas[data-rich-vertical-align] {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .product-rich-canvas[data-rich-vertical-align="top"] {
+      justify-content: flex-start;
+    }
+
+    .product-rich-canvas[data-rich-vertical-align="middle"] {
+      justify-content: center;
+    }
+
+    .product-rich-canvas[data-rich-vertical-align="bottom"] {
+      justify-content: flex-end;
+    }
+
     .product-rich-canvas:empty::before {
       content: attr(data-placeholder);
       color: var(--text-secondary);
@@ -12140,7 +12158,7 @@
           canvas.contentEditable = readOnly ? "false" : "true";
           canvas.setAttribute("aria-readonly", String(readOnly));
         });
-        productForm.querySelectorAll("[data-product-rich-command], [data-product-rich-action], [data-product-rich-color], [data-product-rich-table-fill], [data-product-rich-table-border], [data-product-rich-table-border-size]").forEach(control => {
+        productForm.querySelectorAll("[data-product-rich-command], [data-product-rich-action], [data-product-rich-vertical-align], [data-product-rich-color], [data-product-rich-table-fill], [data-product-rich-table-border], [data-product-rich-table-border-size]").forEach(control => {
           control.disabled = readOnly;
         });
         if (!readOnly) {
@@ -12642,6 +12660,7 @@
       };
 
       const productRichAlignmentValue = value => ["left", "center", "right", "justify"].includes(value) ? value : "";
+      const productRichVerticalAlignmentValue = value => ["top", "middle", "bottom"].includes(value) ? value : "top";
 
       const productContentSectionsForStorage = () => {
         syncProductContentDomToState();
@@ -12653,7 +12672,7 @@
         blocks: (section.blocks || []).map(block => {
           if (block.type === "image") return { id: block.id, type: "image", imageUrl: "", imageName: block.imageName || "", alt: block.alt || "", caption: block.caption || "" };
           if (block.type === "table") return { id: block.id, type: "table", rows: Array.isArray(block.rows) ? block.rows.map(row => [...row]) : [["Feature", "Details"], ["", ""]] };
-          return { id: block.id, type: "text", html: block.html || "", align: productRichAlignmentValue(block.align) };
+          return { id: block.id, type: "text", html: block.html || "", align: productRichAlignmentValue(block.align), verticalAlign: productRichVerticalAlignmentValue(block.verticalAlign) };
         })
         }));
       };
@@ -12676,7 +12695,7 @@
               const type = ["image", "table", "text"].includes(block.type) ? block.type : "text";
               if (type === "image") return { id: `block-${productContentBlockSequence}`, type, imageUrl: "", imageName: block.imageName || "", alt: block.alt || "", caption: block.caption || "" };
               if (type === "table") return { id: `block-${productContentBlockSequence}`, type, rows: Array.isArray(block.rows) ? block.rows.map(row => [...row]) : [["Feature", "Details"], ["", ""]] };
-              return { id: `block-${productContentBlockSequence}`, type: "text", html: block.html || "", align: productRichAlignmentValue(block.align) };
+              return { id: `block-${productContentBlockSequence}`, type: "text", html: block.html || "", align: productRichAlignmentValue(block.align), verticalAlign: productRichVerticalAlignmentValue(block.verticalAlign) };
             })
           };
         });
@@ -12767,6 +12786,16 @@
                 <button class="product-rich-align-button" type="button" data-product-online-field data-product-rich-command="justifyFull" title="Justify" aria-label="Justify" aria-pressed="false">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
                 </button>
+                <span class="product-rich-separator"></span>
+                <button class="product-rich-align-button" type="button" data-product-online-field data-product-rich-vertical-align="top" title="Top align" aria-label="Top align" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M5 5h14M7 10h10M7 15h7"/></svg>
+                </button>
+                <button class="product-rich-align-button" type="button" data-product-online-field data-product-rich-vertical-align="middle" title="Middle align" aria-label="Middle align" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M5 12h14M7 7h10M7 17h10"/></svg>
+                </button>
+                <button class="product-rich-align-button" type="button" data-product-online-field data-product-rich-vertical-align="bottom" title="Bottom align" aria-label="Bottom align" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M5 19h14M7 9h10M7 14h7"/></svg>
+                </button>
                 <button type="button" data-product-online-field data-product-rich-command="insertUnorderedList" title="Bullet list">• List</button>
                 <button type="button" data-product-online-field data-product-rich-command="insertOrderedList" title="Numbered list">1. List</button>
                 <span class="product-rich-separator"></span>
@@ -12805,7 +12834,7 @@
                 <button type="button" data-product-online-field data-product-rich-action="source" title="Source view">&lt;/&gt;</button>
                 ${actionButtons}
               </div>
-              <div class="product-rich-canvas" contenteditable="true" data-product-online-field data-product-rich-canvas data-section-id="${section.id}" data-block-id="${block.id}" data-placeholder="Write customer-facing content here" style="${productRichAlignmentValue(block.align) ? `text-align: ${productRichAlignmentValue(block.align)};` : ""}">${block.html || ""}</div>
+              <div class="product-rich-canvas" contenteditable="true" data-product-online-field data-product-rich-canvas data-rich-vertical-align="${productRichVerticalAlignmentValue(block.verticalAlign)}" data-section-id="${section.id}" data-block-id="${block.id}" data-placeholder="Write customer-facing content here" style="${productRichAlignmentValue(block.align) ? `text-align: ${productRichAlignmentValue(block.align)};` : ""}">${block.html || ""}</div>
             </div>
           </article>
         `;
@@ -12845,6 +12874,7 @@
           </article>
         `).join("");
         updateProductOnlinePanel();
+        productContentSectionList.querySelectorAll("[data-product-rich-canvas]").forEach(updateProductRichToolbarState);
         if (productFormMode === "view") setProductFormReadOnly(true);
       };
 
@@ -12866,6 +12896,7 @@
         if (field.matches("[data-product-rich-canvas]")) {
           block.html = field.innerHTML;
           block.align = productRichAlignmentValue(field.style.textAlign);
+          block.verticalAlign = productRichVerticalAlignmentValue(field.dataset.richVerticalAlign);
           return;
         }
         if (field.matches("[data-product-content-table-cell]")) {
@@ -12886,6 +12917,7 @@
         if (block) {
           block.html = canvas.innerHTML;
           block.align = productRichAlignmentValue(canvas.style.textAlign);
+          block.verticalAlign = productRichVerticalAlignmentValue(canvas.dataset.richVerticalAlign);
         }
       };
 
@@ -12935,6 +12967,12 @@
           const active = control.tagName !== "SELECT" && productRichCommandActive(command, canvas);
           control.classList.toggle("is-active", active);
           if (control.tagName !== "SELECT") control.setAttribute("aria-pressed", String(active));
+        });
+        const verticalAlign = productRichVerticalAlignmentValue(canvas.dataset.richVerticalAlign);
+        editor.querySelectorAll("[data-product-rich-vertical-align]").forEach(control => {
+          const active = control.dataset.productRichVerticalAlign === verticalAlign;
+          control.classList.toggle("is-active", active);
+          control.setAttribute("aria-pressed", String(active));
         });
       };
 
@@ -13246,6 +13284,15 @@
         syncProductRichCanvasBlock(canvas);
         updateProductRichToolbarState(canvas);
         return true;
+      };
+
+      const applyProductRichVerticalAlignment = trigger => {
+        if (productFormMode === "view") return;
+        const canvas = activeProductRichCanvas(trigger);
+        if (!canvas) return;
+        canvas.dataset.richVerticalAlign = productRichVerticalAlignmentValue(trigger.dataset.productRichVerticalAlign);
+        syncProductRichCanvasBlock(canvas);
+        updateProductRichToolbarState(canvas);
       };
 
       const runProductRichCommand = trigger => {
@@ -16296,9 +16343,6 @@
           handleProductContentImageSelection(event.target);
           return;
         }
-        if (event.target.matches("[data-product-rich-command]")) {
-          runProductRichCommand(event.target);
-        }
         if (event.target.matches("[data-product-rich-color]")) {
           const canvas = activeProductRichCanvas(event.target);
           if (canvas) {
@@ -16399,7 +16443,7 @@
         if (resizeImage && productRichImageResizeEdge(event, resizeImage) && startProductRichImageResize(event, resizeImage)) return;
         const resizeCell = event.target.closest?.("[data-product-rich-canvas] td, [data-product-rich-canvas] th");
         if (resizeCell && startProductRichTableResize(event, resizeCell)) return;
-        if (event.target.closest("[data-product-rich-command], [data-product-rich-action]")) {
+        if (event.target.closest("[data-product-rich-command], [data-product-rich-action], [data-product-rich-vertical-align]")) {
           event.preventDefault();
         }
       });
@@ -16419,6 +16463,11 @@
         }
         const clickedRichCanvas = event.target.closest?.("[data-product-rich-canvas]");
         if (clickedRichCanvas) updateProductRichToolbarState(clickedRichCanvas);
+        const verticalAlignTrigger = event.target.closest("[data-product-rich-vertical-align]");
+        if (verticalAlignTrigger) {
+          applyProductRichVerticalAlignment(verticalAlignTrigger);
+          return;
+        }
         const richButton = event.target.closest("[data-product-rich-command], [data-product-rich-action]");
         if (richButton) {
           if (richButton.dataset.productRichCommand) runProductRichCommand(richButton);
