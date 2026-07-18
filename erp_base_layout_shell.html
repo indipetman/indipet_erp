@@ -12562,7 +12562,17 @@
           : "";
       };
 
+      const productLayerUpdatesLocked = true;
+      const productLayerLockedMessage = "Product Layer updates are locked to protect existing development. View, search and navigation remain available.";
+      const showProductLayerLockedMessage = () => {
+        if (productFormView.classList.contains("is-active")) showProductFormMessage(productLayerLockedMessage);
+        else showErpSaveToast("Product updates locked", productLayerLockedMessage);
+        return true;
+      };
+      const productLayerMutationIsLocked = () => productLayerUpdatesLocked && showProductLayerLockedMessage();
+
       const deleteProductRecordGroup = (record, { returnToList = false } = {}) => {
+        if (productLayerMutationIsLocked()) return false;
         const blockedReason = productDeleteBlockedReason(record);
         if (blockedReason) {
           if (productFormView.classList.contains("is-active")) showProductFormMessage(blockedReason);
@@ -12602,6 +12612,7 @@
 
       const setProductRecordStatus = (record, status, { syncStock = true } = {}) => {
         if (!record) return;
+        if (productLayerMutationIsLocked()) return;
         record.status = status;
         if (syncStock) syncStockOverviewControlFromProductStatus(record.sku, status);
         refreshActiveProductStatusUi(record);
@@ -16358,6 +16369,10 @@
         if (!option) return;
         event.preventDefault();
         event.stopPropagation();
+        if (productRecordBySku(option.dataset.stockControlSku) && productLayerMutationIsLocked()) {
+          closeStockControlMenus();
+          return;
+        }
         const record = stockOverviewRecords.find(item => item.sku === option.dataset.stockControlSku && item.location === option.dataset.stockControlLocation);
         if (record) {
           record.controlStatus = option.dataset.stockControlOption;
@@ -16488,6 +16503,7 @@
         if (statusOption) {
           event.preventDefault();
           event.stopPropagation();
+          if (productLayerMutationIsLocked()) return;
           const record = productRecordBySku(statusOption.dataset.productSku);
           if (!record) return;
           setProductRecordStatus(record, statusOption.dataset.productViewStatusOption);
@@ -16506,6 +16522,7 @@
         const record = productRecordBySku(profileAction.dataset.productSku);
         if (!record) return;
         if (profileAction.dataset.productViewAction === "edit") {
+          if (productLayerMutationIsLocked()) return;
           setProductFormMode("edit", record);
           showProductFormMessage("Product record loaded. Click Save Changes to keep updates in the Excel mock database.", [], true);
           document.title = `Edit Product - ${productDisplayName(record)} - Indipet ERP`;
@@ -16802,6 +16819,7 @@
         if (productDeleteButton) {
           event.preventDefault();
           event.stopPropagation();
+          if (productLayerMutationIsLocked()) return;
           const record = productRecordBySku(productDeleteButton.dataset.productTableDelete);
           if (record) deleteProductRecordGroup(record);
           return;
@@ -16836,6 +16854,7 @@
         if (statusOption) {
           event.preventDefault();
           event.stopPropagation();
+          if (productLayerMutationIsLocked()) return;
           const record = productRecords.find(item => item.sku === statusOption.dataset.productSku);
           if (!record) return;
           setProductRecordStatus(record, statusOption.dataset.productTableStatusOption);
@@ -16850,6 +16869,7 @@
 
         const toggle = event.target.closest("[data-product-online-toggle]");
         if (!toggle) return;
+        if (productLayerMutationIsLocked()) return;
         const record = productRecords.find(item => item.sku === toggle.dataset.productOnlineToggle);
         if (!record) return;
         record.online = !record.online;
@@ -17148,6 +17168,11 @@
           if (productStructureValue() === "Variable" && activeProductStep === 3) renderProductSkuCombinations();
         }
         if (event.target === productParentStatus && productFormMode === "edit" && activeProductRecordSku) {
+          if (productLayerMutationIsLocked()) {
+            const record = productRecordBySku(activeProductRecordSku);
+            if (record) productParentStatus.value = record.status;
+            return;
+          }
           const record = productRecordBySku(activeProductRecordSku);
           if (record) {
             const statusRecords = record.structure === "Variable" ? activeProductGroupRecords() : [record];
@@ -17285,6 +17310,7 @@
       productForm.addEventListener("submit", async event => {
         event.preventDefault();
         clearProductFormMessage();
+        if (productLayerMutationIsLocked()) return;
         for (let sectionIndex = 0; sectionIndex < 4; sectionIndex += 1) {
           if (validateProductSection(sectionIndex)) continue;
           setProductStep(sectionIndex);
