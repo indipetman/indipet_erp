@@ -4648,6 +4648,13 @@
       color: var(--primary);
     }
 
+    .product-rich-toolbar button.is-active {
+      border-color: var(--primary);
+      background: #eaf1ff;
+      color: var(--primary);
+      box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.16);
+    }
+
     .product-rich-toolbar svg {
       width: 14px;
       height: 14px;
@@ -12838,6 +12845,55 @@
         }
       };
 
+      const productRichSelectionBlock = canvas => {
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) return canvas;
+        let node = selection.anchorNode;
+        if (node?.nodeType === Node.TEXT_NODE) node = node.parentElement;
+        return node?.closest?.("p,h1,h2,h3,h4,h5,h6,li,blockquote,div,td,th") || canvas;
+      };
+
+      const productRichSelectionElement = canvas => {
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) return canvas;
+        let node = selection.anchorNode;
+        if (node?.nodeType === Node.TEXT_NODE) node = node.parentElement;
+        return node?.closest?.("[data-product-rich-canvas] *") || canvas;
+      };
+
+      const productRichCommandActive = (command, canvas) => {
+        if (!canvas) return false;
+        if (command === "justifyLeft" || command === "justifyCenter" || command === "justifyRight" || command === "justifyFull") {
+          const block = productRichSelectionBlock(canvas);
+          const align = getComputedStyle(block).textAlign;
+          const expected = { justifyLeft: "left", justifyCenter: "center", justifyRight: "right", justifyFull: "justify" }[command];
+          return align === expected || (command === "justifyLeft" && (align === "start" || align === "-webkit-left"));
+        }
+        const element = productRichSelectionElement(canvas);
+        if (command === "bold") return Boolean(element.closest("b,strong")) || Number(getComputedStyle(element).fontWeight) >= 600;
+        if (command === "italic") return Boolean(element.closest("i,em")) || getComputedStyle(element).fontStyle === "italic";
+        if (command === "underline") return Boolean(element.closest("u")) || getComputedStyle(element).textDecorationLine.includes("underline");
+        if (command === "insertUnorderedList") return Boolean(element.closest("ul"));
+        if (command === "insertOrderedList") return Boolean(element.closest("ol"));
+        try {
+          return document.queryCommandState(command);
+        } catch {
+          return false;
+        }
+      };
+
+      const updateProductRichToolbarState = canvas => {
+        if (!canvas) return;
+        const editor = canvas.closest("[data-product-rich-editor]");
+        if (!editor) return;
+        editor.querySelectorAll("[data-product-rich-command]").forEach(control => {
+          const command = control.dataset.productRichCommand;
+          const active = control.tagName !== "SELECT" && productRichCommandActive(command, canvas);
+          control.classList.toggle("is-active", active);
+          if (control.tagName !== "SELECT") control.setAttribute("aria-pressed", String(active));
+        });
+      };
+
       let activeProductRichCell = null;
       let activeProductRichImage = null;
       let productRichTableResize = null;
@@ -13144,6 +13200,7 @@
         });
         canvas.style.textAlign = alignment;
         syncProductRichCanvasBlock(canvas);
+        updateProductRichToolbarState(canvas);
         return true;
       };
 
@@ -13156,6 +13213,7 @@
         if (applyProductRichAlignment(canvas, command)) return;
         document.execCommand(command, false, value);
         syncProductRichCanvasBlock(canvas);
+        updateProductRichToolbarState(canvas);
       };
 
       const resetProductRichTablePreview = menu => {
@@ -16129,6 +16187,7 @@
         if (event.target === productOnlineNameInput) syncProductSlug(true);
         if (event.target.matches("[data-product-content-section-field], [data-product-content-field], [data-product-content-table-cell], [data-product-rich-canvas]")) {
           updateProductContentValue(event.target);
+          if (event.target.matches("[data-product-rich-canvas]")) updateProductRichToolbarState(event.target);
         }
         if (event.target === standardPackQty) updateAllProductDisplayNames();
       });
@@ -16232,7 +16291,10 @@
 
       productForm.addEventListener("keyup", event => {
         const canvas = event.target.closest?.("[data-product-rich-canvas]");
-        if (canvas) setProductRichActiveCell(productRichSelectedCell(canvas));
+        if (canvas) {
+          setProductRichActiveCell(productRichSelectedCell(canvas));
+          updateProductRichToolbarState(canvas);
+        }
       });
 
       productForm.addEventListener("mousedown", event => {
@@ -16261,6 +16323,8 @@
           setProductRichActiveCell(null);
           setProductRichActiveImage(null);
         }
+        const clickedRichCanvas = event.target.closest?.("[data-product-rich-canvas]");
+        if (clickedRichCanvas) updateProductRichToolbarState(clickedRichCanvas);
         const richButton = event.target.closest("[data-product-rich-command], [data-product-rich-action]");
         if (richButton) {
           if (richButton.dataset.productRichCommand) runProductRichCommand(richButton);
@@ -16294,6 +16358,14 @@
       document.addEventListener("mouseup", stopProductRichTableResize);
       document.addEventListener("mousemove", updateProductRichImageResize);
       document.addEventListener("mouseup", stopProductRichImageResize);
+      document.addEventListener("selectionchange", () => {
+        const selection = window.getSelection();
+        if (!selection || !selection.rangeCount) return;
+        let node = selection.anchorNode;
+        if (node?.nodeType === Node.TEXT_NODE) node = node.parentElement;
+        const canvas = node?.closest?.("[data-product-rich-canvas]");
+        if (canvas && productForm.contains(canvas)) updateProductRichToolbarState(canvas);
+      });
 
       productForm.addEventListener("submit", async event => {
         event.preventDefault();
