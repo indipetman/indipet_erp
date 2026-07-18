@@ -4877,31 +4877,21 @@
 
     .product-rich-canvas {
       max-width: 100%;
+      box-sizing: border-box;
       min-height: 190px;
       padding: 14px;
-      overflow-x: auto;
+      overflow-x: hidden;
       outline: 0;
       color: var(--text);
       font-size: 11px;
       line-height: 1.65;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
-    .product-rich-canvas[data-rich-vertical-align] {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .product-rich-canvas[data-rich-vertical-align="top"] {
-      justify-content: flex-start;
-    }
-
-    .product-rich-canvas[data-rich-vertical-align="middle"] {
-      justify-content: center;
-    }
-
-    .product-rich-canvas[data-rich-vertical-align="bottom"] {
-      justify-content: flex-end;
+    .product-rich-canvas * {
+      box-sizing: border-box;
+      max-width: 100%;
     }
 
     .product-rich-canvas:empty::before {
@@ -4921,6 +4911,10 @@
 
     .product-rich-canvas p {
       margin: 0 0 8px;
+    }
+
+    .product-rich-canvas pre {
+      white-space: pre-wrap;
     }
 
     .product-rich-canvas ul,
@@ -4974,7 +4968,8 @@
     }
 
     .product-rich-canvas table {
-      width: 100%;
+      width: 100% !important;
+      max-width: 100%;
       margin: 10px 0;
       table-layout: fixed;
       border-collapse: separate;
@@ -4989,14 +4984,16 @@
     .product-rich-canvas th,
     .product-rich-canvas td {
       position: relative;
-      min-width: 64px;
+      min-width: 0 !important;
       padding: 8px;
       border: 0;
       border-right: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
       background: transparent;
       text-align: left;
+      vertical-align: top;
       overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .product-rich-canvas tr:last-child > th,
@@ -13042,7 +13039,6 @@
         if (field.matches("[data-product-rich-canvas]")) {
           block.html = field.innerHTML;
           block.align = productRichAlignmentValue(field.style.textAlign);
-          block.verticalAlign = productRichVerticalAlignmentValue(field.dataset.richVerticalAlign);
           return;
         }
         if (field.matches("[data-product-content-table-cell]")) {
@@ -13063,7 +13059,6 @@
         if (block) {
           block.html = canvas.innerHTML;
           block.align = productRichAlignmentValue(canvas.style.textAlign);
-          block.verticalAlign = productRichVerticalAlignmentValue(canvas.dataset.richVerticalAlign);
         }
       };
 
@@ -13104,7 +13099,7 @@
         }
       };
 
-      const updateProductRichToolbarState = canvas => {
+      const updateProductRichToolbarState = (canvas, selectedCellOverride) => {
         if (!canvas) return;
         const editor = canvas.closest("[data-product-rich-editor]");
         if (!editor) return;
@@ -13114,11 +13109,14 @@
           control.classList.toggle("is-active", active);
           if (control.tagName !== "SELECT") control.setAttribute("aria-pressed", String(active));
         });
-        const verticalAlign = productRichVerticalAlignmentValue(canvas.dataset.richVerticalAlign);
+        const selectedCell = selectedCellOverride === undefined ? productRichSelectedCell(canvas) : selectedCellOverride;
+        const verticalAlign = selectedCell ? productRichVerticalAlignmentValue(selectedCell.style.verticalAlign || getComputedStyle(selectedCell).verticalAlign) : "";
+        const verticalDisabled = productFormMode === "view" || productOnlineToggle.value !== "Yes" || !selectedCell;
         editor.querySelectorAll("[data-product-rich-vertical-align]").forEach(control => {
-          const active = control.dataset.productRichVerticalAlign === verticalAlign;
+          const active = !verticalDisabled && control.dataset.productRichVerticalAlign === verticalAlign;
           control.classList.toggle("is-active", active);
           control.setAttribute("aria-pressed", String(active));
+          control.disabled = verticalDisabled;
         });
       };
 
@@ -13241,7 +13239,7 @@
         }
         while (colgroup.children.length < columnCount) colgroup.appendChild(document.createElement("col"));
         while (colgroup.children.length > columnCount) colgroup.lastElementChild.remove();
-        if (!table.style.width || table.style.width.includes("%")) table.style.width = `${Math.max(table.getBoundingClientRect().width, columnCount * 90)}px`;
+        table.style.width = "100%";
         const firstSizedRow = Array.from(table.rows).find(row => row.children.length);
         Array.from(colgroup.children).forEach((col, index) => {
           if (!col.style.width) {
@@ -13264,8 +13262,7 @@
         const col = colgroup?.children[columnIndex];
         if (!col) return;
         col.style.width = `${Math.max(64, Math.round(width))}px`;
-        const tableWidth = Array.from(colgroup.children).reduce((total, item) => total + (parseFloat(item.style.width) || 0), 0);
-        if (tableWidth) table.style.width = `${Math.round(tableWidth)}px`;
+        table.style.width = "100%";
       };
 
       const setProductRichRowHeight = (row, height) => {
@@ -13436,7 +13433,17 @@
         if (productFormMode === "view") return;
         const canvas = activeProductRichCanvas(trigger);
         if (!canvas) return;
-        canvas.dataset.richVerticalAlign = productRichVerticalAlignmentValue(trigger.dataset.productRichVerticalAlign);
+        const cells = productRichSelectedCells(canvas);
+        if (!cells.length) {
+          showProductFormMessage("Select a table cell before changing vertical alignment.");
+          updateProductRichToolbarState(canvas);
+          return;
+        }
+        const verticalAlign = productRichVerticalAlignmentValue(trigger.dataset.productRichVerticalAlign);
+        cells.forEach(cell => {
+          cell.style.verticalAlign = verticalAlign;
+        });
+        setProductRichActiveCell(cells[0]);
         syncProductRichCanvasBlock(canvas);
         updateProductRichToolbarState(canvas);
       };
@@ -13488,7 +13495,7 @@
           const cells = Array.from({ length: safeColumns }, (_, cellIndex) => {
             const rightBorder = cellIndex === safeColumns - 1 ? "0" : "1px solid #cbd5e1";
             const bottomBorder = rowIndex === safeRows - 1 ? "0" : "1px solid #cbd5e1";
-            return `<td style="min-width: 110px; padding: 8px; border: 0; border-right: ${rightBorder}; border-bottom: ${bottomBorder}; background-color: transparent;"><br></td>`;
+            return `<td style="padding: 8px; border: 0; border-right: ${rightBorder}; border-bottom: ${bottomBorder}; background-color: transparent; vertical-align: top;"><br></td>`;
           }).join("");
           return `<tr>${cells}</tr>`;
         }).join("");
@@ -13505,10 +13512,29 @@
         if (selection && selection.rangeCount) {
           let node = selection.anchorNode;
           if (node?.nodeType === Node.TEXT_NODE) node = node.parentElement;
-          const cell = node?.closest?.("td, th");
-          if (cell && canvas.contains(cell)) return cell;
+          if (node && canvas.contains(node)) {
+            const cell = node?.closest?.("td, th");
+            return cell && canvas.contains(cell) ? cell : null;
+          }
         }
         return activeProductRichCell && canvas.contains(activeProductRichCell) ? activeProductRichCell : null;
+      };
+
+      const productRichSelectedCells = canvas => {
+        const selection = window.getSelection();
+        if (selection && selection.rangeCount) {
+          const range = selection.getRangeAt(0);
+          const cells = Array.from(canvas.querySelectorAll("td, th")).filter(cell => {
+            try {
+              return range.intersectsNode(cell);
+            } catch {
+              return false;
+            }
+          });
+          if (cells.length) return cells;
+        }
+        const cell = productRichSelectedCell(canvas);
+        return cell ? [cell] : [];
       };
 
       const replaceProductRichCellTag = (cell, tagName) => {
@@ -14417,6 +14443,7 @@
         productOnlinePanel.querySelectorAll("[data-product-rich-canvas]").forEach(canvas => {
           canvas.contentEditable = readOnly || !enabled ? "false" : "true";
           canvas.setAttribute("aria-readonly", String(readOnly || !enabled));
+          updateProductRichToolbarState(canvas);
         });
         if (productSlugInput) productSlugInput.readOnly = true;
         if (enabled && !readOnly) syncProductOnlineName();
@@ -16604,13 +16631,16 @@
           return;
         }
         const clickedRichCell = event.target.closest("[data-product-rich-canvas] td, [data-product-rich-canvas] th");
-        if (clickedRichCell) setProductRichActiveCell(clickedRichCell);
+        const clickedRichCanvas = event.target.closest?.("[data-product-rich-canvas]");
+        if (clickedRichCell) {
+          setProductRichActiveCell(clickedRichCell);
+          updateProductRichToolbarState(clickedRichCanvas, clickedRichCell);
+        }
         if (!clickedRichCell && event.target.closest("[data-product-rich-canvas]")) {
           setProductRichActiveCell(null);
           setProductRichActiveImage(null);
+          updateProductRichToolbarState(clickedRichCanvas, null);
         }
-        const clickedRichCanvas = event.target.closest?.("[data-product-rich-canvas]");
-        if (clickedRichCanvas) updateProductRichToolbarState(clickedRichCanvas);
         const verticalAlignTrigger = event.target.closest("[data-product-rich-vertical-align]");
         if (verticalAlignTrigger) {
           applyProductRichVerticalAlignment(verticalAlignTrigger);
