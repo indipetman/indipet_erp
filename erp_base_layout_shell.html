@@ -4389,6 +4389,8 @@
     }
 
     .product-content-builder {
+      min-width: 0;
+      max-width: 100%;
       display: grid;
       gap: 14px;
       padding: 16px;
@@ -4400,10 +4402,17 @@
     .product-content-builder-head,
     .product-content-section-head,
     .product-content-block-head {
+      min-width: 0;
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
       gap: 12px;
+    }
+
+    .product-content-builder-head > div,
+    .product-content-section-head > div,
+    .product-content-block-head > span {
+      min-width: 0;
     }
 
     .product-content-builder-head p,
@@ -4415,11 +4424,14 @@
     }
 
     .product-content-section-list {
+      min-width: 0;
       display: grid;
       gap: 14px;
     }
 
     .product-content-section-card {
+      min-width: 0;
+      max-width: 100%;
       overflow: visible;
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -4477,23 +4489,28 @@
     }
 
     .product-content-section-body {
+      min-width: 0;
       display: grid;
       gap: 14px;
       padding: 14px;
     }
 
     .product-content-section-fields {
+      min-width: 0;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
 
     .product-content-block-list {
+      min-width: 0;
       display: grid;
       gap: 12px;
     }
 
     .product-content-block {
+      min-width: 0;
+      max-width: 100%;
       position: relative;
       display: grid;
       gap: 11px;
@@ -4591,6 +4608,8 @@
     }
 
     .product-rich-editor {
+      min-width: 0;
+      max-width: 100%;
       position: relative;
       overflow: visible;
       border: 1px solid var(--border);
@@ -4599,10 +4618,13 @@
     }
 
     .product-rich-toolbar {
+      min-width: 0;
+      max-width: 100%;
       position: relative;
       z-index: 15;
       display: flex;
       flex-wrap: wrap;
+      overflow-x: auto;
       gap: 5px;
       align-items: center;
       padding: 7px;
@@ -4854,8 +4876,10 @@
     }
 
     .product-rich-canvas {
+      max-width: 100%;
       min-height: 190px;
       padding: 14px;
+      overflow-x: auto;
       outline: 0;
       color: var(--text);
       font-size: 11px;
@@ -4965,7 +4989,7 @@
     .product-rich-canvas th,
     .product-rich-canvas td {
       position: relative;
-      min-width: 110px;
+      min-width: 64px;
       padding: 8px;
       border: 0;
       border-right: 1px solid var(--border);
