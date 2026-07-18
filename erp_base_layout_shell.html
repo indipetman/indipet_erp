@@ -8203,7 +8203,7 @@
 
       const erpMockSaveStatusText = status => {
         if (status === "excel") return " and saved to Excel";
-        if (status === "browser") return " and saved to browser storage; Excel server is offline";
+        if (status === "browser") return " and saved locally";
         return "; Excel server is offline and browser storage is unavailable, so only this browser session changed";
       };
 
