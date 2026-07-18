@@ -12554,7 +12554,7 @@
         loadProductRecordIntoForm(record);
         setProductFormMode(mode, record);
         document.title = `${mode === "edit" ? "Edit" : "View"} Product - ${productDisplayName(record)} - Indipet ERP`;
-        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+        scrollProductFormToTop();
       };
 
       const productStructureValue = () => productForm.querySelector('[name="product_structure"]:checked').value;
@@ -14677,6 +14677,19 @@
         productSellableNote.textContent = "Standard retail products are sellable by default.";
       };
 
+      const scrollProductFormToTop = () => {
+        const resetScroll = () => {
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+          document.querySelector(".main-shell")?.scrollTo?.({ top: 0, left: 0, behavior: "auto" });
+          document.querySelector(".content")?.scrollTo?.({ top: 0, left: 0, behavior: "auto" });
+          window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+        };
+        resetScroll();
+        if (typeof window.requestAnimationFrame === "function") window.requestAnimationFrame(resetScroll);
+        window.setTimeout(resetScroll, 0);
+      };
+
       const setProductStep = stepIndex => {
         activeProductStep = Math.max(0, Math.min(4, stepIndex));
         if (activeProductStep === 3 && productStructureValue() === "Variable") {
@@ -14693,7 +14706,7 @@
         nextProductStep.hidden = activeProductStep === 4;
         submitProductForm.hidden = activeProductStep !== 4;
         clearProductFormMessage();
-        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+        scrollProductFormToTop();
       };
 
       const isOnlineDetailsEditSubmit = () => productFormMode === "edit" && activeProductStep === 4;
@@ -14805,7 +14818,7 @@
         resetProductForm();
         setProductFormMode("create");
         document.title = "Add New Product - Indipet ERP";
-        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+        scrollProductFormToTop();
       };
 
       loginForm.addEventListener("input", () => {
