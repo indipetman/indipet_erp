@@ -8337,6 +8337,8 @@
             packQty: asNumber(standardPackQty.value),
             uom: standardUom.value,
             mrp: asNumber(standardMrp.value),
+            purchase: asNumber(standardPurchase.value),
+            landing: asNumber(standardLanding.value),
             selling: asNumber(standardSelling.value),
             flags: existing?.flags || [],
             structure: "Standard",
@@ -8368,6 +8370,8 @@
             packQty: asNumber(card.querySelector("[data-variant-pack]")?.value),
             uom: card.querySelector("[data-variant-uom]")?.value || "",
             mrp: asNumber(card.querySelector("[data-variant-mrp]")?.value),
+            purchase: asNumber(card.querySelector("[data-variant-purchase]")?.value),
+            landing: asNumber(card.querySelector("[data-variant-landing]")?.value),
             selling: asNumber(card.querySelector("[data-variant-selling]")?.value),
             online: card.querySelector("[data-variant-online]")?.value === "Online",
             status: card.querySelector("[data-variant-status]")?.value || base.status,
@@ -12085,8 +12089,8 @@
         standardSkuPreview.value = record.sku;
         standardBarcode.value = record.barcode || "";
         standardMrp.value = record.mrp;
-        standardPurchase.value = batch ? batch.purchase : "";
-        standardLanding.value = batch ? batch.landing : "";
+        standardPurchase.value = record.purchase || (batch ? batch.purchase : "");
+        standardLanding.value = record.landing || (batch ? batch.landing : "");
         standardDiscount.value = record.mrp ? Math.max(0, ((record.mrp - record.selling) / record.mrp) * 100).toFixed(2) : "0";
         standardSelling.value = record.selling;
         updateStandardMargin();
@@ -12129,8 +12133,8 @@
             if (pack) pack.value = variantRecord.packQty;
             if (uom) uom.value = variantRecord.uom;
             if (mrp) mrp.value = variantRecord.mrp;
-            if (purchase) purchase.value = variantBatch ? variantBatch.purchase : "";
-            if (landing) landing.value = variantBatch ? variantBatch.landing : "";
+            if (purchase) purchase.value = variantRecord.purchase || (variantBatch ? variantBatch.purchase : "");
+            if (landing) landing.value = variantRecord.landing || (variantBatch ? variantBatch.landing : "");
             if (discount) discount.value = variantRecord.mrp ? Math.max(0, ((variantRecord.mrp - variantRecord.selling) / variantRecord.mrp) * 100).toFixed(2) : "0";
             if (selling) selling.value = variantRecord.selling;
             if (online) online.value = variantRecord.online ? "Online" : "Offline";
