@@ -3220,6 +3220,11 @@
       padding-left: 10px;
     }
 
+    .product-records-table th,
+    .product-records-table td {
+      overflow: hidden;
+    }
+
     .product-table th:nth-child(1) { width: 280px; }
     .product-table th:nth-child(2) { width: 105px; }
     .product-table th:nth-child(3) { width: 135px; }
@@ -3256,10 +3261,14 @@
     }
 
     .product-code {
+      display: block;
+      max-width: 100%;
+      overflow: hidden;
       color: var(--text);
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       font-size: 9.5px;
       font-weight: 650;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
@@ -3466,6 +3475,13 @@
       overflow: visible;
       text-overflow: clip;
       white-space: normal;
+    }
+
+    .product-records-table td:not(:first-child) .product-cell-stack strong,
+    .product-records-table td:not(:first-child) .product-cell-stack small {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .product-table-status-action {
@@ -8147,6 +8163,7 @@
       };
       const erpMockLocalStorageKey = "indipet.erp.mockDb.v1";
       const erpMockTableNames = ["customers", "products", "services", "vendors"];
+      let erpMockProductsRepaired = false;
 
       const currentIsoDate = () => new Date().toISOString().slice(0, 10);
       const asNumber = value => {
@@ -8174,9 +8191,74 @@
         return `${prefix}-${String(max + 1).padStart(3, "0")}`;
       };
 
+      function productRecordVariationValuesForRepair(record) {
+        if (record?.structure !== "Variable") return [];
+        return String(record.variation || "").split(" · ").map(part => {
+          const separator = part.indexOf(": ");
+          return separator > -1 ? part.slice(separator + 2).trim() : part.trim();
+        }).filter(Boolean);
+      }
+
+      function productRecordCodeLooksCorrupted(value, record) {
+        const text = String(value || "").trim();
+        const productName = String(record?.product || "").trim().toLowerCase();
+        if (!text) return true;
+        if (/\s/.test(text)) return true;
+        if (text.length > 64) return true;
+        return productName.length > 18 && text.toLowerCase().includes(productName.slice(0, 18));
+      }
+
+      function buildRepairedProductSku(record) {
+        const effectiveBrand = record?.subbrand || record?.brand || "";
+        const brandPrefix = effectiveBrand ? `${productSkuToken(String(effectiveBrand)).slice(0, 3)}-` : "";
+        const productPrefix = productSkuToken(String(record?.product || "PRODUCT")).split("-").slice(0, 2).join("-");
+        const variationSuffix = productRecordVariationValuesForRepair(record).map(value => productSkuToken(String(value))).join("-");
+        const fallbackSuffix = !variationSuffix && record?.packQty && record?.uom ? `${productSkuToken(String(record.packQty))}-${productSkuToken(String(record.uom))}` : "";
+        return [brandPrefix ? `${brandPrefix}${productPrefix}` : productPrefix, variationSuffix || fallbackSuffix].filter(Boolean).join("-");
+      }
+
+      function repairProductRecords(records) {
+        const usedSkus = new Set();
+        let changed = false;
+        const repairedRecords = (Array.isArray(records) ? records : []).map(record => {
+          const next = { ...record };
+          const originalSku = String(record?.sku || "").trim();
+          let sku = originalSku;
+          if (productRecordCodeLooksCorrupted(sku, record)) {
+            sku = buildRepairedProductSku(record);
+            changed = true;
+          }
+          const baseSku = sku || productSkuToken(String(record?.product || "PRODUCT"));
+          let uniqueSku = baseSku;
+          let counter = 2;
+          while (usedSkus.has(uniqueSku.toLowerCase())) {
+            uniqueSku = `${baseSku}-${counter}`;
+            counter += 1;
+          }
+          usedSkus.add(uniqueSku.toLowerCase());
+          if (next.sku !== uniqueSku) {
+            next.sku = uniqueSku;
+            changed = true;
+          }
+          const barcode = String(next.barcode || "").trim();
+          if (!barcode || barcode === originalSku || productRecordCodeLooksCorrupted(barcode, record)) {
+            if (next.barcode) changed = true;
+            next.barcode = "";
+          } else {
+            next.barcode = barcode;
+          }
+          return next;
+        });
+        return { records: repairedRecords, changed };
+      }
+
       const applyErpMockDbTables = data => {
         if (Array.isArray(data.customers)) customerRecords = data.customers;
-        if (Array.isArray(data.products)) productRecords = data.products;
+        if (Array.isArray(data.products)) {
+          const repaired = repairProductRecords(data.products);
+          productRecords = repaired.records;
+          erpMockProductsRepaired = erpMockProductsRepaired || repaired.changed;
+        }
         if (Array.isArray(data.services)) serviceRecords = data.services;
         if (Array.isArray(data.vendors)) vendorRecords = data.vendors;
       };
@@ -8229,6 +8311,7 @@
         } catch (error) {
           erpMockDb.connected = false;
           erpMockDb.lastError = error.message;
+          if (localData && erpMockProductsRepaired) writeErpMockLocalDb("products", productRecords);
           console.warn(`Excel mock database not connected. Using ${localData ? "browser-saved" : "in-page preview"} data.`, error);
         }
       };
@@ -16199,7 +16282,8 @@
           return;
         }
         setProductStep(4);
-        const records = productRecordsFromForm();
+        const repairedProductFormRecords = repairProductRecords(productRecordsFromForm());
+        const records = repairedProductFormRecords.records;
         if (productFormMode === "edit" && activeProductGroupKey && productStructureValue() === "Variable") {
           productRecords = productRecords.filter(record => productRecordGroupKey(record) !== activeProductGroupKey);
           activeProductGroupKey = records[0] ? productRecordGroupKey(records[0]) : "";
