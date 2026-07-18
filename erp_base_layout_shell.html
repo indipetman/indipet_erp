@@ -7945,6 +7945,7 @@
       let activeProductStep = 0;
       let productFormMode = "create";
       let activeProductRecordSku = "";
+      let activeProductGroupKey = "";
       let productAttributeSequence = 0;
       let selectedProductTags = [];
       let productOnlineNameAutoValue = "";
@@ -8343,20 +8344,38 @@
           }];
         }
         const attributes = productAttributeDefinitions().map(item => item.name).filter(Boolean).join(", ");
-        return [...productSkuList.querySelectorAll("[data-product-sku-card]")].map(card => ({
-          ...base,
-          sku: card.querySelector(".customer-form-field input[readonly]")?.value || productSkuPrefix(),
-          barcode: card.querySelector('.customer-form-field.span-2 input:not([readonly])')?.value?.trim() || "",
-          variation: card.querySelector(".product-sku-head strong")?.textContent || "Variable",
-          stockUnit: card.querySelector("[data-variant-stock-unit]")?.value || "",
-          packQty: asNumber(card.querySelector("[data-variant-pack]")?.value),
-          uom: card.querySelector("[data-variant-uom]")?.value || "",
-          mrp: asNumber(card.querySelector("[data-variant-mrp]")?.value),
-          selling: asNumber(card.querySelector("[data-variant-selling]")?.value),
-          flags: existing?.flags || ["New"],
-          structure: "Variable",
-          attribute: attributes
-        }));
+        return [...productSkuList.querySelectorAll("[data-product-sku-card]")].map(card => {
+          const sku = card.querySelector(".customer-form-field input[readonly]")?.value || productSkuPrefix();
+          const existingVariant = productRecordBySku(sku);
+          return {
+            ...base,
+            ...(existingVariant || {}),
+            product: base.product,
+            brand: base.brand,
+            subbrand: base.subbrand,
+            category: base.category,
+            subcategory: base.subcategory,
+            animals: base.animals,
+            tags: base.tags,
+            hsn: base.hsn,
+            gst: base.gst,
+            updated: today,
+            created: existingVariant?.created || base.created,
+            sku,
+            barcode: card.querySelector('.customer-form-field.span-2 input:not([readonly])')?.value?.trim() || "",
+            variation: card.querySelector(".product-sku-head strong")?.textContent || "Variable",
+            stockUnit: card.querySelector("[data-variant-stock-unit]")?.value || "",
+            packQty: asNumber(card.querySelector("[data-variant-pack]")?.value),
+            uom: card.querySelector("[data-variant-uom]")?.value || "",
+            mrp: asNumber(card.querySelector("[data-variant-mrp]")?.value),
+            selling: asNumber(card.querySelector("[data-variant-selling]")?.value),
+            online: card.querySelector("[data-variant-online]")?.value === "Online",
+            status: card.querySelector("[data-variant-status]")?.value || base.status,
+            flags: existingVariant?.flags || existing?.flags || ["New"],
+            structure: "Variable",
+            attribute: attributes
+          };
+        });
       };
 
       const serviceRecordFromForm = () => {
@@ -11875,6 +11894,21 @@
 
       const productRecordBySku = sku => productRecords.find(record => record.sku === sku);
 
+      const productRecordGroupKey = record => record?.structure === "Variable"
+        ? ["Variable", record.product, record.brand, record.subbrand, record.category, record.subcategory, record.hsn].map(value => String(value || "").trim().toLowerCase()).join("||")
+        : record?.sku || "";
+
+      const productGroupRecords = record => {
+        const groupKey = productRecordGroupKey(record);
+        return record?.structure === "Variable"
+          ? productRecords.filter(item => productRecordGroupKey(item) === groupKey)
+          : record ? [record] : [];
+      };
+
+      const activeProductGroupRecords = () => activeProductGroupKey
+        ? productRecords.filter(record => productRecordGroupKey(record) === activeProductGroupKey)
+        : [];
+
       const productStatusToStockControlStatus = status => status === "Inactive" ? "Inactive" : "Active";
       const stockControlStatusToProductStatus = status => status === "Inactive" ? "Inactive" : "Active";
 
@@ -11970,12 +12004,15 @@
       const setProductFormMode = (mode, record = null) => {
         productFormMode = mode;
         activeProductRecordSku = record ? record.sku : "";
+        activeProductGroupKey = record ? productRecordGroupKey(record) : "";
+        const variableGroupSize = record?.structure === "Variable" ? productGroupRecords(record).length : 1;
+        const formRecordTitle = record?.structure === "Variable" ? record.product : record ? productDisplayName(record) : "";
         productFormBreadcrumbCurrent.textContent = mode === "view" ? "View Product" : mode === "edit" ? "Edit Product" : "Add New Product";
-        productFormTitle.textContent = mode === "view" && record ? productDisplayName(record) : mode === "edit" && record ? "Edit Product" : "Add New Product";
+        productFormTitle.textContent = mode === "view" && record ? formRecordTitle : mode === "edit" && record ? "Edit Product" : "Add New Product";
         productFormDescription.textContent = mode === "view" && record
-          ? `${record.sku} · Read-only product/SKU profile. Use Edit to make changes.`
+          ? `${record.structure === "Variable" ? `${variableGroupSize} variation SKU${variableGroupSize === 1 ? "" : "s"}` : record.sku} · Read-only product profile. Use Edit to make changes.`
           : mode === "edit" && record
-            ? `Update the product/SKU profile for ${productDisplayName(record)}.`
+            ? `Update the product profile for ${formRecordTitle}.`
             : "Create the product definition and generate its standard or variation SKU records.";
         submitProductForm.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>${mode === "edit" ? "Save Changes" : "Create Product"}`;
         productViewActions.hidden = mode !== "view";
@@ -11986,11 +12023,12 @@
 
       const loadProductRecordIntoForm = record => {
         resetProductForm();
+        const groupRecords = productGroupRecords(record);
         const batch = productFirstBatchRecord(record);
         productNameInput.value = record.product;
         syncProductOnlineName(true);
         productParentStatus.value = record.status;
-        productOnlineToggle.value = record.online ? "Yes" : "No";
+        productOnlineToggle.value = record.structure === "Variable" ? (groupRecords.some(item => item.online) ? "Yes" : "No") : (record.online ? "Yes" : "No");
         updateProductBrandInput();
         productBrandInput.value = productBrandMasterOptions().includes(record.brand) ? record.brand : "";
         updateProductSubbrandInput();
@@ -12028,16 +12066,26 @@
         if (record.structure === "Variable") {
           productAttributeList.innerHTML = "";
           productAttributeSequence = 0;
-          parseProductVariationPairs(record).forEach(pair => addProductAttribute(pair.name, pair.value));
+          const attributeMap = new Map();
+          groupRecords.flatMap(parseProductVariationPairs).forEach(pair => {
+            if (!attributeMap.has(pair.name)) attributeMap.set(pair.name, []);
+            const values = attributeMap.get(pair.name);
+            if (!values.includes(pair.value)) values.push(pair.value);
+          });
+          attributeMap.forEach((values, name) => addProductAttribute(name, values.join(", ")));
           productCommonStockUnit.value = record.stockUnit;
           productCommonPackQty.value = record.packQty;
           productCommonUom.value = record.uom;
           renderProductSkuCombinations();
-          const skuCard = productSkuList.querySelector("[data-product-sku-card]");
-          if (skuCard) {
+          productSkuList.querySelectorAll("[data-product-sku-card]").forEach(skuCard => {
+            const label = skuCard.querySelector(".product-sku-head strong")?.textContent || "";
+            const generatedSku = skuCard.querySelector(".customer-form-field input[readonly]")?.value || "";
+            const variantRecord = groupRecords.find(item => item.variation === label) || groupRecords.find(item => item.sku === generatedSku);
+            if (!variantRecord) return;
+            const variantBatch = productFirstBatchRecord(variantRecord);
             const inputs = skuCard.querySelectorAll("input");
-            if (inputs[0]) inputs[0].value = record.sku;
-            if (inputs[1]) inputs[1].value = record.barcode || "";
+            if (inputs[0]) inputs[0].value = variantRecord.sku;
+            if (inputs[1]) inputs[1].value = variantRecord.barcode || "";
             const stockUnit = skuCard.querySelector("[data-variant-stock-unit]");
             const pack = skuCard.querySelector("[data-variant-pack]");
             const uom = skuCard.querySelector("[data-variant-uom]");
@@ -12046,18 +12094,20 @@
             const landing = skuCard.querySelector("[data-variant-landing]");
             const discount = skuCard.querySelector("[data-variant-discount]");
             const selling = skuCard.querySelector("[data-variant-selling]");
-            if (stockUnit) stockUnit.value = record.stockUnit;
-            if (pack) pack.value = record.packQty;
-            if (uom) uom.value = record.uom;
-            if (mrp) mrp.value = record.mrp;
-            if (purchase) purchase.value = batch ? batch.purchase : "";
-            if (landing) landing.value = batch ? batch.landing : "";
-            if (discount) discount.value = record.mrp ? Math.max(0, ((record.mrp - record.selling) / record.mrp) * 100).toFixed(2) : "0";
-            if (selling) selling.value = record.selling;
-            const statusSelects = skuCard.querySelectorAll("select");
-            if (statusSelects[statusSelects.length - 1]) statusSelects[statusSelects.length - 1].value = record.status;
+            const online = skuCard.querySelector("[data-variant-online]");
+            const status = skuCard.querySelector("[data-variant-status]");
+            if (stockUnit) stockUnit.value = variantRecord.stockUnit;
+            if (pack) pack.value = variantRecord.packQty;
+            if (uom) uom.value = variantRecord.uom;
+            if (mrp) mrp.value = variantRecord.mrp;
+            if (purchase) purchase.value = variantBatch ? variantBatch.purchase : "";
+            if (landing) landing.value = variantBatch ? variantBatch.landing : "";
+            if (discount) discount.value = variantRecord.mrp ? Math.max(0, ((variantRecord.mrp - variantRecord.selling) / variantRecord.mrp) * 100).toFixed(2) : "0";
+            if (selling) selling.value = variantRecord.selling;
+            if (online) online.value = variantRecord.online ? "Online" : "Offline";
+            if (status) status.value = variantRecord.status;
             updateVariantDisplayName(skuCard);
-          }
+          });
         }
         setProductStep(0);
       };
@@ -13621,8 +13671,8 @@
                 <label class="customer-form-field"><span class="customer-form-label">Discount (%)</span><input data-variant-discount type="number" min="0" max="100" step="0.01" value="0"></label>
                 <label class="customer-form-field"><span class="customer-form-label">Selling Price <span class="customer-required">Required</span></span><input data-product-variant-required data-variant-selling type="number" min="0" step="0.01" placeholder="0.00"></label>
                 <div class="customer-form-field"><span class="customer-form-label">Calculated Margin</span><div class="product-margin-output" data-variant-margin>Enter landing cost and selling price</div></div>
-                <label class="customer-form-field"><span class="customer-form-label">Online Availability</span><select><option ${productOnlineToggle.value === "Yes" ? "selected" : ""}>Online</option><option ${productOnlineToggle.value !== "Yes" ? "selected" : ""}>Offline</option></select></label>
-                <label class="customer-form-field"><span class="customer-form-label">SKU Status</span><select><option>Active</option><option>Inactive</option></select></label>
+                <label class="customer-form-field"><span class="customer-form-label">Online Availability</span><select data-variant-online><option ${productOnlineToggle.value === "Yes" ? "selected" : ""}>Online</option><option ${productOnlineToggle.value !== "Yes" ? "selected" : ""}>Offline</option></select></label>
+                <label class="customer-form-field"><span class="customer-form-label">SKU Status</span><select data-variant-status><option>Active</option><option>Inactive</option></select></label>
                 <div class="customer-form-field span-2"><span class="customer-form-label">Variation Image</span><button class="action-button" type="button" data-product-variant-image><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>Add Variation Image</button></div>
               </div></div>
             </article>`;
@@ -15765,7 +15815,8 @@
         if (event.target === productParentStatus && productFormMode === "edit" && activeProductRecordSku) {
           const record = productRecordBySku(activeProductRecordSku);
           if (record) {
-            setProductRecordStatus(record, productParentStatus.value);
+            const statusRecords = record.structure === "Variable" ? activeProductGroupRecords() : [record];
+            statusRecords.forEach(item => setProductRecordStatus(item, productParentStatus.value));
             renderProductSummary();
             renderProductFilterOptions();
             renderProductTable();
@@ -15879,6 +15930,10 @@
         }
         setProductStep(4);
         const records = productRecordsFromForm();
+        if (productFormMode === "edit" && activeProductGroupKey && productStructureValue() === "Variable") {
+          productRecords = productRecords.filter(record => productRecordGroupKey(record) !== activeProductGroupKey);
+          activeProductGroupKey = records[0] ? productRecordGroupKey(records[0]) : "";
+        }
         records.forEach(record => upsertRecord(productRecords, "sku", record));
         renderProductLayer();
         const saveStatus = await saveErpMockTable("products", productRecords);
