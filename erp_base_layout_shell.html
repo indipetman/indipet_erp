@@ -8457,6 +8457,9 @@
             tags: base.tags,
             hsn: base.hsn,
             gst: base.gst,
+            onlineName: base.onlineName,
+            slug: base.slug,
+            contentSections: base.contentSections,
             updated: today,
             created: existingVariant?.created || base.created,
             sku,
@@ -12153,20 +12156,11 @@
       const loadProductRecordIntoForm = record => {
         resetProductForm();
         const groupRecords = productGroupRecords(record);
+        const onlineSourceRecord = record.structure === "Variable"
+          ? groupRecords.find(item => item.onlineName || item.slug || (Array.isArray(item.contentSections) && item.contentSections.length)) || record
+          : record;
         const batch = productFirstBatchRecord(record);
         productNameInput.value = record.product;
-        if (record.onlineName) {
-          productOnlineNameInput.value = record.onlineName;
-          productOnlineNameAutoValue = record.onlineName;
-        } else {
-          syncProductOnlineName(true);
-        }
-        if (record.slug) {
-          productSlugInput.value = record.slug;
-          productSlugAutoValue = record.slug;
-        } else {
-          syncProductSlug(true);
-        }
         productParentStatus.value = record.status;
         productOnlineToggle.value = record.structure === "Variable" ? (groupRecords.some(item => item.online) ? "Yes" : "No") : (record.online ? "Yes" : "No");
         updateProductBrandInput();
@@ -12187,7 +12181,19 @@
         if (structureInput) structureInput.checked = true;
         updateProductStructurePanels();
         updateProductOnlinePanel();
-        loadProductContentSectionsFromRecord(record.contentSections);
+        loadProductContentSectionsFromRecord(onlineSourceRecord.contentSections);
+        if (onlineSourceRecord.onlineName) {
+          productOnlineNameInput.value = onlineSourceRecord.onlineName;
+          productOnlineNameAutoValue = onlineSourceRecord.onlineName;
+        } else {
+          syncProductOnlineName(true);
+        }
+        if (onlineSourceRecord.slug) {
+          productSlugInput.value = onlineSourceRecord.slug;
+          productSlugAutoValue = onlineSourceRecord.slug;
+        } else {
+          syncProductSlug(true);
+        }
         standardStockUnit.value = record.stockUnit;
         standardPackQty.value = record.packQty;
         standardUom.value = record.uom;
@@ -12578,7 +12584,16 @@
         renderProductContentSections();
       };
 
-      const productContentSectionsForStorage = () => productContentSections.map(section => ({
+      const syncProductContentDomToState = () => {
+        if (!productContentSectionList) return;
+        productContentSectionList.querySelectorAll("[data-product-content-section-field], [data-product-content-field], [data-product-content-table-cell], [data-product-rich-canvas]").forEach(field => {
+          updateProductContentValue(field);
+        });
+      };
+
+      const productContentSectionsForStorage = () => {
+        syncProductContentDomToState();
+        return productContentSections.map(section => ({
         id: section.id,
         title: section.title || "",
         tabLabel: section.tabLabel || "",
@@ -12588,7 +12603,8 @@
           if (block.type === "table") return { id: block.id, type: "table", rows: Array.isArray(block.rows) ? block.rows.map(row => [...row]) : [["Feature", "Details"], ["", ""]] };
           return { id: block.id, type: "text", html: block.html || "" };
         })
-      }));
+        }));
+      };
 
       const loadProductContentSectionsFromRecord = sections => {
         if (!Array.isArray(sections) || !sections.length) return;
