@@ -8347,6 +8347,7 @@
           }];
         }
         const attributes = productAttributeDefinitions().map(item => item.name).filter(Boolean).join(", ");
+        restoreProductSkuDraftSnapshotsToCards();
         return [...productSkuList.querySelectorAll("[data-product-sku-card]")].map(card => {
           const sku = card.querySelector(".customer-form-field input[readonly]")?.value || productSkuPrefix();
           const existingVariant = productRecordBySku(sku);
@@ -13685,10 +13686,22 @@
         retailDriver: card.dataset.retailDriver || "discount"
       });
 
+      const mergeProductSkuSnapshot = (previous = {}, current = {}) => {
+        const merged = { ...previous, ...current };
+        ["sku", "barcode", "stockUnit", "packQty", "uom", "mrp", "purchase", "landing", "discount", "selling", "online", "status"].forEach(field => {
+          if ((current[field] === "" || current[field] == null) && previous[field]) merged[field] = previous[field];
+        });
+        merged.purchaseDriver = current.purchaseDriver || previous.purchaseDriver || "purchase";
+        merged.retailDriver = current.retailDriver || previous.retailDriver || "discount";
+        return merged;
+      };
+
       const rememberProductSkuCardSnapshot = card => {
         const snapshot = productSkuCardSnapshot(card);
-        if (snapshot.key) productSkuDraftSnapshots.set(snapshot.key, snapshot);
-        return snapshot;
+        if (!snapshot.key) return snapshot;
+        const merged = mergeProductSkuSnapshot(productSkuDraftSnapshots.get(snapshot.key), snapshot);
+        productSkuDraftSnapshots.set(snapshot.key, merged);
+        return merged;
       };
 
       const productSkuSnapshotMap = () => {
@@ -13723,7 +13736,14 @@
         card.dataset.retailDriver = snapshot.retailDriver;
         updateVariantDisplayName(card);
         card.querySelector("[data-variant-margin]").textContent = calculateProductMargin(card.querySelector("[data-variant-landing]").value, card.querySelector("[data-variant-selling]").value);
-        productSkuDraftSnapshots.set(snapshot.key, productSkuCardSnapshot(card));
+        rememberProductSkuCardSnapshot(card);
+      };
+
+      const restoreProductSkuDraftSnapshotsToCards = () => {
+        productSkuList.querySelectorAll("[data-product-sku-card]").forEach(card => {
+          const snapshot = productSkuDraftSnapshots.get(productSkuCardKey(card));
+          if (snapshot) restoreProductSkuCardSnapshot(card, snapshot);
+        });
       };
 
       const renderProductSkuCombinations = () => {
@@ -13873,6 +13893,7 @@
 
       const validateProductSection = sectionIndex => {
         const section = productForm.querySelector(`[data-product-section="${sectionIndex}"]`);
+        if (sectionIndex === 3 && productStructureValue() === "Variable") restoreProductSkuDraftSnapshotsToCards();
         const requiredFields = [...section.querySelectorAll("[required], [data-product-variant-required]")].filter(field => !field.disabled && !field.closest("[hidden]"));
         const missing = requiredFields.filter(field => !field.value.trim());
         if (sectionIndex === 1 && !productForm.querySelector("[data-product-animal]:checked")) {
