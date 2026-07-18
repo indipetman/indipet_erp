@@ -6787,10 +6787,10 @@
                     <div class="customer-form-grid">
                       <label class="customer-form-field span-2"><span class="customer-form-label">Online Product Name</span><input id="productOnlineNameInput" data-product-online-field placeholder="Fetched from Product Name by default"></label>
                       <label class="customer-form-field"><span class="customer-form-label">Slug</span><input id="productSlugInput" data-product-online-field readonly placeholder="Auto-generated from Online Product Name"><span class="product-form-field-note">Generated automatically for the online product URL.</span></label>
-                      <label class="customer-form-field span-2"><span class="customer-form-label">Meta Title</span><input data-product-online-field placeholder="Enter search title"></label>
-                      <label class="customer-form-field span-3"><span class="customer-form-label">Meta Description</span><input data-product-online-field placeholder="Enter search description"></label>
-                      <label class="customer-form-field span-2"><span class="customer-form-label">Manufacturer Details</span><input data-product-online-field placeholder="Enter manufacturer details"></label>
-                      <label class="customer-form-field"><span class="customer-form-label">Country of Origin</span><select data-product-online-field data-country-select></select></label>
+                      <label class="customer-form-field span-2"><span class="customer-form-label">Meta Title</span><input id="productMetaTitleInput" data-product-online-field placeholder="Enter search title"></label>
+                      <label class="customer-form-field span-3"><span class="customer-form-label">Meta Description</span><input id="productMetaDescriptionInput" data-product-online-field placeholder="Enter search description"></label>
+                      <label class="customer-form-field span-2"><span class="customer-form-label">Manufacturer Details</span><input id="productManufacturerDetailsInput" data-product-online-field placeholder="Enter manufacturer details"></label>
+                      <label class="customer-form-field"><span class="customer-form-label">Country of Origin</span><select id="productCountryOfOriginInput" data-product-online-field data-country-select></select></label>
                       <div class="customer-form-field span-3">
                         <section class="product-content-builder" id="productContentBuilder">
                           <div class="product-content-builder-head">
@@ -7721,6 +7721,10 @@
       const productOnlineDisabledMessage = document.getElementById("productOnlineDisabledMessage");
       const productOnlineNameInput = document.getElementById("productOnlineNameInput");
       const productSlugInput = document.getElementById("productSlugInput");
+      const productMetaTitleInput = document.getElementById("productMetaTitleInput");
+      const productMetaDescriptionInput = document.getElementById("productMetaDescriptionInput");
+      const productManufacturerDetailsInput = document.getElementById("productManufacturerDetailsInput");
+      const productCountryOfOriginInput = document.getElementById("productCountryOfOriginInput");
       const productImageInput = document.getElementById("productImageInput");
       const productImagePreviewList = document.getElementById("productImagePreviewList");
       const addProductContentSectionButton = document.getElementById("addProductContentSection");
@@ -8420,6 +8424,10 @@
           online: productOnlineToggle.value === "Yes",
           onlineName: productOnlineNameInput.value.trim(),
           slug: productSlugInput.value.trim(),
+          metaTitle: productMetaTitleInput.value.trim(),
+          metaDescription: productMetaDescriptionInput.value.trim(),
+          manufacturerDetails: productManufacturerDetailsInput.value.trim(),
+          countryOfOrigin: productCountryOfOriginInput.value,
           contentSections: productContentSectionsForStorage(),
           status: productParentStatus.value,
           hsn: productHsnInput.value.trim(),
@@ -8466,6 +8474,10 @@
             gst: base.gst,
             onlineName: base.onlineName,
             slug: base.slug,
+            metaTitle: base.metaTitle,
+            metaDescription: base.metaDescription,
+            manufacturerDetails: base.manufacturerDetails,
+            countryOfOrigin: base.countryOfOrigin,
             contentSections: base.contentSections,
             updated: today,
             created: existingVariant?.created || base.created,
@@ -12171,7 +12183,7 @@
         resetProductForm();
         const groupRecords = productGroupRecords(record);
         const onlineSourceRecord = record.structure === "Variable"
-          ? groupRecords.find(item => item.onlineName || item.slug || (Array.isArray(item.contentSections) && item.contentSections.length)) || record
+          ? groupRecords.find(item => item.onlineName || item.slug || item.metaTitle || item.metaDescription || item.manufacturerDetails || item.countryOfOrigin || (Array.isArray(item.contentSections) && item.contentSections.length)) || record
           : record;
         const batch = productFirstBatchRecord(record);
         productNameInput.value = record.product;
@@ -12208,6 +12220,10 @@
         } else {
           syncProductSlug(true);
         }
+        productMetaTitleInput.value = onlineSourceRecord.metaTitle || "";
+        productMetaDescriptionInput.value = onlineSourceRecord.metaDescription || "";
+        productManufacturerDetailsInput.value = onlineSourceRecord.manufacturerDetails || "";
+        productCountryOfOriginInput.value = countryOptions.includes(onlineSourceRecord.countryOfOrigin) ? onlineSourceRecord.countryOfOrigin : "";
         standardStockUnit.value = record.stockUnit;
         standardPackQty.value = record.packQty;
         standardUom.value = record.uom;
