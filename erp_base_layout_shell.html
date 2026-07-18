@@ -8153,6 +8153,10 @@
         const number = Number(String(value || "").replace(/,/g, ""));
         return Number.isFinite(number) ? number : 0;
       };
+      const formStoredValue = (...values) => {
+        const value = values.find(item => item !== undefined && item !== null && String(item) !== "");
+        return value === undefined ? "" : String(value);
+      };
       const checkedValues = selector => [...document.querySelectorAll(`${selector}:checked`)].map(input => input.value);
       const upsertRecord = (records, key, record) => {
         const index = records.findIndex(item => item[key] === record[key]);
@@ -8347,6 +8351,7 @@
           }];
         }
         const attributes = productAttributeDefinitions().map(item => item.name).filter(Boolean).join(", ");
+        hydrateProductSkuCardsFromRecords();
         restoreProductSkuDraftSnapshotsToCards();
         return [...productSkuList.querySelectorAll("[data-product-sku-card]")].map(card => {
           const sku = card.querySelector(".customer-form-field input[readonly]")?.value || productSkuPrefix();
@@ -12091,8 +12096,8 @@
         standardSkuPreview.value = record.sku;
         standardBarcode.value = record.barcode || "";
         standardMrp.value = record.mrp;
-        standardPurchase.value = record.purchase || (batch ? batch.purchase : "");
-        standardLanding.value = record.landing || (batch ? batch.landing : "");
+        standardPurchase.value = formStoredValue(record.purchase, batch ? batch.purchase : "");
+        standardLanding.value = formStoredValue(record.landing, batch ? batch.landing : "");
         standardDiscount.value = record.mrp ? Math.max(0, ((record.mrp - record.selling) / record.mrp) * 100).toFixed(2) : "0";
         standardSelling.value = record.selling;
         updateStandardMargin();
@@ -12135,8 +12140,8 @@
             if (pack) pack.value = variantRecord.packQty;
             if (uom) uom.value = variantRecord.uom;
             if (mrp) mrp.value = variantRecord.mrp;
-            if (purchase) purchase.value = variantRecord.purchase || (variantBatch ? variantBatch.purchase : "");
-            if (landing) landing.value = variantRecord.landing || (variantBatch ? variantBatch.landing : "");
+            if (purchase) purchase.value = formStoredValue(variantRecord.purchase, variantBatch ? variantBatch.purchase : "");
+            if (landing) landing.value = formStoredValue(variantRecord.landing, variantBatch ? variantBatch.landing : "");
             if (discount) discount.value = variantRecord.mrp ? Math.max(0, ((variantRecord.mrp - variantRecord.selling) / variantRecord.mrp) * 100).toFixed(2) : "0";
             if (selling) selling.value = variantRecord.selling;
             if (online) online.value = variantRecord.online ? "Online" : "Offline";
@@ -13686,13 +13691,25 @@
         retailDriver: card.dataset.retailDriver || "discount"
       });
 
+      const productSkuSnapshotFields = ["sku", "barcode", "stockUnit", "packQty", "uom", "mrp", "purchase", "landing", "discount", "selling", "online", "status"];
+
       const mergeProductSkuSnapshot = (previous = {}, current = {}) => {
         const merged = { ...previous, ...current };
-        ["sku", "barcode", "stockUnit", "packQty", "uom", "mrp", "purchase", "landing", "discount", "selling", "online", "status"].forEach(field => {
-          if ((current[field] === "" || current[field] == null) && previous[field]) merged[field] = previous[field];
+        productSkuSnapshotFields.forEach(field => {
+          if ((current[field] === "" || current[field] == null) && previous[field] !== "" && previous[field] != null) merged[field] = previous[field];
         });
         merged.purchaseDriver = current.purchaseDriver || previous.purchaseDriver || "purchase";
         merged.retailDriver = current.retailDriver || previous.retailDriver || "discount";
+        return merged;
+      };
+
+      const fillMissingProductSkuSnapshot = (current = {}, fallback = {}) => {
+        const merged = { ...current };
+        productSkuSnapshotFields.forEach(field => {
+          if ((merged[field] === "" || merged[field] == null) && fallback[field] !== "" && fallback[field] != null) merged[field] = fallback[field];
+        });
+        merged.purchaseDriver = current.purchaseDriver || fallback.purchaseDriver || "purchase";
+        merged.retailDriver = current.retailDriver || fallback.retailDriver || "discount";
         return merged;
       };
 
@@ -13743,6 +13760,46 @@
         productSkuList.querySelectorAll("[data-product-sku-card]").forEach(card => {
           const snapshot = productSkuDraftSnapshots.get(productSkuCardKey(card));
           if (snapshot) restoreProductSkuCardSnapshot(card, snapshot);
+        });
+      };
+
+      const productSkuRecordSnapshot = record => {
+        const batch = productFirstBatchRecord(record);
+        const mrp = formStoredValue(record.mrp, batch ? batch.mrp : "");
+        const selling = formStoredValue(record.selling, batch ? batch.selling : "");
+        const mrpValue = Number(mrp);
+        const sellingValue = Number(selling);
+        const discount = mrp !== "" && selling !== "" && Number.isFinite(mrpValue) && mrpValue > 0 && Number.isFinite(sellingValue)
+          ? Math.max(0, ((mrpValue - sellingValue) / mrpValue) * 100).toFixed(2)
+          : "0";
+        return {
+          key: record.variation || "",
+          sku: record.sku || "",
+          barcode: record.barcode || "",
+          stockUnit: formStoredValue(record.stockUnit),
+          packQty: formStoredValue(record.packQty),
+          uom: formStoredValue(record.uom),
+          mrp,
+          purchase: formStoredValue(record.purchase, batch ? batch.purchase : ""),
+          landing: formStoredValue(record.landing, batch ? batch.landing : ""),
+          discount,
+          selling,
+          online: record.online ? "Online" : "Offline",
+          status: record.status || "Active",
+          purchaseDriver: "purchase",
+          retailDriver: "discount"
+        };
+      };
+
+      const hydrateProductSkuCardsFromRecords = (records = activeProductGroupRecords()) => {
+        if (productStructureValue() !== "Variable" || !records.length) return;
+        productSkuList.querySelectorAll("[data-product-sku-card]").forEach(card => {
+          const label = productSkuCardKey(card);
+          const sku = card.querySelector(".customer-form-field input[readonly]")?.value || "";
+          const record = records.find(item => item.variation === label) || records.find(item => item.sku === sku);
+          if (!record) return;
+          const current = mergeProductSkuSnapshot(productSkuDraftSnapshots.get(label), productSkuCardSnapshot(card));
+          restoreProductSkuCardSnapshot(card, fillMissingProductSkuSnapshot(current, productSkuRecordSnapshot(record)));
         });
       };
 
@@ -13878,7 +13935,11 @@
 
       const setProductStep = stepIndex => {
         activeProductStep = Math.max(0, Math.min(4, stepIndex));
-        if (activeProductStep === 3 && productStructureValue() === "Variable") renderProductSkuCombinations();
+        if (activeProductStep === 3 && productStructureValue() === "Variable") {
+          renderProductSkuCombinations();
+          hydrateProductSkuCardsFromRecords();
+          restoreProductSkuDraftSnapshotsToCards();
+        }
         productForm.querySelectorAll("[data-product-step]").forEach((step, index) => {
           step.classList.toggle("is-active", index === activeProductStep);
           step.classList.toggle("is-complete", index < activeProductStep);
@@ -13893,7 +13954,10 @@
 
       const validateProductSection = sectionIndex => {
         const section = productForm.querySelector(`[data-product-section="${sectionIndex}"]`);
-        if (sectionIndex === 3 && productStructureValue() === "Variable") restoreProductSkuDraftSnapshotsToCards();
+        if (sectionIndex === 3 && productStructureValue() === "Variable") {
+          hydrateProductSkuCardsFromRecords();
+          restoreProductSkuDraftSnapshotsToCards();
+        }
         const requiredFields = [...section.querySelectorAll("[required], [data-product-variant-required]")].filter(field => !field.disabled && !field.closest("[hidden]"));
         const missing = requiredFields.filter(field => !field.value.trim());
         if (sectionIndex === 1 && !productForm.querySelector("[data-product-animal]:checked")) {
