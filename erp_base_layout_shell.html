@@ -16530,6 +16530,7 @@
         renderProductLayer();
         const saveStatus = await saveErpMockTable("products", productRecords);
         showProductFormMessage(`${records.length} product SKU${records.length === 1 ? "" : "s"} ${productFormMode === "edit" ? "updated" : "created"} locally${erpMockSaveStatusText(saveStatus)}.`, [], true);
+        showProductWorkspace();
       });
 
       whatsappSameAsPhone.addEventListener("change", () => {
