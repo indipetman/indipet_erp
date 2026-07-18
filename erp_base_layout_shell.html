@@ -12585,8 +12585,13 @@
       const showProductRecordForm = (record, mode = "view") => {
         activateProductFormShell();
         loadProductRecordIntoForm(record);
-        setProductFormMode(mode, record);
-        document.title = `${mode === "edit" ? "Edit" : "View"} Product - ${productDisplayName(record)} - Indipet ERP`;
+        const applyRecordMode = () => {
+          setProductFormMode(mode, record);
+          document.title = `${mode === "edit" ? "Edit" : "View"} Product - ${productDisplayName(record)} - Indipet ERP`;
+        };
+        applyRecordMode();
+        if (typeof window.requestAnimationFrame === "function") window.requestAnimationFrame(applyRecordMode);
+        window.setTimeout(applyRecordMode, 0);
         scrollProductFormToTop();
       };
 
