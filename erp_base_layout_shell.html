@@ -3762,6 +3762,60 @@
       overflow: visible;
     }
 
+    #productFormView.is-product-view-mode .product-form-shell {
+      padding-bottom: 18px;
+    }
+
+    #productFormView.is-product-view-mode .customer-stepper {
+      min-height: 58px;
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+      overflow-x: auto;
+      border-bottom-color: var(--border);
+      background: #fff;
+    }
+
+    #productFormView.is-product-view-mode .customer-step {
+      min-height: 58px;
+      grid-template-columns: 27px minmax(0, 1fr);
+      gap: 9px;
+      padding: 11px 14px;
+      cursor: pointer;
+    }
+
+    #productFormView.is-product-view-mode .customer-step-number {
+      width: 25px;
+      height: 25px;
+      font-size: 10px;
+    }
+
+    #productFormView.is-product-view-mode .customer-step-name {
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    #productFormView.is-product-view-mode .customer-step-copy {
+      margin-top: 2px;
+      font-size: 8px;
+    }
+
+    #productFormView.is-product-view-mode .customer-step.is-active {
+      background: #fff;
+      color: var(--primary);
+      box-shadow: inset 0 -3px 0 var(--primary);
+    }
+
+    #productFormView.is-product-view-mode .customer-step.is-active .customer-step-number {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    #productFormView.is-product-view-mode .customer-step:not(.is-active):hover,
+    #productFormView.is-product-view-mode .customer-step:not(.is-active):focus-visible {
+      background: #f8fafc;
+      color: var(--text);
+    }
+
     .product-structure-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -7808,6 +7862,7 @@
       const productSignalFilterOptions = document.getElementById("productSignalFilterOptions");
       const openProductFormButton = document.getElementById("openProductForm");
       const productForm = document.getElementById("productForm");
+      const productStepper = document.getElementById("productStepper");
       const productFormBreadcrumbCurrent = document.getElementById("productFormBreadcrumbCurrent");
       const productFormTitle = document.getElementById("productFormTitle");
       const productFormDescription = document.getElementById("productFormDescription");
@@ -12445,6 +12500,34 @@
           </button>`;
       };
 
+      const syncProductStepperState = () => {
+        const viewMode = productFormMode === "view";
+        productStepper.classList.toggle("is-view-stepper", viewMode);
+        productStepper.setAttribute("aria-label", viewMode ? "Product view sections" : "Product creation steps");
+        productStepper.setAttribute("role", viewMode ? "tablist" : "navigation");
+        productForm.querySelectorAll("[data-product-step]").forEach((step, index) => {
+          const active = index === activeProductStep;
+          step.classList.toggle("is-active", active);
+          step.classList.toggle("is-complete", !viewMode && index < activeProductStep);
+          step.setAttribute("aria-current", active ? (viewMode ? "page" : "step") : "false");
+          if (viewMode) {
+            step.setAttribute("role", "tab");
+            step.setAttribute("aria-selected", String(active));
+          } else {
+            step.removeAttribute("role");
+            step.removeAttribute("aria-selected");
+          }
+        });
+        productForm.querySelectorAll("[data-product-section]").forEach((section, index) => {
+          const active = index === activeProductStep;
+          section.classList.toggle("is-active", active);
+          if (viewMode) section.setAttribute("role", "tabpanel");
+          else section.removeAttribute("role");
+          const kicker = section.querySelector(".customer-form-kicker");
+          if (kicker) kicker.textContent = `${viewMode ? "SECTION" : "STEP"} ${index + 1} OF 5`;
+        });
+      };
+
       const setProductFormMode = (mode, record = null) => {
         productFormMode = mode;
         activeProductRecordSku = record ? record.sku : "";
@@ -12459,10 +12542,13 @@
             ? `Update the product profile for ${formRecordTitle}.`
             : "Create the product definition and generate its standard or variation SKU records.";
         submitProductForm.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>${mode === "edit" ? "Save Changes" : "Create Product"}`;
+        productFormView.classList.toggle("is-product-view-mode", mode === "view");
+        productFormView.setAttribute("aria-label", mode === "view" ? "View Product profile" : mode === "edit" ? "Edit Product workflow" : "Add New Product workflow");
         productViewActions.hidden = mode !== "view";
         productFormActions.hidden = mode === "view";
         renderProductViewActions(mode === "view" ? record : null);
         setProductFormReadOnly(mode === "view");
+        syncProductStepperState();
       };
 
       const loadProductRecordIntoForm = record => {
@@ -14735,11 +14821,7 @@
           hydrateProductSkuCardsFromRecords();
           restoreProductSkuDraftSnapshotsToCards();
         }
-        productForm.querySelectorAll("[data-product-step]").forEach((step, index) => {
-          step.classList.toggle("is-active", index === activeProductStep);
-          step.classList.toggle("is-complete", index < activeProductStep);
-        });
-        productForm.querySelectorAll("[data-product-section]").forEach((section, index) => section.classList.toggle("is-active", index === activeProductStep));
+        syncProductStepperState();
         backProductStep.disabled = activeProductStep === 0;
         nextProductStep.hidden = activeProductStep === 4;
         submitProductForm.hidden = activeProductStep !== 4;
