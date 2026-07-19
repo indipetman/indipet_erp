@@ -66,7 +66,7 @@ flowchart LR
 | Area | Canonical decision |
 |---|---|
 | Entity terminology | `parent_entity`, not `entity_master`; `sub_location`, not `outlet_master` |
-| Entity classification | `parent_entity.entity_type` stores legal constitution; pending `parent_entity.entity_role` must store business role: `hq`, `company_owned`, or `franchisee` |
+| Entity classification | `parent_entity.entity_type` stores legal constitution; `parent_entity.entity_role` stores business role with controlled values `Primary` or `Franchisee`; only one `Primary` can exist |
 | Master identifiers | Each master layer should keep one readable alphanumeric text primary identifier, such as `IPL101` or `IPL101-SLT201`; duplicate editable code/short-code fields should be removed or generated-only unless finance/integration explicitly needs them |
 | Week off selection | UI should expose `location_operating_hours.day_of_week` as `Week Off Day` with an ISO weekday dropdown: `1 Monday` through `7 Sunday`; `No Weekly Off` should store no closed-day row / no week-off value |
 | Location operating hours | Base hours stay at location level: office official/operational hours can match, stores can have broader operational hours; `shift_policy_id` is deferred until shift policy setup is finalized |
@@ -281,8 +281,8 @@ erDiagram
         string entity_code
         string legal_name
         string entity_type "legal constitution"
-        string entity_role "hq/company_owned/franchisee PENDING"
-        string status "LOCKED + PENDING entity_role"
+        string entity_role "Primary/Franchisee; single Primary enforced"
+        string status "LOCKED"
     }
 
     employee_master {
@@ -354,7 +354,7 @@ erDiagram
 - Employee Profile companion-layer recommendation: keep `employee_master` as the anchor and expose accordion sections for profile checklist, personal details, address, emergency contact, statutory/KYC, finance, documents, skills, shift preferences, and lifecycle.
 - Current schema already has `employee_finance`, `employee_skills`, and `employee_shift_preference`; proposed new companion tables are needed for personal details, address, emergency contact, statutory/nominee detail, and documents.
 - `parent_entity.entity_type` is legal constitution only (`company`, `llp`, `partnership`, `proprietorship`). It must not be overloaded for HQ/franchisee classification.
-- Pending schema enhancement: add `parent_entity.entity_role` with controlled values `hq`, `company_owned`, and `franchisee`; payroll/entity classification should read this field once implemented.
+- `parent_entity.entity_role` uses controlled values `Primary` and `Franchisee`; ERP must create the Primary Entity first and reject any second Primary.
 - Payroll routing is derived from `employee_master.parent_entity_id -> parent_entity`; no redundant payroll entity field is stored.
 - `employee_master.date_of_joining` is the single joining date and gratuity service-date base.
 - Shift Policy Master seed rule: HQ has one 9-hour office shift, and each retail store has two overlapping 9-hour fixed shifts (`10:30-19:30` and `12:30-21:30`) against `shift_policy_master.location_id`.
@@ -788,7 +788,7 @@ flowchart LR
     PORTAL["magic-link vendor portal<br/>DEFERRED P1.5"]
     COMM["vpr_communication_log<br/>DEFERRED P1.5"]
     ALTER["vendor_master.state_code<br/>VARCHAR(2) to VARCHAR(5)<br/>PENDING ALTER"]
-    PE1["parent_entity.entity_role<br/>PENDING schema enhancement<br/>hq / company_owned / franchisee"]
+    PE1["parent_entity.entity_role<br/>LOCKED<br/>Primary once, then Franchisee"]
     ID1["master identifier cleanup<br/>PENDING schema simplification<br/>readable alphanumeric PK per master layer"]
 
     CRM1 --> CRM2
@@ -813,7 +813,7 @@ flowchart LR
 | Vendor Module | Project memory + latest ERP chat | LOCKED |
 | Procurement Orchestration P1 | Project memory + latest ERP chat | LOCKED |
 | Item Master | Latest `Indipet ERP` chat, 2026-05-10 | IN_PROGRESS |
-| Parent entity business role | User-identified schema gap during case-master preparation, 2026-05-26 | PENDING |
+| Parent entity business role | User-identified schema gap during case-master preparation, 2026-05-26; updated to Primary once, then Franchisee | LOCKED |
 | Master identifier simplification | User-identified schema simplification during case-master preparation, 2026-05-26: use readable alphanumeric text IDs such as `IPL101`, `SCP102`, and `IPL101-SLT201` | PENDING |
 | CRM tags and consumption rate | Project memory | PENDING |
 | Vendor scoring and WhatsApp | Project memory | DEFERRED |

@@ -39,6 +39,10 @@ const numberFields = new Set([
 ]);
 
 const tableConfig = {
+  parent_entities: {
+    key: "entity_code",
+    headers: ["entity_code", "legal_name", "entity_type", "entity_role", "gstin", "gst_type", "pan_number", "cin_number", "phone", "email", "address_line1", "address_line2", "city", "pincode", "state", "country", "commission_on_products", "commission_on_services", "status"]
+  },
   customers: {
     key: "code",
     headers: ["code", "name", "phone", "classification", "tags", "bills", "netSales", "activePets", "totalPets", "progress", "status", "location", "source", "joined", "lastActivity", "hasDefaultAddress"]
@@ -58,10 +62,41 @@ const tableConfig = {
 };
 
 const seedData = {
+  parent_entities: [],
   customers: [],
   products: [],
   services: [],
   vendors: []
+};
+
+const normalizeEntityRole = value => {
+  const role = String(value || "").trim().toLowerCase();
+  if (role === "primary") return "Primary";
+  if (role === "franchisee" || role === "franchaisee") return "Franchisee";
+  return String(value || "").trim();
+};
+
+const normalizeParentEntityRows = rows => rows.map(row => ({
+  ...row,
+  entity_role: normalizeEntityRole(row.entity_role)
+}));
+
+const validateParentEntityRows = rows => {
+  const invalidRole = rows.find(row => !["Primary", "Franchisee"].includes(row.entity_role));
+  if (invalidRole) {
+    return "Entity Role must be either Primary or Franchisee.";
+  }
+
+  const primaryRows = rows.filter(row => row.entity_role === "Primary");
+  if (primaryRows.length > 1) {
+    return "Only one Primary Entity can exist in ERP. Add Franchisee entities after the Primary Entity.";
+  }
+
+  if (rows.length && primaryRows.length === 0) {
+    return "Create the Primary Entity first. After that, only Franchisee entities can be added.";
+  }
+
+  return "";
 };
 
 const serializeRecord = (record, headers) => Object.fromEntries(headers.map(header => {
@@ -181,7 +216,7 @@ http.createServer(async (request, response) => {
       return;
     }
 
-    const tableMatch = url.pathname.match(/^\/api\/mock-db\/([a-z]+)$/);
+    const tableMatch = url.pathname.match(/^\/api\/mock-db\/([a-z_]+)$/);
     if (tableMatch) {
       const tableName = tableMatch[1];
       if (!tableConfig[tableName]) return sendJson(response, 404, { error: "Unknown table" });
@@ -189,8 +224,14 @@ http.createServer(async (request, response) => {
       if (request.method === "PUT") {
         const rows = await readBody(request);
         if (!Array.isArray(rows)) return sendJson(response, 400, { error: "Expected an array of records" });
-        writeTable(tableName, rows.map(normalizeRecord));
-        sendJson(response, 200, { ok: true, table: tableName, count: rows.length });
+        let normalizedRows = rows.map(normalizeRecord);
+        if (tableName === "parent_entities") {
+          normalizedRows = normalizeParentEntityRows(normalizedRows);
+          const validationError = validateParentEntityRows(normalizedRows);
+          if (validationError) return sendJson(response, 409, { error: validationError });
+        }
+        writeTable(tableName, normalizedRows);
+        sendJson(response, 200, { ok: true, table: tableName, count: normalizedRows.length });
         return;
       }
     }
