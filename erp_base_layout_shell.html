@@ -1554,12 +1554,11 @@
 
     .organization-entity-stepper {
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      overflow-x: auto;
-      scrollbar-width: thin;
+      overflow-x: hidden;
     }
 
     .organization-entity-stepper .customer-step {
-      min-width: 180px;
+      min-width: 0;
     }
 
     .organization-entity-linked-list {
@@ -3623,6 +3622,24 @@
 
     #customerFormView .customer-readiness-item strong {
       font-size: 9.8px;
+    }
+
+    #organizationEntityFormView .customer-form-shell {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    #organizationEntityFormView .customer-form-card {
+      min-width: 0;
+      width: 100%;
+    }
+
+    #organizationEntityFormView .organization-entity-stepper {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      overflow-x: hidden;
+    }
+
+    #organizationEntityFormView .organization-entity-stepper .customer-step {
+      min-width: 0;
     }
 
     .customer-review-grid {
