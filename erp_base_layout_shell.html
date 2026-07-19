@@ -1249,6 +1249,412 @@
       min-width: 1240px;
     }
 
+    .organization-entity-table {
+      min-width: 1360px;
+      table-layout: fixed;
+    }
+
+    .organization-entity-table th,
+    .organization-entity-table td {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .organization-entity-record-link {
+      display: inline-block;
+      max-width: 100%;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      color: var(--text);
+      font: inherit;
+      font-weight: 800;
+      text-align: left;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .organization-entity-record-link:hover,
+    .organization-entity-record-link:focus-visible {
+      color: var(--primary);
+      outline: 0;
+    }
+
+    .organization-entity-cell-note {
+      display: block;
+      margin-top: 4px;
+      color: var(--text-tertiary);
+      font-size: 9px;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .organization-entity-column-organizer {
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .organization-entity-column-panel {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      z-index: 30;
+      width: 330px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.16);
+    }
+
+    .organization-entity-column-panel[hidden],
+    .organization-entity-column-organizer[hidden] {
+      display: none;
+    }
+
+    .organization-entity-column-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .organization-entity-column-title {
+      display: block;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .organization-entity-column-copy {
+      display: block;
+      margin-top: 3px;
+      color: var(--text-tertiary);
+      font-size: 9px;
+      line-height: 1.4;
+    }
+
+    .organization-entity-column-reset {
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .organization-entity-column-list {
+      display: grid;
+      gap: 7px;
+      max-height: 390px;
+      overflow: auto;
+      padding-right: 3px;
+    }
+
+    .organization-entity-column-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      min-height: 40px;
+      padding: 8px 9px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fbfdff;
+    }
+
+    .organization-entity-column-check {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+      gap: 8px;
+      color: var(--text-secondary);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .organization-entity-column-check input {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      accent-color: var(--primary);
+    }
+
+    .organization-entity-column-check span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .organization-entity-column-move {
+      display: inline-flex;
+      gap: 5px;
+    }
+
+    .organization-entity-column-move button {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .organization-entity-column-move button:disabled {
+      cursor: not-allowed;
+      opacity: 0.42;
+    }
+
+    .organization-entity-first-column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .organization-entity-first-column-pin {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-tertiary);
+      cursor: pointer;
+    }
+
+    .organization-entity-first-column-pin:hover,
+    .organization-entity-first-column-pin.is-active {
+      border-color: var(--primary-border);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .organization-entity-first-pinned-cell {
+      position: sticky;
+      left: 0;
+      z-index: 3;
+      background: #fff;
+      box-shadow: 1px 0 0 var(--border), 10px 0 18px rgba(15, 23, 42, 0.04);
+    }
+
+    .organization-entity-table th.organization-entity-first-pinned-cell {
+      z-index: 4;
+      background: #f5f7fa;
+    }
+
+    .organization-entity-status-cell {
+      overflow: visible !important;
+    }
+
+    .organization-entity-status-action {
+      position: relative;
+      display: inline-grid;
+      gap: 7px;
+      min-width: 126px;
+    }
+
+    .organization-entity-status-action.is-open {
+      z-index: 45;
+    }
+
+    .organization-entity-status-button {
+      min-width: 116px;
+      justify-content: space-between;
+      padding: 7px 8px 7px 13px;
+      text-align: left;
+    }
+
+    .organization-entity-status-menu {
+      position: fixed;
+      z-index: 80;
+      display: grid;
+      gap: 5px;
+      width: 136px;
+      padding: 7px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    .organization-entity-status-menu[hidden] {
+      display: none;
+    }
+
+    .organization-entity-status-option {
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 9px;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .organization-entity-status-option:hover,
+    .organization-entity-status-option:focus-visible {
+      border-color: var(--primary-border);
+      background: var(--primary-soft);
+      color: var(--primary);
+      outline: 0;
+    }
+
+    .organization-entity-status-option.is-selected::after {
+      content: "✓";
+      color: var(--primary);
+      font-weight: 900;
+    }
+
+    .organization-entity-view-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .organization-entity-icon-button {
+      width: 42px;
+      min-width: 42px;
+      padding: 0;
+    }
+
+    .organization-entity-icon-button svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .organization-entity-icon-button.danger {
+      color: var(--red);
+    }
+
+    .organization-entity-icon-button.danger:hover {
+      border-color: #fecaca;
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .organization-entity-stepper {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .organization-entity-stepper .customer-step {
+      min-width: 180px;
+    }
+
+    .organization-entity-linked-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .organization-entity-linked-option {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text-secondary);
+      font-size: 10px;
+    }
+
+    .organization-entity-linked-option strong {
+      display: block;
+      color: var(--text);
+      font-size: 11px;
+    }
+
+    .organization-entity-access-context {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 20px;
+      padding: 13px 14px;
+      border: 1px solid var(--primary-border);
+      border-radius: 10px;
+      background: var(--primary-soft);
+      color: #1e3a8a;
+    }
+
+    .organization-entity-access-context.is-disabled {
+      border-color: var(--border);
+      background: #f8fafc;
+      color: var(--text-secondary);
+    }
+
+    .organization-entity-access-context svg {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 17px;
+      color: var(--primary);
+    }
+
+    .organization-entity-access-title {
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .organization-entity-access-copy {
+      margin-top: 3px;
+      color: #475569;
+      font-size: 9px;
+      line-height: 1.5;
+    }
+
+    .organization-entity-access-fieldset {
+      min-width: 0;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .organization-entity-access-fieldset:disabled .customer-form-grid {
+      opacity: 0.58;
+    }
+
+    .organization-entity-access-fieldset:disabled input,
+    .organization-entity-access-fieldset:disabled select {
+      background: #f8fafc;
+      color: var(--text-secondary);
+      cursor: not-allowed;
+    }
+
+    .organization-entity-field-state {
+      color: var(--text-secondary);
+      font-size: 8px;
+      font-weight: 500;
+    }
+
+    .organization-entity-field-state.required {
+      padding: 3px 6px;
+      border-radius: 99px;
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
     .organization-action-group {
       display: inline-flex;
       align-items: center;
@@ -6529,6 +6935,19 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
                     <input id="organizationTableSearch" type="search" placeholder="Search organization records" autocomplete="off">
                   </label>
+                  <div class="organization-entity-column-organizer" id="organizationEntityColumnOrganizer" hidden>
+                    <button class="action-button" id="organizationEntityColumnOrganizerButton" type="button" aria-expanded="false" aria-controls="organizationEntityColumnOrganizerPanel">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><path d="M8 4v4M14 10v4M18 16v4"/></svg>
+                      Columns
+                    </button>
+                    <div class="organization-entity-column-panel" id="organizationEntityColumnOrganizerPanel" hidden>
+                      <div class="organization-entity-column-head">
+                        <span><span class="organization-entity-column-title">Column Organizer</span><span class="organization-entity-column-copy">Show, hide and reorder columns. Your layout is saved on this device.</span></span>
+                        <button class="organization-entity-column-reset" id="organizationEntityColumnReset" type="button">Reset</button>
+                      </div>
+                      <div class="organization-entity-column-list" id="organizationEntityColumnList"></div>
+                    </div>
+                  </div>
                   <button class="action-button primary" id="organizationPanelAdd" type="button">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
                     <span id="organizationPanelAddLabel">Add New Entity</span>
@@ -6551,6 +6970,144 @@
               <div class="customer-table-footer"><span id="organizationRecordCount">Showing 0 records</span><span id="organizationRecordSource">ERP Core reserve data</span></div>
             </article>
           </div>
+        </section>
+
+        <section class="workspace-view" id="organizationEntityFormView" aria-label="Entity Master workflow">
+          <section class="page-header" data-component="PageHeader">
+            <div>
+              <nav class="breadcrumb" aria-label="Breadcrumb">
+                <span>ERP</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                <span>ERP Core</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                <span>Entity Master</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+                <span id="organizationEntityFormBreadcrumbCurrent" aria-current="page">Add New Entity</span>
+              </nav>
+              <h1 id="organizationEntityFormTitle">Add New Entity</h1>
+              <p class="page-description" id="organizationEntityFormDescription">Create a new legal or business entity that owns or operates locations.</p>
+            </div>
+            <div class="page-actions">
+              <div class="organization-entity-view-actions" id="organizationEntityViewActions" hidden></div>
+              <button class="action-button" id="organizationEntityBackToList" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                Back to Entity Master
+              </button>
+            </div>
+          </section>
+
+          <form id="organizationEntityForm" novalidate>
+            <div class="customer-form-shell">
+              <article class="data-card customer-form-card">
+                <nav class="customer-stepper organization-entity-stepper" id="organizationEntityStepper" aria-label="Entity create steps">
+                  <button class="customer-step is-active" type="button" data-organization-entity-step="0"><span class="customer-step-number">1</span><span><span class="customer-step-name">Overview</span><span class="customer-step-copy">Basic entity information</span></span></button>
+                  <button class="customer-step" type="button" data-organization-entity-step="1"><span class="customer-step-number">2</span><span><span class="customer-step-name">Legal & Tax Details</span><span class="customer-step-copy">GST, PAN, CIN information</span></span></button>
+                  <button class="customer-step" type="button" data-organization-entity-step="2"><span class="customer-step-number">3</span><span><span class="customer-step-name">Address & Contact</span><span class="customer-step-copy">Registered address & communication</span></span></button>
+                  <button class="customer-step" type="button" data-organization-entity-step="3"><span class="customer-step-number">4</span><span><span class="customer-step-name">Commercial Settings</span><span class="customer-step-copy">Commission configuration</span></span></button>
+                  <button class="customer-step" type="button" data-organization-entity-step="4"><span class="customer-step-number">5</span><span><span class="customer-step-name">ERP Login Access</span><span class="customer-step-copy">Role-based login setup</span></span></button>
+                  <button class="customer-step" type="button" data-organization-entity-step="5"><span class="customer-step-number">6</span><span><span class="customer-step-name">Linked Locations</span><span class="customer-step-copy">Location mapping</span></span></button>
+                </nav>
+
+                <div class="customer-form-error" id="organizationEntityFormError" role="alert">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 17h.01"/></svg>
+                  <span id="organizationEntityFormErrorText">Please review the highlighted fields.</span>
+                </div>
+
+                <section class="customer-form-section is-active" data-organization-entity-section="0">
+                  <div class="customer-form-kicker">Step 1 of 6</div>
+                  <h2 class="customer-form-title">Overview</h2>
+                  <p class="customer-form-description">Create the base identity for the legal or business entity.</p>
+                  <div class="customer-form-grid">
+                    <label class="customer-form-field span-3"><span class="customer-form-label">System Generated Information</span><input id="organizationEntityIdPreview" value="Entity ID will be generated after create" readonly></label>
+                    <label class="customer-form-field span-2"><span class="customer-form-label">Legal Name <span class="customer-required">Required</span></span><input name="legal_name" data-organization-entity-field="legal_name" placeholder="Enter legal entity name" required></label>
+                    <label class="customer-form-field"><span class="customer-form-label">Constitution <span class="customer-required">Required</span></span><select name="entity_type" data-organization-entity-field="entity_type" required><option value="">Select constitution</option><option value="Company">Company</option><option value="Proprietorship">Proprietorship</option><option value="Partnership">Partnership</option></select></label>
+                    <label class="customer-form-field"><span class="customer-form-label">Entity Role <span class="customer-required">Required</span></span><select name="entity_role" data-organization-entity-field="entity_role" required><option value="">Select entity role</option><option value="Primary">Primary</option><option value="Franchisee">Franchisee</option></select></label>
+                    <label class="customer-form-field"><span class="customer-form-label">Status <span class="customer-required">Required</span></span><select name="status" data-organization-entity-field="status" required><option value="">Select status</option><option value="Active">Active</option><option value="Draft">Draft</option><option value="Inactive">Inactive</option></select></label>
+                  </div>
+                </section>
+
+                <section class="customer-form-section" data-organization-entity-section="1">
+                  <div class="customer-form-kicker">Step 2 of 6</div>
+                  <h2 class="customer-form-title">Legal & Tax Details</h2>
+                  <p class="customer-form-description">Maintain GST, PAN and CIN fields for this entity. GSTIN can auto-fill PAN and State.</p>
+                  <div class="customer-form-grid">
+                    <label class="customer-form-field"><span class="customer-form-label">GSTIN</span><input name="gstin" data-organization-entity-field="gstin" placeholder="Enter GSTIN"></label>
+                    <label class="customer-form-field"><span class="customer-form-label">GST Type</span><select name="gst_type" data-organization-entity-field="gst_type"><option value="">Select GST type</option><option value="Regular">Regular</option><option value="Composition">Composition</option><option value="Unregistered">Unregistered</option></select></label>
+                    <label class="customer-form-field"><span class="customer-form-label">PAN Number</span><input name="pan_number" data-organization-entity-field="pan_number" placeholder="Enter PAN number"></label>
+                    <label class="customer-form-field"><span class="customer-form-label">CIN Number</span><input name="cin_number" data-organization-entity-field="cin_number" placeholder="Enter CIN number"></label>
+                  </div>
+                </section>
+
+                <section class="customer-form-section" data-organization-entity-section="2">
+                  <div class="customer-form-kicker">Step 3 of 6</div>
+                  <h2 class="customer-form-title">Address & Contact</h2>
+                  <p class="customer-form-description">Add registered address and communication details. Country remains India by default.</p>
+                  <div class="customer-form-grid">
+                    <label class="customer-form-field span-3"><span class="customer-form-label">Address Line 1</span><input name="address_line1" data-organization-entity-field="address_line1" placeholder="Enter registered address"></label>
+                    <label class="customer-form-field span-3"><span class="customer-form-label">Address Line 2</span><input name="address_line2" data-organization-entity-field="address_line2" placeholder="Enter address line 2"></label>
+                    <label class="customer-form-field"><span class="customer-form-label">City</span><select name="city" data-organization-entity-field="city"><option value="">Select city</option></select></label>
+                    <label class="customer-form-field"><span class="customer-form-label">Pincode</span><input name="pincode" data-organization-entity-field="pincode" inputmode="numeric" placeholder="Enter pincode"></label>
+                    <label class="customer-form-field"><span class="customer-form-label">State</span><select name="state" data-organization-entity-field="state"><option value="">Select state</option></select><input type="hidden" name="gst_state_code" data-organization-entity-field="gst_state_code"></label>
+                    <label class="customer-form-field"><span class="customer-form-label">Country</span><select name="country" data-organization-entity-field="country"><option value="India">India</option></select></label>
+                    <label class="customer-form-field"><span class="customer-form-label">Phone</span><input name="phone" data-organization-entity-field="phone" inputmode="tel" placeholder="Enter phone number"></label>
+                    <label class="customer-form-field"><span class="customer-form-label">Email</span><input name="email" data-organization-entity-field="email" type="email" placeholder="entity@example.com"></label>
+                  </div>
+                </section>
+
+                <section class="customer-form-section" data-organization-entity-section="3">
+                  <div class="customer-form-kicker">Step 4 of 6</div>
+                  <h2 class="customer-form-title">Commercial Settings</h2>
+                  <p class="customer-form-description">Set the commission configuration available on the Entity Master schema.</p>
+                  <div class="customer-form-grid">
+                    <label class="customer-form-field"><span class="customer-form-label">Commission on Products</span><input name="commission_on_products" data-organization-entity-field="commission_on_products" type="number" min="0" step="0.01" value="0"></label>
+                    <label class="customer-form-field"><span class="customer-form-label">Commission on Services</span><input name="commission_on_services" data-organization-entity-field="commission_on_services" type="number" min="0" step="0.01" value="0"></label>
+                  </div>
+                </section>
+
+                <section class="customer-form-section" data-organization-entity-section="4">
+                  <div class="customer-form-kicker">Step 5 of 6</div>
+                  <h2 class="customer-form-title">ERP Login Access</h2>
+                  <p class="customer-form-description">Capture the Primary admin identity or configure entity-level ERP access for a Franchisee.</p>
+                  <div class="organization-entity-access-context is-disabled" id="organizationEntityAccessContext">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="16" height="18" x="4" y="3" rx="2"/><path d="M9 21v-4h6v4"/></svg>
+                    <div><div class="organization-entity-access-title" id="organizationEntityAccessContextTitle">Select an entity role in Overview</div><div class="organization-entity-access-copy" id="organizationEntityAccessContextCopy">Login fields become available when the entity role is Primary or Franchisee.</div></div>
+                  </div>
+                  <div class="customer-form-grid">
+                    <label class="customer-form-field"><span class="customer-form-label">Admin Name <span class="organization-entity-field-state required" data-organization-primary-admin-state>Required for Primary</span></span><input name="admin_name" data-organization-entity-field="admin_name" placeholder="Enter admin name"></label>
+                    <label class="customer-form-field"><span class="customer-form-label">Admin Phone <span class="organization-entity-field-state required" data-organization-primary-admin-state>Required for Primary</span></span><input name="admin_phone" data-organization-entity-field="admin_phone" inputmode="tel" placeholder="Enter admin phone number"></label>
+                  </div>
+                  <fieldset class="organization-entity-access-fieldset" id="organizationEntityAccessFieldset" disabled>
+                    <legend class="sr-only">ERP login credentials and role assignment</legend>
+                    <div class="customer-form-grid">
+                      <label class="customer-form-field"><span class="customer-form-label">User ID <span class="organization-entity-field-state" data-organization-access-state>Not required</span></span><input name="user_id" data-organization-entity-access-field="user_id" autocomplete="username" placeholder="Enter ERP user ID"></label>
+                      <label class="customer-form-field"><span class="customer-form-label">Role <span class="organization-entity-field-state" data-organization-access-state data-organization-access-role-state>Not required</span></span><select name="role_id" data-organization-entity-access-field="role_id"><option value="">Select role from Role Master</option></select></label>
+                      <label class="customer-form-field"><span class="customer-form-label">Login Status <span class="organization-entity-field-state" data-organization-access-state>Not required</span></span><select name="login_status" data-organization-entity-access-field="login_status"><option value="Active">Active</option><option value="Inactive">Inactive</option></select></label>
+                      <label class="customer-form-field"><span class="customer-form-label">Password <span class="organization-entity-field-state" data-organization-access-state>Not required</span></span><input name="password" data-organization-entity-access-field="password" type="password" autocomplete="new-password" placeholder="Enter password"></label>
+                      <label class="customer-form-field"><span class="customer-form-label">Confirm Password <span class="organization-entity-field-state" data-organization-access-state>Not required</span></span><input name="confirm_password" data-organization-entity-access-field="confirm_password" type="password" autocomplete="new-password" placeholder="Re-enter password"></label>
+                    </div>
+                  </fieldset>
+                  <div class="form-info-banner">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 2.9 8.6 7 10 4.1-1.4 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg>
+                    <div><div class="form-info-title">Secure credential handling</div><div class="form-info-copy">This mock keeps demo credentials only so local login can be tested until the secure authentication service is connected.</div></div>
+                  </div>
+                </section>
+
+                <section class="customer-form-section" data-organization-entity-section="5">
+                  <div class="customer-form-kicker">Step 6 of 6</div>
+                  <h2 class="customer-form-title">Linked Locations</h2>
+                  <p class="customer-form-description">Mapped Sub Locations are shown here after the entity is created. Mapping is managed from Sub Location.</p>
+                  <div class="organization-entity-linked-list" id="organizationEntityLinkedLocations"></div>
+                </section>
+              </article>
+            </div>
+
+            <div class="customer-form-actions" id="organizationEntityFormActions">
+              <button class="action-button" id="cancelOrganizationEntityForm" type="button">Cancel</button>
+              <button class="action-button" id="backOrganizationEntityStep" type="button">Back</button>
+              <button class="action-button primary" id="nextOrganizationEntityStep" type="button">Next</button>
+              <button class="action-button primary" id="submitOrganizationEntityForm" type="submit" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Create Entity</button>
+            </div>
+          </form>
         </section>
 
         <section class="workspace-view" id="customerWorkspaceView" aria-label="Customer Master workspace">
@@ -7978,6 +8535,31 @@
       const organizationRecordModalClose = document.getElementById("organizationRecordModalClose");
       const organizationRecordModalCancel = document.getElementById("organizationRecordModalCancel");
       const organizationRecordModalSave = document.getElementById("organizationRecordModalSave");
+      const organizationEntityColumnOrganizer = document.getElementById("organizationEntityColumnOrganizer");
+      const organizationEntityColumnOrganizerButton = document.getElementById("organizationEntityColumnOrganizerButton");
+      const organizationEntityColumnOrganizerPanel = document.getElementById("organizationEntityColumnOrganizerPanel");
+      const organizationEntityColumnList = document.getElementById("organizationEntityColumnList");
+      const organizationEntityColumnReset = document.getElementById("organizationEntityColumnReset");
+      const organizationEntityFormView = document.getElementById("organizationEntityFormView");
+      const organizationEntityForm = document.getElementById("organizationEntityForm");
+      const organizationEntityFormBreadcrumbCurrent = document.getElementById("organizationEntityFormBreadcrumbCurrent");
+      const organizationEntityFormTitle = document.getElementById("organizationEntityFormTitle");
+      const organizationEntityFormDescription = document.getElementById("organizationEntityFormDescription");
+      const organizationEntityViewActions = document.getElementById("organizationEntityViewActions");
+      const organizationEntityBackToList = document.getElementById("organizationEntityBackToList");
+      const organizationEntityStepper = document.getElementById("organizationEntityStepper");
+      const organizationEntityIdPreview = document.getElementById("organizationEntityIdPreview");
+      const organizationEntityFormError = document.getElementById("organizationEntityFormError");
+      const organizationEntityFormErrorText = document.getElementById("organizationEntityFormErrorText");
+      const organizationEntityAccessContext = document.getElementById("organizationEntityAccessContext");
+      const organizationEntityAccessContextTitle = document.getElementById("organizationEntityAccessContextTitle");
+      const organizationEntityAccessContextCopy = document.getElementById("organizationEntityAccessContextCopy");
+      const organizationEntityAccessFieldset = document.getElementById("organizationEntityAccessFieldset");
+      const organizationEntityLinkedLocations = document.getElementById("organizationEntityLinkedLocations");
+      const cancelOrganizationEntityForm = document.getElementById("cancelOrganizationEntityForm");
+      const backOrganizationEntityStep = document.getElementById("backOrganizationEntityStep");
+      const nextOrganizationEntityStep = document.getElementById("nextOrganizationEntityStep");
+      const submitOrganizationEntityForm = document.getElementById("submitOrganizationEntityForm");
       const inventoryMenu = document.getElementById("inventoryMenu");
       const inventorySubmenu = document.getElementById("inventorySubmenu");
       const dashboardNavLink = document.querySelector('.sidebar-nav-item[href="#workspace"]');
@@ -12254,6 +12836,11 @@
       let organizationLoading = false;
       let organizationSaveInFlight = false;
       let organizationEditingId = "";
+      let organizationEntityStep = 0;
+      let organizationEntityFormMode = "create";
+      let organizationEntityRecordId = "";
+      let organizationEntityColumnLayout = null;
+      let organizationEntityFirstColumnPinned = false;
 
       const organizationSelectOptions = (options, selected = "") => options.map(option => {
         const value = typeof option === "string" ? option : option.value;
@@ -12307,6 +12894,110 @@
       const organizationStateByName = name => organizationStateRecords().find(record => record.state_name === name);
       const organizationEntityName = entityId => organizationData.entities.find(record => record.entity_id === entityId)?.legal_name || entityId || "";
       const organizationMappedLocations = entityId => organizationData.locations.filter(record => record.parentCode === entityId);
+      const organizationEntityColumnStorageKey = "indipet.erp.coreOrganization.entityColumns.v1";
+      const organizationEntityFirstColumnPinStorageKey = "indipet.erp.coreOrganization.entityFirstColumnPinned";
+      const organizationEntityColumnDefinitions = [
+        { key: "legal_name", label: "Legal Name", width: 260, locked: true },
+        { key: "entity_id", label: "Entity ID", width: 130 },
+        { key: "entity_type", label: "Constitution", width: 150 },
+        { key: "entity_role", label: "Role", width: 130 },
+        { key: "state", label: "State", width: 150 },
+        { key: "mapped_locations", label: "Location Mapped", width: 180 },
+        { key: "gst_status", label: "GST Status", width: 185 },
+        { key: "status", label: "Status", width: 170 }
+      ];
+      const organizationEntityColumnByKey = key => organizationEntityColumnDefinitions.find(column => column.key === key);
+      const defaultOrganizationEntityColumnLayout = () => organizationEntityColumnDefinitions.map(column => ({ key: column.key, visible: true }));
+      const sanitizeOrganizationEntityColumnLayout = layout => {
+        const incoming = Array.isArray(layout) ? layout : [];
+        const byKey = new Map(incoming.map(item => [item?.key, item]));
+        const ordered = incoming
+          .filter(item => organizationEntityColumnByKey(item?.key))
+          .map(item => ({ key: item.key, visible: item.key === "legal_name" ? true : item.visible !== false }));
+        organizationEntityColumnDefinitions.forEach(column => {
+          if (!byKey.has(column.key)) ordered.push({ key: column.key, visible: true });
+        });
+        const unique = [];
+        const seen = new Set();
+        ordered.forEach(item => {
+          if (seen.has(item.key)) return;
+          seen.add(item.key);
+          unique.push(item);
+        });
+        return unique;
+      };
+      const readOrganizationEntityColumnLayout = () => {
+        try {
+          return sanitizeOrganizationEntityColumnLayout(JSON.parse(localStorage.getItem(organizationEntityColumnStorageKey) || "null"));
+        } catch {
+          return defaultOrganizationEntityColumnLayout();
+        }
+      };
+      const writeOrganizationEntityColumnLayout = () => {
+        try {
+          localStorage.setItem(organizationEntityColumnStorageKey, JSON.stringify(organizationEntityColumnLayout));
+        } catch (error) {
+          console.warn("Could not save Entity Master column layout.", error);
+        }
+      };
+      const readOrganizationEntityFirstColumnPinned = () => {
+        try {
+          return localStorage.getItem(organizationEntityFirstColumnPinStorageKey) === "true";
+        } catch {
+          return false;
+        }
+      };
+      const writeOrganizationEntityFirstColumnPinned = () => {
+        try {
+          localStorage.setItem(organizationEntityFirstColumnPinStorageKey, String(organizationEntityFirstColumnPinned));
+        } catch (error) {
+          console.warn("Could not save Entity Master column pin setting.", error);
+        }
+      };
+      const organizationEntityVisibleColumns = () => {
+        if (!organizationEntityColumnLayout) organizationEntityColumnLayout = readOrganizationEntityColumnLayout();
+        return organizationEntityColumnLayout
+          .filter(item => item.visible !== false)
+          .map(item => organizationEntityColumnByKey(item.key))
+          .filter(Boolean);
+      };
+      const organizationEntityRecords = () => organizationData.entities.map(record => {
+        const details = record.details || {};
+        const access = record.access || {};
+        const mappedLocations = organizationMappedLocations(record.entity_id);
+        return {
+          ...details,
+          ...access,
+          entity_id: record.entity_id || details.entity_id || "",
+          legal_name: record.legal_name || details.legal_name || "",
+          entity_type: record.entity_type || details.entity_type || "Company",
+          entity_role: normalizeOrganizationRole(record.entity_role || details.entity_role) || "",
+          status: record.status || details.status || "Active",
+          gstin: details.gstin || record.gstin || "",
+          gst_type: details.gst_type || "",
+          pan_number: details.pan_number || "",
+          cin_number: details.cin_number || "",
+          address_line1: details.address_line1 || "",
+          address_line2: details.address_line2 || "",
+          city: details.city || "",
+          pincode: details.pincode || "",
+          state: details.state || record.state || "",
+          country: details.country || "India",
+          phone: details.phone || "",
+          email: details.email || "",
+          admin_name: details.admin_name || "",
+          admin_phone: details.admin_phone || "",
+          commission_on_products: details.commission_on_products || "0",
+          commission_on_services: details.commission_on_services || "0",
+          user_id: access.user_id || details.user_id || "",
+          role_id: access.role_id || details.role_id || "",
+          login_status: access.login_status || details.login_status || "Active",
+          login_password: access.login_password || details.login_password || "",
+          mapped_locations: mappedLocations.length,
+          mapped_location_names: mappedLocations.map(location => location.listName || location.name || location.id)
+        };
+      });
+      const organizationEntityRecordById = entityId => organizationEntityRecords().find(record => record.entity_id === entityId) || null;
 
       const normalizeOrganizationData = data => {
         organizationTables.forEach(table => {
@@ -12537,8 +13228,100 @@
         organizationRecordCount.textContent = `Showing ${records.length} of ${total} records`;
       };
 
+      const renderOrganizationEntityColumnOrganizer = () => {
+        if (!organizationEntityColumnLayout) organizationEntityColumnLayout = readOrganizationEntityColumnLayout();
+        organizationEntityColumnList.innerHTML = organizationEntityColumnLayout.map((item, index) => {
+          const definition = organizationEntityColumnByKey(item.key);
+          if (!definition) return "";
+          const checked = item.visible !== false;
+          const locked = definition.locked;
+          return `<div class="organization-entity-column-item" data-organization-entity-column-item="${organizationEscape(item.key)}">
+            <label class="organization-entity-column-check"><input type="checkbox" data-organization-entity-column-toggle="${organizationEscape(item.key)}" ${checked ? "checked" : ""} ${locked ? "disabled" : ""}> ${organizationEscape(definition.label)}</label>
+            <span class="organization-entity-column-move">
+              <button type="button" data-organization-entity-column-move="${organizationEscape(item.key)}" data-direction="-1" ${index === 0 ? "disabled" : ""} aria-label="Move ${organizationEscape(definition.label)} up">&uarr;</button>
+              <button type="button" data-organization-entity-column-move="${organizationEscape(item.key)}" data-direction="1" ${index === organizationEntityColumnLayout.length - 1 ? "disabled" : ""} aria-label="Move ${organizationEscape(definition.label)} down">&darr;</button>
+            </span>
+          </div>`;
+        }).join("");
+      };
+
+      const organizationEntityStatusMenu = record => {
+        const statuses = ["Active", "Draft", "Inactive"];
+        return `<div class="organization-entity-status-cell"><span class="organization-entity-status-action">
+          <button class="action-button organization-entity-status-button" type="button" data-organization-entity-status-toggle="${organizationEscape(record.entity_id)}" aria-expanded="false">${organizationStatusChip(record.status)}</button>
+          <div class="organization-entity-status-menu" data-organization-entity-status-menu="${organizationEscape(record.entity_id)}" hidden>
+            ${statuses.map(status => `<button class="organization-entity-status-option ${status === record.status ? "is-selected" : ""}" type="button" data-organization-entity-status="${organizationEscape(record.entity_id)}" data-status="${organizationEscape(status)}">${organizationEscape(status)}</button>`).join("")}
+          </div>
+        </span></div>`;
+      };
+
+      const organizationEntityColumnCell = (record, columnKey, index) => {
+        const pinnedClass = index === 0 && organizationEntityFirstColumnPinned ? " organization-entity-first-pinned-cell" : "";
+        if (columnKey === "legal_name") {
+          return `<td class="${pinnedClass.trim()}"><button class="organization-entity-record-link" type="button" data-organization-entity-view="${organizationEscape(record.entity_id)}"><strong>${organizationEscape(record.legal_name || "Untitled Entity")}</strong><span>${organizationEscape(record.entity_role || "Role pending")}</span></button></td>`;
+        }
+        if (columnKey === "entity_id") return `<td class="${pinnedClass.trim()}">${organizationEscape(record.entity_id || "-")}</td>`;
+        if (columnKey === "entity_type") return `<td class="${pinnedClass.trim()}">${organizationEscape(record.entity_type || "-")}</td>`;
+        if (columnKey === "entity_role") return `<td class="${pinnedClass.trim()}">${organizationEscape(record.entity_role || "-")}</td>`;
+        if (columnKey === "state") return `<td class="${pinnedClass.trim()}">${organizationEscape(record.state || "-")}</td>`;
+        if (columnKey === "mapped_locations") {
+          const locationText = record.mapped_locations ? `${record.mapped_locations} mapped` : "No location";
+          const note = record.mapped_location_names?.length ? `<span class="organization-entity-cell-note">${organizationEscape(record.mapped_location_names.join(", "))}</span>` : "";
+          return `<td class="${pinnedClass.trim()}">${organizationEscape(locationText)}${note}</td>`;
+        }
+        if (columnKey === "gst_status") {
+          return `<td class="${pinnedClass.trim()}">${record.gstin ? `<span class="status-chip active">Registered</span><span class="organization-entity-cell-note">${organizationEscape(record.gstin)}</span>` : '<span class="status-chip inactive">Not registered</span>'}</td>`;
+        }
+        if (columnKey === "status") return `<td class="${pinnedClass.trim()}">${organizationEntityStatusMenu(record)}</td>`;
+        return `<td class="${pinnedClass.trim()}"></td>`;
+      };
+
+      const renderOrganizationEntityTable = () => {
+        if (!organizationEntityColumnLayout) organizationEntityColumnLayout = readOrganizationEntityColumnLayout();
+        organizationEntityFirstColumnPinned = readOrganizationEntityFirstColumnPinned();
+        const columns = organizationEntityVisibleColumns();
+        const records = filteredOrganizationRecords().map(record => organizationEntityRecordById(record.entity_id)).filter(Boolean);
+        const pinnedClass = organizationEntityFirstColumnPinned ? " organization-entity-first-pinned-cell" : "";
+        organizationTable.classList.add("organization-entity-table");
+        organizationTable.style.minWidth = `${columns.reduce((sum, column) => sum + column.width, 120)}px`;
+        organizationTableHead.innerHTML = `<tr>${columns.map((column, index) => `<th class="${index === 0 ? `organization-entity-first-column-header${pinnedClass}` : ""}" style="width:${column.width}px">${index === 0 ? `<span>${organizationEscape(column.label)}</span><button class="organization-entity-first-column-pin ${organizationEntityFirstColumnPinned ? "is-active" : ""}" type="button" data-organization-entity-pin aria-pressed="${organizationEntityFirstColumnPinned}" title="Pin first column">Pin</button>` : organizationEscape(column.label)}</th>`).join("")}<th><span class="sr-only">Actions</span></th></tr>`;
+        organizationTableBody.innerHTML = records.map(record => `<tr>${columns.map((column, index) => organizationEntityColumnCell(record, column.key, index)).join("")}<td>${organizationActionButtons(record.entity_id, record.legal_name)}</td></tr>`).join("");
+        organizationTableContainer.hidden = records.length === 0;
+        organizationEmptyState.classList.toggle("is-visible", records.length === 0);
+        organizationEmptyTitle.textContent = records.length ? "" : "No entity master records found";
+        organizationEmptyCopy.textContent = "Create the Primary Entity first, then add Franchisee entities.";
+        organizationRecordCount.textContent = `Showing ${records.length} of ${organizationData.entities.length} records`;
+      };
+
+      const renderOrganizationEntityPage = () => {
+        const config = organizationPageConfig["entity-master"];
+        organizationBreadcrumbCurrent.textContent = config.title;
+        organizationPageTitle.textContent = config.title;
+        organizationPageDescription.textContent = config.description;
+        organizationRecordTitle.textContent = config.recordTitle;
+        organizationRecordDescription.textContent = config.recordDescription;
+        organizationTopAddLabel.textContent = organizationPrimaryEntity() ? "Add Franchisee Entity" : "Add Primary Entity";
+        organizationPanelAddLabel.textContent = organizationTopAddLabel.textContent;
+        organizationEntityColumnOrganizer.hidden = false;
+        organizationEntityColumnOrganizerPanel.hidden = true;
+        organizationEntityColumnOrganizerButton.setAttribute("aria-expanded", "false");
+        renderOrganizationSummary();
+        setupOrganizationFilters();
+        renderOrganizationEntityColumnOrganizer();
+        renderOrganizationEntityTable();
+      };
+
       const renderOrganizationPage = () => {
+        if (activeOrganizationPage === "entity-master") {
+          renderOrganizationEntityPage();
+          return;
+        }
         const config = organizationPageConfig[activeOrganizationPage];
+        organizationEntityColumnOrganizer.hidden = true;
+        organizationEntityColumnOrganizerPanel.hidden = true;
+        organizationEntityColumnOrganizerButton.setAttribute("aria-expanded", "false");
+        organizationTable.classList.remove("organization-entity-table");
+        organizationTable.removeAttribute("style");
         organizationBreadcrumbCurrent.textContent = config.title;
         organizationPageTitle.textContent = config.title;
         organizationPageDescription.textContent = config.description;
@@ -12588,6 +13371,343 @@
         } while (organizationData.locations.some(location => location.id === candidate && location.id !== organizationEditingId));
         return candidate;
       };
+
+      const organizationEntityField = name => organizationEntityForm.querySelector(`[data-organization-entity-field="${name}"]`);
+      const organizationEntityAccessField = name => organizationEntityForm.querySelector(`[data-organization-entity-access-field="${name}"]`);
+      const organizationEntityFormControls = () => [...organizationEntityForm.querySelectorAll("input[name], select[name]")];
+
+      const populateOrganizationEntityStateOptions = selectedState => {
+        const stateField = organizationEntityField("state");
+        if (!stateField) return;
+        const states = organizationStateRecords().map(state => ({ value: state.state_name, label: state.state_name }));
+        if (selectedState && !states.some(state => state.value === selectedState)) states.push({ value: selectedState, label: selectedState });
+        stateField.innerHTML = organizationSelectOptions([{ value: "", label: "Select state" }, ...states], selectedState || "");
+      };
+
+      const populateOrganizationEntityCityOptions = (selectedState, selectedCity = "") => {
+        const cityField = organizationEntityField("city");
+        if (!cityField) return;
+        const cities = organizationCityRecords(selectedState).map(city => ({ value: city.city, label: city.city }));
+        if (selectedCity && !cities.some(city => city.value === selectedCity)) cities.push({ value: selectedCity, label: selectedCity });
+        cityField.innerHTML = organizationSelectOptions([{ value: "", label: "Select city" }, ...cities], selectedCity || "");
+      };
+
+      const populateOrganizationEntityRoleOptions = selectedRole => {
+        const roleField = organizationEntityField("entity_role");
+        if (!roleField) return;
+        const primary = organizationPrimaryEntity();
+        const editingPrimary = organizationEntityRecordId && primary?.entity_id === organizationEntityRecordId;
+        const options = [{ value: "", label: "Select entity role" }];
+        if (!primary || editingPrimary || selectedRole === "Primary") options.push("Primary");
+        if (primary && !editingPrimary || selectedRole === "Franchisee") options.push("Franchisee");
+        roleField.innerHTML = organizationSelectOptions(options, selectedRole || (!primary ? "Primary" : "Franchisee"));
+        roleField.disabled = organizationEntityFormMode !== "create";
+      };
+
+      const populateOrganizationEntityAccessRoleOptions = selectedRoleId => {
+        const role = normalizeOrganizationRole(organizationEntityField("entity_role")?.value);
+        const roleField = organizationEntityAccessField("role_id");
+        if (!roleField) return;
+        if (role === "Primary") {
+          roleField.innerHTML = organizationSelectOptions([{ value: "SYSTEM_ADMIN", label: "Admin (System)" }], "SYSTEM_ADMIN");
+          roleField.disabled = true;
+          return;
+        }
+        const roleOptions = organizationRoleRecords()
+          .filter(record => record.name && record.name.toLowerCase() !== "admin")
+          .map(record => ({ value: record.name, label: `${record.name} - ${record.scope || "ERP Core"}` }));
+        if (selectedRoleId && selectedRoleId !== "SYSTEM_ADMIN" && !roleOptions.some(option => option.value === selectedRoleId)) {
+          roleOptions.push({ value: selectedRoleId, label: selectedRoleId });
+        }
+        roleField.innerHTML = organizationSelectOptions([{ value: "", label: roleOptions.length ? "Select role from Role Master" : "Create a Role Master record first" }, ...roleOptions], selectedRoleId || "");
+        roleField.disabled = organizationEntityFormMode === "view";
+      };
+
+      const organizationEntityCurrentValues = () => {
+        const values = Object.fromEntries(organizationEntityFormControls().map(field => [field.name, field.value.trim()]));
+        values.entity_role = normalizeOrganizationRole(values.entity_role);
+        values.login_password = values.password || "";
+        return values;
+      };
+
+      const updateOrganizationEntityAccessState = () => {
+        const role = normalizeOrganizationRole(organizationEntityField("entity_role")?.value);
+        const readOnly = organizationEntityFormMode === "view";
+        const enabled = ["Primary", "Franchisee"].includes(role) && !readOnly;
+        organizationEntityAccessFieldset.disabled = !enabled;
+        organizationEntityAccessContext.classList.toggle("is-disabled", !enabled && !readOnly);
+        if (role === "Primary") {
+          organizationEntityAccessContextTitle.textContent = "Primary Admin access";
+          organizationEntityAccessContextCopy.textContent = "Primary uses the reserved Admin role. Capture User ID and password for the company owner context.";
+        } else if (role === "Franchisee") {
+          organizationEntityAccessContextTitle.textContent = "Franchisee ERP access";
+          organizationEntityAccessContextCopy.textContent = "Assign a non-admin Role Master record and credentials for this franchisee entity.";
+        } else {
+          organizationEntityAccessContextTitle.textContent = "Select an entity role in Overview";
+          organizationEntityAccessContextCopy.textContent = "Login fields become available when the entity role is Primary or Franchisee.";
+        }
+        organizationEntityForm.querySelectorAll("[data-organization-access-state]").forEach(label => {
+          label.textContent = role ? "Required" : "Not required";
+          label.classList.toggle("required", Boolean(role));
+        });
+        organizationEntityForm.querySelectorAll("[data-organization-primary-admin-state]").forEach(label => {
+          const primary = role === "Primary";
+          label.textContent = primary ? "Required for Primary" : "Optional";
+          label.classList.toggle("required", primary);
+        });
+        populateOrganizationEntityAccessRoleOptions(organizationEntityAccessField("role_id")?.value || "");
+        if (organizationEntityAccessField("login_status") && !organizationEntityAccessField("login_status").value) organizationEntityAccessField("login_status").value = "Active";
+      };
+
+      const syncOrganizationEntityDerivedFields = () => {
+        const values = organizationEntityCurrentValues();
+        const gstField = organizationEntityField("gstin");
+        const panField = organizationEntityField("pan_number");
+        const stateField = organizationEntityField("state");
+        const cityField = organizationEntityField("city");
+        const pincodeField = organizationEntityField("pincode");
+        const gstStateField = organizationEntityField("gst_state_code");
+        if (gstField) {
+          gstField.value = gstField.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+          const pan = organizationPanFromGstin(gstField.value);
+          if (pan && panField) panField.value = pan;
+          const state = organizationStateByGstCode(organizationStateCodeFromGstin(gstField.value));
+          if (state && stateField) {
+            stateField.value = state.state_name;
+            populateOrganizationEntityCityOptions(state.state_name, cityField?.value || "");
+          }
+        }
+        const pincodeRecord = organizationPincodeRecord(pincodeField?.value);
+        if (pincodeRecord && stateField && cityField) {
+          stateField.value = pincodeRecord.state_name;
+          populateOrganizationEntityStateOptions(pincodeRecord.state_name);
+          populateOrganizationEntityCityOptions(pincodeRecord.state_name, pincodeRecord.city);
+          cityField.value = pincodeRecord.city;
+        } else if (stateField) {
+          populateOrganizationEntityCityOptions(stateField.value, cityField?.value || "");
+        }
+        if (gstStateField) {
+          const stateRecord = organizationStateByName(stateField?.value);
+          gstStateField.value = stateRecord?.gst_state_code || organizationStateCodeFromGstin(gstField?.value);
+        }
+        const role = normalizeOrganizationRole(organizationEntityField("entity_role")?.value);
+        if (organizationEntityIdPreview) {
+          organizationEntityIdPreview.value = organizationEntityRecordId || (role ? nextOrganizationEntityId({ ...values, entity_role: role }) : "Entity ID will be generated after create");
+        }
+        updateOrganizationEntityAccessState();
+      };
+
+      const clearOrganizationEntityFormError = () => {
+        organizationEntityFormError.classList.remove("is-visible");
+        organizationEntityForm.querySelectorAll("[aria-invalid]").forEach(field => field.removeAttribute("aria-invalid"));
+      };
+
+      const showOrganizationEntityFormError = (message, fields = []) => {
+        organizationEntityFormErrorText.textContent = message;
+        organizationEntityFormError.classList.add("is-visible");
+        fields.filter(Boolean).forEach(field => field.setAttribute("aria-invalid", "true"));
+        const firstField = fields.find(Boolean);
+        if (firstField) {
+          const section = firstField.closest("[data-organization-entity-section]");
+          if (section) setOrganizationEntityStep(Number(section.dataset.organizationEntitySection || 0));
+          firstField.focus();
+        }
+      };
+
+      const renderOrganizationEntityLinkedLocations = entityId => {
+        const locations = organizationMappedLocations(entityId);
+        organizationEntityLinkedLocations.innerHTML = locations.length
+          ? locations.map(location => `<div class="organization-entity-linked-option"><span><strong>${organizationEscape(location.listName || location.name)}</strong><span>${organizationEscape(location.id)} - ${organizationEscape(location.type || "Location")} - ${organizationEscape(location.state || "")}</span></span>${organizationStatusChip(location.status)}</div>`).join("")
+          : '<div class="organization-empty is-visible"><div><strong>No Sub Locations mapped yet</strong><span>Create or edit a Sub Location and map it to this entity.</span></div></div>';
+      };
+
+      const setOrganizationEntityStep = step => {
+        organizationEntityStep = Math.max(0, Math.min(5, Number(step) || 0));
+        organizationEntityForm.querySelectorAll("[data-organization-entity-section]").forEach(section => {
+          section.classList.toggle("is-active", Number(section.dataset.organizationEntitySection) === organizationEntityStep);
+        });
+        organizationEntityStepper.querySelectorAll("[data-organization-entity-step]").forEach(button => {
+          const active = Number(button.dataset.organizationEntityStep) === organizationEntityStep;
+          button.classList.toggle("is-active", active);
+          button.setAttribute("aria-current", active ? "step" : "false");
+        });
+        backOrganizationEntityStep.disabled = organizationEntityStep === 0;
+        nextOrganizationEntityStep.hidden = organizationEntityStep === 5;
+        submitOrganizationEntityForm.hidden = organizationEntityStep !== 5 || organizationEntityFormMode === "view";
+      };
+
+      const renderOrganizationEntityViewActions = record => {
+        if (organizationEntityFormMode !== "view" || !record?.entity_id) {
+          organizationEntityViewActions.hidden = true;
+          organizationEntityViewActions.innerHTML = "";
+          return;
+        }
+        organizationEntityViewActions.hidden = false;
+        organizationEntityViewActions.innerHTML = `${organizationStatusChip(record.status)}<button class="action-button organization-entity-icon-button" type="button" data-organization-entity-view-edit="${organizationEscape(record.entity_id)}" aria-label="Edit ${organizationEscape(record.legal_name)}" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button><button class="action-button organization-entity-icon-button danger" type="button" data-organization-entity-view-delete="${organizationEscape(record.entity_id)}" aria-label="Delete ${organizationEscape(record.legal_name)}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5"/></svg></button>`;
+      };
+
+      const setOrganizationEntityReadOnly = readOnly => {
+        organizationEntityFormControls().forEach(field => {
+          field.disabled = readOnly;
+        });
+        if (!readOnly) {
+          const roleField = organizationEntityField("entity_role");
+          if (roleField) roleField.disabled = organizationEntityFormMode !== "create";
+          updateOrganizationEntityAccessState();
+        }
+      };
+
+      const populateOrganizationEntityForm = record => {
+        const role = normalizeOrganizationRole(record?.entity_role) || (!organizationPrimaryEntity() ? "Primary" : "Franchisee");
+        populateOrganizationEntityRoleOptions(role);
+        populateOrganizationEntityStateOptions(record?.state || "");
+        populateOrganizationEntityCityOptions(record?.state || "", record?.city || "");
+        organizationEntityFormControls().forEach(field => {
+          const key = field.name;
+          if (key === "password" || key === "confirm_password") {
+            field.value = "";
+          } else if (key === "country") {
+            field.value = record?.country || "India";
+          } else if (key === "entity_role") {
+            field.value = role;
+          } else if (key === "status") {
+            field.value = record?.status || "Active";
+          } else if (key === "entity_type") {
+            field.value = record?.entity_type || "Company";
+          } else if (key === "login_status") {
+            field.value = record?.login_status || "Active";
+          } else if (key === "role_id") {
+            field.value = role === "Primary" ? "SYSTEM_ADMIN" : record?.role_id || "";
+          } else {
+            field.value = record?.[key] ?? "";
+          }
+        });
+        syncOrganizationEntityDerivedFields();
+        renderOrganizationEntityLinkedLocations(record?.entity_id || "");
+      };
+
+      const openOrganizationEntityForm = async (mode = "create", entityId = "") => {
+        if (!organizationLoaded) await loadOrganizationReserve();
+        organizationEntityFormMode = mode;
+        organizationEntityRecordId = entityId || "";
+        organizationEditingId = entityId || "";
+        const record = entityId ? organizationEntityRecordById(entityId) : null;
+        if (entityId && !record) {
+          showMasterHubToast("Entity not found", "Refresh Entity Master and try again.");
+          return;
+        }
+        document.querySelectorAll(".workspace-view").forEach(view => view.classList.remove("is-active"));
+        document.querySelectorAll(".sidebar-nav-item.is-active, .sidebar-nav-child.is-active").forEach(link => {
+          link.classList.remove("is-active");
+          link.removeAttribute("aria-current");
+        });
+        activeOrganizationPage = "entity-master";
+        organizationEntityFormView.classList.add("is-active");
+        organizationMenu.classList.add("is-active");
+        organizationMenu.setAttribute("aria-current", "page");
+        organizationNavLinks.forEach(link => {
+          const selected = link.dataset.organizationPage === "entity-master";
+          link.classList.toggle("is-active", selected);
+          if (selected) link.setAttribute("aria-current", "page");
+        });
+        openOrganizationMenu();
+        rememberErpLayer("organization:entity-master");
+        const isView = mode === "view";
+        const title = isView ? (record?.legal_name || "View Entity") : mode === "edit" ? `Edit ${record?.legal_name || "Entity"}` : (organizationPrimaryEntity() ? "Add Franchisee Entity" : "Add Primary Entity");
+        organizationEntityFormBreadcrumbCurrent.textContent = isView ? "View Entity" : mode === "edit" ? "Edit Entity" : "Add New Entity";
+        organizationEntityFormTitle.textContent = title;
+        organizationEntityFormDescription.textContent = isView ? "Read-only ERP Core entity profile. Use Edit to make changes." : "Create or update the shared entity context used across ERP, HRMS, CRM and Accounts.";
+        submitOrganizationEntityForm.innerHTML = mode === "edit"
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Save Changes'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>Create Entity';
+        cancelOrganizationEntityForm.textContent = isView ? "Back" : "Cancel";
+        clearOrganizationEntityFormError();
+        populateOrganizationEntityForm(record || {});
+        setOrganizationEntityReadOnly(isView);
+        renderOrganizationEntityViewActions(record);
+        setOrganizationEntityStep(0);
+        document.title = `${title} - ERP Core - Indipet ERP`;
+        closeMobileNavigation();
+        window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      };
+
+      const validateOrganizationEntityForm = values => {
+        const fields = {
+          legal_name: organizationEntityField("legal_name"),
+          entity_type: organizationEntityField("entity_type"),
+          entity_role: organizationEntityField("entity_role"),
+          status: organizationEntityField("status"),
+          admin_name: organizationEntityField("admin_name"),
+          admin_phone: organizationEntityField("admin_phone"),
+          user_id: organizationEntityAccessField("user_id"),
+          role_id: organizationEntityAccessField("role_id"),
+          login_status: organizationEntityAccessField("login_status"),
+          password: organizationEntityAccessField("password"),
+          confirm_password: organizationEntityAccessField("confirm_password")
+        };
+        const required = [fields.legal_name, fields.entity_type, fields.entity_role, fields.status].filter(field => field && !field.value.trim());
+        if (required.length) return { ok: false, message: "Complete the required fields before saving.", fields: required };
+        const role = normalizeOrganizationRole(values.entity_role);
+        const primary = organizationPrimaryEntity();
+        if (role === "Primary" && primary && primary.entity_id !== organizationEntityRecordId) return { ok: false, message: "Only one Primary Entity can exist. Add Franchisee entities after Primary setup.", fields: [fields.entity_role] };
+        if (role === "Franchisee" && !primary) return { ok: false, message: "Create the Primary Entity first. Franchisee entities can be added after Primary setup.", fields: [fields.entity_role] };
+        if (role === "Primary" && (!values.admin_name || !values.admin_phone)) return { ok: false, message: "Admin Name and Admin Phone are required for Primary Entity.", fields: [fields.admin_name, fields.admin_phone].filter(field => !field?.value.trim()) };
+        const missingAccess = [fields.user_id, fields.login_status].filter(field => field && !field.value.trim());
+        if (role === "Franchisee" && !values.role_id) missingAccess.push(fields.role_id);
+        const existingPassword = organizationEntityRecordById(organizationEntityRecordId)?.login_password || "";
+        if (!existingPassword || values.password || values.confirm_password) {
+          if (!values.password) missingAccess.push(fields.password);
+          if (!values.confirm_password) missingAccess.push(fields.confirm_password);
+        }
+        if (missingAccess.length) return { ok: false, message: "Complete ERP login access fields before saving.", fields: missingAccess };
+        if (values.password !== values.confirm_password) return { ok: false, message: "Password and Confirm Password must match.", fields: [fields.confirm_password] };
+        return { ok: true };
+      };
+
+      const submitOrganizationEntityFormRecord = async event => {
+        event.preventDefault();
+        clearOrganizationEntityFormError();
+        syncOrganizationEntityDerivedFields();
+        const values = organizationEntityCurrentValues();
+        const validation = validateOrganizationEntityForm(values);
+        if (!validation.ok) {
+          showOrganizationEntityFormError(validation.message, validation.fields);
+          return;
+        }
+        const role = normalizeOrganizationRole(values.entity_role);
+        const savedEntityId = organizationEntityRecordId || nextOrganizationEntityId({ ...values, entity_role: role });
+        organizationEditingId = organizationEntityRecordId || "";
+        await saveOrganizationEntity({ ...values, entity_role: role });
+        organizationEditingId = "";
+        organizationEntityRecordId = "";
+        organizationEntityFormMode = "create";
+        showOrganizationWorkspace("entity-master");
+        organizationTableSearch.value = savedEntityId;
+        renderOrganizationEntityTable();
+        showErpSaveToast("Entity saved", "ERP Core Entity Master record saved.");
+      };
+
+      const setOrganizationEntityStatus = async (entityId, status) => {
+        const entity = organizationData.entities.find(record => record.entity_id === entityId);
+        if (!entity) return;
+        entity.status = status;
+        entity.details = { ...(entity.details || {}), status };
+        await persistOrganizationTables("entities");
+        renderOrganizationEntityTable();
+        showErpSaveToast("Status updated", `${entity.legal_name || entityId} is now ${status}.`);
+      };
+
+      const closeOrganizationEntityStatusMenus = () => {
+        organizationTableBody.querySelectorAll("[data-organization-entity-status-menu]").forEach(menu => {
+          menu.hidden = true;
+          menu.closest(".organization-entity-status-action")?.classList.remove("is-open");
+        });
+        organizationTableBody.querySelectorAll("[data-organization-entity-status-toggle]").forEach(button => {
+          button.setAttribute("aria-expanded", "false");
+        });
+      };
+
+      const organizationEventElement = event => event.target instanceof Element ? event.target : event.target?.parentElement || null;
 
       const organizationModalField = ({ name, label, value = "", required = false, type = "text", options = null, readonly = false, span = false, placeholder = "", inputmode = "" }) => {
         const requiredBadge = required ? '<span class="customer-required">Required</span>' : "";
@@ -12978,6 +14098,7 @@
         inventoryMenu.classList.remove("is-active");
         inventoryMenu.removeAttribute("aria-current");
         organizationWorkspaceView.classList.remove("is-active");
+        organizationEntityFormView.classList.remove("is-active");
         organizationNavLinks.forEach(link => {
           link.classList.remove("is-active");
           link.removeAttribute("aria-current");
@@ -16369,6 +17490,13 @@
       });
 
       dashboardNavLink.addEventListener("click", showDashboardWorkspace);
+      document.addEventListener("click", event => {
+        const organizationLink = organizationEventElement(event)?.closest("[data-organization-page]");
+        if (!organizationLink) return;
+        event.preventDefault();
+        event.stopPropagation();
+        showOrganizationWorkspace(organizationLink.dataset.organizationPage);
+      }, true);
       organizationNavLinks.forEach(link => {
         link.addEventListener("click", event => showOrganizationWorkspace(link.dataset.organizationPage, event));
       });
@@ -16378,26 +17506,148 @@
         showErpSaveToast("ERP Core refreshed", "Organization data reloaded from the shared reserve.");
       });
       [organizationTopAdd, organizationPanelAdd].forEach(button => {
-        button.addEventListener("click", () => openOrganizationRecordModal());
+        button.addEventListener("click", () => {
+          if (activeOrganizationPage === "entity-master") openOrganizationEntityForm("create");
+          else openOrganizationRecordModal();
+        });
       });
       [organizationTableSearch, organizationPrimaryFilter, organizationSecondaryFilter].forEach(control => {
-        control.addEventListener(control === organizationTableSearch ? "input" : "change", renderOrganizationTable);
+        control.addEventListener(control === organizationTableSearch ? "input" : "change", () => {
+          if (activeOrganizationPage === "entity-master") renderOrganizationEntityTable();
+          else renderOrganizationTable();
+        });
       });
-      organizationFilterButton.addEventListener("click", renderOrganizationTable);
+      organizationFilterButton.addEventListener("click", () => {
+        if (activeOrganizationPage === "entity-master") renderOrganizationEntityTable();
+        else renderOrganizationTable();
+      });
       organizationFilterReset.addEventListener("click", () => {
         organizationTableSearch.value = "";
         organizationPrimaryFilter.value = "";
         organizationSecondaryFilter.value = "";
-        renderOrganizationTable();
+        if (activeOrganizationPage === "entity-master") renderOrganizationEntityTable();
+        else renderOrganizationTable();
+      });
+      organizationEntityColumnOrganizerButton.addEventListener("click", event => {
+        event.stopPropagation();
+        const open = organizationEntityColumnOrganizerPanel.hidden;
+        organizationEntityColumnOrganizerPanel.hidden = !open;
+        organizationEntityColumnOrganizerButton.setAttribute("aria-expanded", String(open));
+      });
+      organizationEntityColumnReset.addEventListener("click", () => {
+        organizationEntityColumnLayout = defaultOrganizationEntityColumnLayout();
+        writeOrganizationEntityColumnLayout();
+        renderOrganizationEntityColumnOrganizer();
+        renderOrganizationEntityTable();
+      });
+      organizationEntityColumnList.addEventListener("change", event => {
+        const toggle = organizationEventElement(event)?.closest("[data-organization-entity-column-toggle]");
+        if (!toggle) return;
+        organizationEntityColumnLayout = sanitizeOrganizationEntityColumnLayout(organizationEntityColumnLayout);
+        const item = organizationEntityColumnLayout.find(column => column.key === toggle.dataset.organizationEntityColumnToggle);
+        if (item && item.key !== "legal_name") item.visible = toggle.checked;
+        writeOrganizationEntityColumnLayout();
+        renderOrganizationEntityColumnOrganizer();
+        renderOrganizationEntityTable();
+      });
+      organizationEntityColumnList.addEventListener("click", event => {
+        const move = organizationEventElement(event)?.closest("[data-organization-entity-column-move]");
+        if (!move) return;
+        const direction = Number(move.dataset.direction || 0);
+        const key = move.dataset.organizationEntityColumnMove;
+        organizationEntityColumnLayout = sanitizeOrganizationEntityColumnLayout(organizationEntityColumnLayout);
+        const index = organizationEntityColumnLayout.findIndex(column => column.key === key);
+        const nextIndex = index + direction;
+        if (index < 0 || nextIndex < 0 || nextIndex >= organizationEntityColumnLayout.length) return;
+        const [item] = organizationEntityColumnLayout.splice(index, 1);
+        organizationEntityColumnLayout.splice(nextIndex, 0, item);
+        writeOrganizationEntityColumnLayout();
+        renderOrganizationEntityColumnOrganizer();
+        renderOrganizationEntityTable();
       });
       organizationTableBody.addEventListener("click", event => {
-        const edit = event.target.closest("[data-organization-edit]");
-        if (edit) {
-          openOrganizationRecordModal(edit.dataset.organizationEdit);
+        const target = organizationEventElement(event);
+        const pin = target?.closest("[data-organization-entity-pin]");
+        if (pin) {
+          organizationEntityFirstColumnPinned = !organizationEntityFirstColumnPinned;
+          writeOrganizationEntityFirstColumnPinned();
+          renderOrganizationEntityTable();
           return;
         }
-        const remove = event.target.closest("[data-organization-delete]");
+        const entityView = target?.closest("[data-organization-entity-view]");
+        if (entityView) {
+          openOrganizationEntityForm("view", entityView.dataset.organizationEntityView);
+          return;
+        }
+        const statusToggle = target?.closest("[data-organization-entity-status-toggle]");
+        if (statusToggle) {
+          event.stopPropagation();
+          const menu = organizationTableBody.querySelector(`[data-organization-entity-status-menu="${CSS.escape(statusToggle.dataset.organizationEntityStatusToggle)}"]`);
+          const willOpen = menu?.hidden;
+          closeOrganizationEntityStatusMenus();
+          if (menu && willOpen) {
+            const rect = statusToggle.getBoundingClientRect();
+            menu.style.top = `${rect.bottom + 6}px`;
+            menu.style.left = `${Math.min(rect.left, window.innerWidth - 150)}px`;
+            menu.hidden = false;
+            menu.closest(".organization-entity-status-action")?.classList.add("is-open");
+            statusToggle.setAttribute("aria-expanded", "true");
+          }
+          return;
+        }
+        const statusOption = target?.closest("[data-organization-entity-status]");
+        if (statusOption) {
+          const entityId = statusOption.dataset.organizationEntityStatus;
+          const status = statusOption.dataset.status;
+          closeOrganizationEntityStatusMenus();
+          setOrganizationEntityStatus(entityId, status);
+          return;
+        }
+        const edit = target?.closest("[data-organization-edit]");
+        if (edit) {
+          if (activeOrganizationPage === "entity-master") openOrganizationEntityForm("edit", edit.dataset.organizationEdit);
+          else openOrganizationRecordModal(edit.dataset.organizationEdit);
+          return;
+        }
+        const remove = target?.closest("[data-organization-delete]");
         if (remove) deleteOrganizationRecord(remove.dataset.organizationDelete);
+      });
+      organizationEntityBackToList.addEventListener("click", () => showOrganizationWorkspace("entity-master"));
+      cancelOrganizationEntityForm.addEventListener("click", () => showOrganizationWorkspace("entity-master"));
+      backOrganizationEntityStep.addEventListener("click", () => setOrganizationEntityStep(organizationEntityStep - 1));
+      nextOrganizationEntityStep.addEventListener("click", () => setOrganizationEntityStep(organizationEntityStep + 1));
+      organizationEntityStepper.addEventListener("click", event => {
+        const step = organizationEventElement(event)?.closest("[data-organization-entity-step]");
+        if (step) setOrganizationEntityStep(step.dataset.organizationEntityStep);
+      });
+      organizationEntityForm.addEventListener("submit", submitOrganizationEntityFormRecord);
+      organizationEntityForm.addEventListener("input", event => {
+        if (!event.target.matches("input, select")) return;
+        event.target.removeAttribute("aria-invalid");
+        clearOrganizationEntityFormError();
+        if (["gstin", "pincode", "legal_name"].includes(event.target.name)) syncOrganizationEntityDerivedFields();
+      });
+      organizationEntityForm.addEventListener("change", event => {
+        if (!event.target.matches("input, select")) return;
+        event.target.removeAttribute("aria-invalid");
+        clearOrganizationEntityFormError();
+        if (["entity_role", "state", "city", "pincode", "gstin", "role_id"].includes(event.target.name)) syncOrganizationEntityDerivedFields();
+      });
+      organizationEntityViewActions.addEventListener("click", event => {
+        const target = organizationEventElement(event);
+        const edit = target?.closest("[data-organization-entity-view-edit]");
+        if (edit) {
+          openOrganizationEntityForm("edit", edit.dataset.organizationEntityViewEdit);
+          return;
+        }
+        const remove = target?.closest("[data-organization-entity-view-delete]");
+        if (remove) {
+          deleteOrganizationRecord(remove.dataset.organizationEntityViewDelete).then(() => {
+            if (!organizationData.entities.some(record => record.entity_id === remove.dataset.organizationEntityViewDelete)) {
+              showOrganizationWorkspace("entity-master");
+            }
+          });
+        }
       });
       organizationRecordModalClose.addEventListener("click", closeOrganizationRecordModal);
       organizationRecordModalCancel.addEventListener("click", closeOrganizationRecordModal);
@@ -16422,6 +17672,17 @@
       vendorNavLink.addEventListener("click", showVendorWorkspace);
       masterDataNavLink.addEventListener("click", showMasterHubWorkspace);
       stockOverviewNavLink.addEventListener("click", showStockOverviewWorkspace);
+
+      document.addEventListener("click", event => {
+        const target = organizationEventElement(event);
+        if (!target?.closest("#organizationEntityColumnOrganizer")) {
+          organizationEntityColumnOrganizerPanel.hidden = true;
+          organizationEntityColumnOrganizerButton.setAttribute("aria-expanded", "false");
+        }
+        if (!target?.closest(".organization-entity-status-action")) {
+          closeOrganizationEntityStatusMenus();
+        }
+      });
 
       document.addEventListener("click", event => {
         const breadcrumb = event.target.closest("[data-breadcrumb-target]");
