@@ -10,7 +10,6 @@ const PORT = Number(process.env.PORT || 4317);
 const dbDir = path.join(__dirname, "mock-db");
 const dbPath = path.join(dbDir, "erp_mock_database.xlsx");
 const htmlPath = path.join(__dirname, "erp_base_layout_shell.html");
-const hrmsCoreHtmlPath = path.resolve(__dirname, "..", "indipet_hrms", "hrms_dashboard_nav_visual.html");
 const hrmsDbDir = path.resolve(__dirname, "..", "indipet_hrms", "mock-db");
 const hrmsDbPath = path.join(hrmsDbDir, "hrms_mock_database.xlsx");
 
@@ -353,12 +352,6 @@ http.createServer(async (request, response) => {
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/erp_base_layout_shell.html")) {
       response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
       response.end(fs.readFileSync(htmlPath, "utf8"));
-      return;
-    }
-
-    if (request.method === "GET" && url.pathname === "/erp-core/hrms") {
-      response.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-      response.end(fs.readFileSync(hrmsCoreHtmlPath, "utf8"));
       return;
     }
 

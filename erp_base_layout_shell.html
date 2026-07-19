@@ -1237,21 +1237,73 @@
       display: block;
     }
 
-    .organization-core-card {
+    .organization-data-card {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
       overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      background: var(--surface);
-      box-shadow: var(--shadow);
+      padding: 0;
     }
 
-    .organization-core-frame {
-      width: 100%;
-      height: calc(100vh - 190px);
-      min-height: calc(100vh - 190px);
+    .organization-table {
+      min-width: 1240px;
+    }
+
+    .organization-action-group {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .organization-empty {
+      display: none;
+      min-height: 220px;
+      place-items: center;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .organization-empty.is-visible {
+      display: grid;
+    }
+
+    .organization-empty svg {
+      width: 34px;
+      height: 34px;
+      margin-bottom: 10px;
+      color: #94a3b8;
+    }
+
+    .organization-empty strong {
       display: block;
-      border: 0;
-      background: var(--workspace);
+      margin-bottom: 5px;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .organization-modal {
+      width: min(860px, 100%);
+    }
+
+    .organization-section-label {
+      grid-column: 1 / -1;
+      margin: 4px 0 -4px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      color: var(--text);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .organization-form-note {
+      grid-column: 1 / -1;
+      margin-top: -4px;
+      color: var(--text-tertiary);
+      font-size: 9px;
+      line-height: 1.45;
     }
 
     .sidebar-nav-child.is-active {
@@ -6443,12 +6495,62 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-9 9 9.8 9.8 0 0 1-6.7-2.7M3 12a9 9 0 0 1 9-9 9.8 9.8 0 0 1 6.7 2.7"/><path d="M3 19v-5h5M21 5v5h-5"/></svg>
                 Refresh
               </button>
+              <button class="action-button primary" id="organizationTopAdd" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                <span id="organizationTopAddLabel">Add New Entity</span>
+              </button>
             </div>
           </section>
 
-          <article class="organization-core-card" data-component="DataCard" aria-label="ERP Core Organization frame">
-            <iframe class="organization-core-frame" id="organizationCoreFrame" title="ERP Core Organization" scrolling="no"></iframe>
-          </article>
+          <div class="shell-stack">
+            <section class="summary-grid" id="organizationSummaryGrid" aria-label="ERP Core Organization totals"></section>
+
+            <section class="filter-bar customer-filter-bar" data-component="FilterBar" aria-label="Organization filters">
+              <div class="customer-filter-title" id="organizationFilterTitle">Filter Entity Master</div>
+              <div class="filter-controls">
+                <label class="customer-filter-control"><span id="organizationPrimaryFilterLabel">Role</span><select id="organizationPrimaryFilter"></select></label>
+                <label class="customer-filter-control"><span id="organizationSecondaryFilterLabel">Status</span><select id="organizationSecondaryFilter"></select></label>
+                <button class="action-button filter-action" id="organizationFilterButton" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6.5 7.3V19l-3 1v-7.7z"/></svg>
+                  Filters
+                </button>
+                <button class="action-button filter-reset" id="organizationFilterReset" type="button">Reset</button>
+              </div>
+            </section>
+
+            <article class="data-card organization-data-card" data-component="DataCard" aria-label="ERP Core Organization records">
+              <div class="customer-table-header">
+                <div class="customer-table-heading">
+                  <h2 id="organizationRecordTitle">Entity Master Records</h2>
+                  <p id="organizationRecordDescription">Legal entities, mapped locations, GST readiness and entity status.</p>
+                </div>
+                <div class="customer-table-tools">
+                  <label class="customer-table-search" for="organizationTableSearch">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                    <input id="organizationTableSearch" type="search" placeholder="Search organization records" autocomplete="off">
+                  </label>
+                  <button class="action-button primary" id="organizationPanelAdd" type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                    <span id="organizationPanelAddLabel">Add New Entity</span>
+                  </button>
+                </div>
+              </div>
+              <div class="customer-table-overflow" id="organizationTableContainer">
+                <table class="customer-table organization-table" id="organizationTable" data-component="TableShell">
+                  <thead id="organizationTableHead"></thead>
+                  <tbody id="organizationTableBody"></tbody>
+                </table>
+              </div>
+              <div class="organization-empty" id="organizationEmptyState">
+                <div>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8"/><path d="m3 8 2.4-4h13.2L21 8"/><path d="M3 8h18M9 14h6"/></svg>
+                  <strong id="organizationEmptyTitle">No organization records found</strong>
+                  <span id="organizationEmptyCopy">Adjust the filters or create a new record.</span>
+                </div>
+              </div>
+              <div class="customer-table-footer"><span id="organizationRecordCount">Showing 0 records</span><span id="organizationRecordSource">ERP Core reserve data</span></div>
+            </article>
+          </div>
         </section>
 
         <section class="workspace-view" id="customerWorkspaceView" aria-label="Customer Master workspace">
@@ -7646,6 +7748,28 @@
           <span><strong id="erpSaveToastTitle">Saved</strong><span id="erpSaveToastText">Your changes have been saved.</span></span>
         </div>
 
+        <div class="master-modal-backdrop" id="organizationRecordModal" hidden>
+          <form class="master-modal organization-modal" id="organizationRecordForm" autocomplete="off">
+            <div class="master-modal-header">
+              <div>
+                <h2 id="organizationRecordModalTitle">Add New Entity</h2>
+                <p id="organizationRecordModalDescription">Create a new ERP Core record.</p>
+              </div>
+              <button class="master-modal-close" id="organizationRecordModalClose" type="button" aria-label="Close Organization record modal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div class="master-modal-body">
+              <div class="master-modal-error" id="organizationRecordModalError">Complete the required fields before saving.</div>
+              <div class="master-modal-grid" id="organizationRecordFields"></div>
+            </div>
+            <div class="master-modal-footer">
+              <button class="action-button" id="organizationRecordModalCancel" type="button">Cancel</button>
+              <button class="action-button primary" id="organizationRecordModalSave" type="submit">Create</button>
+            </div>
+          </form>
+        </div>
+
         <section class="workspace-view" id="stockOverviewWorkspaceView" aria-label="Stock Overview workspace">
           <section class="page-header" data-component="PageHeader">
             <div>
@@ -7818,11 +7942,42 @@
       const organizationSubmenu = document.getElementById("organizationSubmenu");
       const organizationNavLinks = [...document.querySelectorAll("[data-organization-page]")];
       const organizationWorkspaceView = document.getElementById("organizationWorkspaceView");
-      const organizationCoreFrame = document.getElementById("organizationCoreFrame");
       const organizationBreadcrumbCurrent = document.getElementById("organizationBreadcrumbCurrent");
       const organizationPageTitle = document.getElementById("organizationPageTitle");
       const organizationPageDescription = document.getElementById("organizationPageDescription");
       const organizationRefreshButton = document.getElementById("organizationRefreshButton");
+      const organizationTopAdd = document.getElementById("organizationTopAdd");
+      const organizationTopAddLabel = document.getElementById("organizationTopAddLabel");
+      const organizationSummaryGrid = document.getElementById("organizationSummaryGrid");
+      const organizationFilterTitle = document.getElementById("organizationFilterTitle");
+      const organizationPrimaryFilterLabel = document.getElementById("organizationPrimaryFilterLabel");
+      const organizationPrimaryFilter = document.getElementById("organizationPrimaryFilter");
+      const organizationSecondaryFilterLabel = document.getElementById("organizationSecondaryFilterLabel");
+      const organizationSecondaryFilter = document.getElementById("organizationSecondaryFilter");
+      const organizationFilterButton = document.getElementById("organizationFilterButton");
+      const organizationFilterReset = document.getElementById("organizationFilterReset");
+      const organizationRecordTitle = document.getElementById("organizationRecordTitle");
+      const organizationRecordDescription = document.getElementById("organizationRecordDescription");
+      const organizationTableSearch = document.getElementById("organizationTableSearch");
+      const organizationPanelAdd = document.getElementById("organizationPanelAdd");
+      const organizationPanelAddLabel = document.getElementById("organizationPanelAddLabel");
+      const organizationTableContainer = document.getElementById("organizationTableContainer");
+      const organizationTableHead = document.getElementById("organizationTableHead");
+      const organizationTableBody = document.getElementById("organizationTableBody");
+      const organizationEmptyState = document.getElementById("organizationEmptyState");
+      const organizationEmptyTitle = document.getElementById("organizationEmptyTitle");
+      const organizationEmptyCopy = document.getElementById("organizationEmptyCopy");
+      const organizationRecordCount = document.getElementById("organizationRecordCount");
+      const organizationRecordSource = document.getElementById("organizationRecordSource");
+      const organizationRecordModal = document.getElementById("organizationRecordModal");
+      const organizationRecordForm = document.getElementById("organizationRecordForm");
+      const organizationRecordFields = document.getElementById("organizationRecordFields");
+      const organizationRecordModalTitle = document.getElementById("organizationRecordModalTitle");
+      const organizationRecordModalDescription = document.getElementById("organizationRecordModalDescription");
+      const organizationRecordModalError = document.getElementById("organizationRecordModalError");
+      const organizationRecordModalClose = document.getElementById("organizationRecordModalClose");
+      const organizationRecordModalCancel = document.getElementById("organizationRecordModalCancel");
+      const organizationRecordModalSave = document.getElementById("organizationRecordModalSave");
       const inventoryMenu = document.getElementById("inventoryMenu");
       const inventorySubmenu = document.getElementById("inventorySubmenu");
       const dashboardNavLink = document.querySelector('.sidebar-nav-item[href="#workspace"]');
@@ -12013,35 +12168,771 @@
         window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
       };
 
+      const organizationEscape = value => String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[character]));
+
       const organizationPageConfig = {
         "entity-master": {
           title: "Entity Master",
-          description: "Create and maintain the shared legal entity registry used across ERP, HRMS, CRM and Accounts."
+          description: "Create and maintain the shared legal entity registry used across ERP, HRMS, CRM and Accounts.",
+          recordTitle: "Entity Master Records",
+          recordDescription: "Legal entities, mapped locations, GST readiness and entity status.",
+          addLabel: "Add New Entity",
+          primaryFilterLabel: "Role",
+          secondaryFilterLabel: "Status",
+          searchPlaceholder: "Search entity, GSTIN or code"
         },
         "sub-location": {
           title: "Sub Location",
-          description: "Manage shared operating locations mapped to ERP Core entities."
+          description: "Manage shared operating locations mapped to ERP Core entities.",
+          recordTitle: "Sub Location Records",
+          recordDescription: "Operating locations mapped to Primary or Franchisee entities.",
+          addLabel: "Add New Location",
+          primaryFilterLabel: "Parent Entity",
+          secondaryFilterLabel: "Status",
+          searchPlaceholder: "Search location, code or parent entity"
         },
         "role-manager": {
           title: "Role Master",
-          description: "Control shared access roles used by ERP modules and franchisee contexts."
+          description: "Control shared access roles used by ERP modules and franchisee contexts.",
+          recordTitle: "Role Master Records",
+          recordDescription: "Non-admin access roles assignable to Franchisee entity users.",
+          addLabel: "Add Role",
+          primaryFilterLabel: "Scope",
+          secondaryFilterLabel: "Status",
+          searchPlaceholder: "Search role or scope"
         }
       };
 
-      const erpCoreOrganizationBaseUrl = window.location.protocol.startsWith("http")
-        ? `${window.location.origin}/erp-core/hrms`
-        : "file:///C:/Users/vikra/OneDrive/Documents/New%20project/indipet_hrms/hrms_dashboard_nav_visual.html";
+      const organizationFallbackStates = [
+        { state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { state_name: "Maharashtra", gst_state_code: "27", country: "India", status: "Active" },
+        { state_name: "Delhi", gst_state_code: "07", country: "India", status: "Active" },
+        { state_name: "Karnataka", gst_state_code: "29", country: "India", status: "Active" }
+      ];
 
-      const organizationFrameUrl = pageKey => {
-        const params = new URLSearchParams({
-          from: "erp",
-          embed: "erp-core",
-          corePage: pageKey
+      const organizationFallbackCities = [
+        { city: "Kolkata", district: "Kolkata", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { city: "Newtown", district: "North 24 Parganas", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { city: "Rajarhat", district: "North 24 Parganas", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { city: "Salt Lake", district: "North 24 Parganas", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { city: "Howrah", district: "Howrah", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { city: "Siliguri", district: "Darjeeling", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { city: "Durgapur", district: "Paschim Bardhaman", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { city: "Asansol", district: "Paschim Bardhaman", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" }
+      ];
+
+      const organizationFallbackPincodes = [
+        { pincode: "700001", city: "Kolkata", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { pincode: "700029", city: "Kolkata", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { pincode: "700091", city: "Salt Lake", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { pincode: "700135", city: "Rajarhat", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" },
+        { pincode: "700156", city: "Newtown", state_name: "West Bengal", gst_state_code: "19", country: "India", status: "Active" }
+      ];
+
+      const organizationApiBaseUrl = window.location.protocol.startsWith("http")
+        ? `${window.location.origin}/erp-core/hrms-api`
+        : "http://localhost:4317/erp-core/hrms-api";
+      const organizationStorageKey = "indipet.erp.coreOrganization.reserve.v1";
+      const organizationTables = ["entities", "locations", "module_rows", "country_masters", "state_masters", "pincode_masters", "city_masters"];
+      const organizationData = {
+        entities: [],
+        locations: [],
+        module_rows: [],
+        country_masters: [],
+        state_masters: [],
+        pincode_masters: [],
+        city_masters: []
+      };
+      let activeOrganizationPage = "entity-master";
+      let organizationLoaded = false;
+      let organizationLoading = false;
+      let organizationSaveInFlight = false;
+      let organizationEditingId = "";
+
+      const organizationSelectOptions = (options, selected = "") => options.map(option => {
+        const value = typeof option === "string" ? option : option.value;
+        const label = typeof option === "string" ? option : option.label;
+        return `<option value="${organizationEscape(value)}" ${String(value) === String(selected) ? "selected" : ""}>${organizationEscape(label)}</option>`;
+      }).join("");
+
+      const organizationStatusChip = status => `<span class="status-chip ${String(status || "").toLowerCase() === "inactive" ? "inactive" : "active"}">${organizationEscape(status || "Active")}</span>`;
+
+      const normalizeOrganizationRole = value => {
+        const role = String(value || "").trim().toLowerCase();
+        if (role === "primary") return "Primary";
+        if (role === "franchisee" || role === "franchaisee") return "Franchisee";
+        return "";
+      };
+
+      const organizationPrimaryEntity = () => organizationData.entities.find(record => normalizeOrganizationRole(record.entity_role) === "Primary") || null;
+      const organizationActiveEntities = () => organizationData.entities.filter(record => String(record.status || "Active") !== "Inactive");
+      const organizationRoleRecords = () => organizationData.module_rows
+        .filter(record => record.pageKey === "role-manager")
+        .map((record, index) => ({
+          row_id: record.row_id || `role-manager-${index + 1}`,
+          name: record.cells?.[0] || "",
+          scope: record.cells?.[1] || "ERP Core",
+          users: record.cells?.[2] || "0",
+          lastChanged: record.cells?.[3] || "Updated today",
+          status: record.cells?.[4] || "Active"
+        }));
+
+      const organizationStateRecords = () => {
+        const records = organizationData.state_masters.filter(record => String(record.status || "Active") === "Active");
+        return records.length ? records : organizationFallbackStates;
+      };
+
+      const organizationCityRecords = stateName => {
+        const records = organizationData.city_masters.filter(record =>
+          String(record.status || "Active") === "Active"
+          && (!stateName || record.state_name === stateName)
+        );
+        return records.length ? records : organizationFallbackCities.filter(record => !stateName || record.state_name === stateName);
+      };
+
+      const organizationPincodeRecord = pincode => {
+        const normalized = String(pincode || "").trim();
+        return organizationData.pincode_masters.find(record => String(record.pincode) === normalized)
+          || organizationFallbackPincodes.find(record => String(record.pincode) === normalized)
+          || null;
+      };
+
+      const organizationStateByGstCode = code => organizationStateRecords().find(record => String(record.gst_state_code).padStart(2, "0") === String(code || "").padStart(2, "0"));
+      const organizationStateByName = name => organizationStateRecords().find(record => record.state_name === name);
+      const organizationEntityName = entityId => organizationData.entities.find(record => record.entity_id === entityId)?.legal_name || entityId || "";
+      const organizationMappedLocations = entityId => organizationData.locations.filter(record => record.parentCode === entityId);
+
+      const normalizeOrganizationData = data => {
+        organizationTables.forEach(table => {
+          organizationData[table] = Array.isArray(data?.[table]) ? data[table].map(record => ({ ...record })) : [];
         });
-        if (window.location.protocol.startsWith("http")) {
-          params.set("hrmsApi", `${window.location.origin}/erp-core/hrms-api`);
+        organizationData.entities = organizationData.entities.map(record => ({
+          ...record,
+          details: record.details && typeof record.details === "object" ? record.details : {},
+          access: record.access && typeof record.access === "object" ? record.access : {},
+          entity_role: normalizeOrganizationRole(record.entity_role),
+          status: record.status || "Active"
+        }));
+        organizationData.locations = organizationData.locations.map(record => ({
+          ...record,
+          record: record.record && typeof record.record === "object" ? record.record : {},
+          status: record.status || "Active",
+          readiness: Number(record.readiness || 0)
+        }));
+        organizationData.module_rows = organizationData.module_rows.map(record => ({
+          ...record,
+          cells: Array.isArray(record.cells) ? record.cells : []
+        }));
+      };
+
+      const organizationSnapshot = () => Object.fromEntries(organizationTables.map(table => [table, organizationData[table] || []]));
+
+      const saveOrganizationToBrowser = () => {
+        try {
+          localStorage.setItem(organizationStorageKey, JSON.stringify(organizationSnapshot()));
+        } catch (error) {
+          console.warn("Could not save ERP Core Organization data locally.", error);
         }
-        return `${erpCoreOrganizationBaseUrl}?${params.toString()}`;
+      };
+
+      const loadOrganizationFromBrowser = () => {
+        try {
+          return JSON.parse(localStorage.getItem(organizationStorageKey) || "null");
+        } catch {
+          return null;
+        }
+      };
+
+      const loadOrganizationReserve = async ({ force = false } = {}) => {
+        if (organizationLoaded && !force) return;
+        if (organizationLoading) return;
+        organizationLoading = true;
+        organizationRecordSource.textContent = "Loading ERP Core reserve data";
+        try {
+          let data = null;
+          try {
+            const response = await fetch(organizationApiBaseUrl, { cache: "no-store" });
+            if (response.ok) data = await response.json();
+          } catch {}
+          if (!data) data = loadOrganizationFromBrowser();
+          normalizeOrganizationData(data || {});
+          saveOrganizationToBrowser();
+          organizationLoaded = true;
+        } finally {
+          organizationLoading = false;
+          organizationRecordSource.textContent = "ERP Core reserve data";
+        }
+      };
+
+      const persistOrganizationTables = async (...tables) => {
+        if (organizationSaveInFlight) return "queued";
+        organizationSaveInFlight = true;
+        saveOrganizationToBrowser();
+        try {
+          const targets = tables.length ? tables : organizationTables;
+          const responses = await Promise.all(targets.map(table => fetch(`${organizationApiBaseUrl}/${table}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(organizationData[table] || [])
+          })));
+          const failed = responses.find(response => !response.ok);
+          if (failed) {
+            let message = `ERP Core save failed with ${failed.status}.`;
+            try {
+              const body = await failed.json();
+              if (body?.error) message = body.error;
+            } catch {}
+            throw new Error(message);
+          }
+          return "excel";
+        } catch (error) {
+          showMasterHubToast("Saved locally", `${error.message || "Excel server is offline."} Browser storage has the latest change.`);
+          return "browser";
+        } finally {
+          organizationSaveInFlight = false;
+        }
+      };
+
+      const organizationSummaryCards = () => {
+        if (activeOrganizationPage === "sub-location") {
+          const total = organizationData.locations.length;
+          const active = organizationData.locations.filter(record => String(record.status || "Active") === "Active").length;
+          const ready = organizationData.locations.filter(record => Number(record.readiness || 0) >= 80).length;
+          const incomplete = organizationData.locations.filter(record => Number(record.readiness || 0) < 80).length;
+          return [
+            ["Total Locations", total, "All mapped operating points"],
+            ["Active Locations", active, "Open for operations"],
+            ["Ready for Roster", ready, "Readiness score 80%+"],
+            ["Incomplete Setup", incomplete, "Needs configuration"],
+            ["Blocked", organizationData.locations.filter(record => String(record.status || "").toLowerCase() === "blocked").length, "Cannot transact"]
+          ];
+        }
+        if (activeOrganizationPage === "role-manager") {
+          const roles = organizationRoleRecords();
+          return [
+            ["Total Roles", roles.length, "Custom non-admin roles"],
+            ["Active Roles", roles.filter(record => record.status === "Active").length, "Assignable now"],
+            ["Users Mapped", roles.reduce((sum, record) => sum + Number(record.users || 0), 0), "Across entities"],
+            ["System Admin", "Locked", "Reserved Primary role"],
+            ["Inactive", roles.filter(record => record.status === "Inactive").length, "Not assignable"]
+          ];
+        }
+        const total = organizationData.entities.length;
+        const mapped = organizationData.entities.filter(record => organizationMappedLocations(record.entity_id).length).length;
+        const gst = organizationData.entities.filter(record => record.details?.gstRegistered || record.details?.gstin || record.gstin).length;
+        return [
+          ["Total", total, "All legal entity records"],
+          ["Active", organizationData.entities.filter(record => String(record.status || "Active") === "Active").length, "Entities currently active"],
+          ["Location mapped / Total", `${mapped} / ${total}`, "Entities with a mapped location"],
+          ["Franchisee", organizationData.entities.filter(record => record.entity_role === "Franchisee").length, "Entity role is Franchisee"],
+          ["GST Registered / Total", `${gst} / ${total}`, "Entities with GSTIN maintained"]
+        ];
+      };
+
+      const renderOrganizationSummary = () => {
+        const icons = [
+          '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 21v-4h6v4M8 7h.01M12 7h.01M16 7h.01M8 11h.01M12 11h.01M16 11h.01"/>',
+          '<path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/>',
+          '<path d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z"/><circle cx="12" cy="10" r="2"/>',
+          '<path d="M4 10h16l-1-5H5z"/><path d="M5 10v9h14v-9M9 19v-5h6v5"/>',
+          '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/>'
+        ];
+        organizationSummaryGrid.innerHTML = organizationSummaryCards().map(([label, value, note], index) => `<article class="summary-card customer-summary-card" data-component="SummaryCard"><span class="customer-summary-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[index]}</svg></span><span><span class="customer-summary-label">${organizationEscape(label)}</span><span class="customer-summary-value">${organizationEscape(value)}</span><span class="customer-summary-note">${organizationEscape(note)}</span></span></article>`).join("");
+      };
+
+      const organizationFilterValues = () => {
+        if (activeOrganizationPage === "entity-master") {
+          return {
+            primary: [{ value: "", label: "All Roles" }, "Primary", "Franchisee"],
+            secondary: [{ value: "", label: "All Statuses" }, "Active", "Inactive"]
+          };
+        }
+        if (activeOrganizationPage === "sub-location") {
+          return {
+            primary: [{ value: "", label: "All Entities" }, ...organizationActiveEntities().map(record => ({ value: record.entity_id, label: `${record.legal_name} (${record.entity_id})` }))],
+            secondary: [{ value: "", label: "All Statuses" }, "Active", "Inactive", "Draft", "Blocked"]
+          };
+        }
+        return {
+          primary: [{ value: "", label: "All Scopes" }, ...[...new Set(organizationRoleRecords().map(record => record.scope).filter(Boolean))]],
+          secondary: [{ value: "", label: "All Statuses" }, "Active", "Inactive"]
+        };
+      };
+
+      const setupOrganizationFilters = () => {
+        const config = organizationPageConfig[activeOrganizationPage];
+        const filters = organizationFilterValues();
+        organizationFilterTitle.textContent = `Filter ${config.title}`;
+        organizationPrimaryFilterLabel.textContent = config.primaryFilterLabel;
+        organizationSecondaryFilterLabel.textContent = config.secondaryFilterLabel;
+        organizationPrimaryFilter.innerHTML = organizationSelectOptions(filters.primary, "");
+        organizationSecondaryFilter.innerHTML = organizationSelectOptions(filters.secondary, "");
+        organizationTableSearch.value = "";
+        organizationTableSearch.placeholder = config.searchPlaceholder;
+      };
+
+      const filteredOrganizationRecords = () => {
+        const query = organizationTableSearch.value.trim().toLowerCase();
+        const primary = organizationPrimaryFilter.value;
+        const secondary = organizationSecondaryFilter.value;
+        if (activeOrganizationPage === "entity-master") {
+          return organizationData.entities.filter(record => {
+            const details = record.details || {};
+            const text = [record.entity_id, record.legal_name, record.entity_type, record.entity_role, details.gstin, details.pan_number, details.state].join(" ").toLowerCase();
+            return (!query || text.includes(query))
+              && (!primary || record.entity_role === primary)
+              && (!secondary || (record.status || "Active") === secondary);
+          });
+        }
+        if (activeOrganizationPage === "sub-location") {
+          return organizationData.locations.filter(record => {
+            const detail = record.record || {};
+            const text = [record.id, record.listName, record.name, record.parent, record.parentCode, record.state, detail.city, detail.pincode].join(" ").toLowerCase();
+            return (!query || text.includes(query))
+              && (!primary || record.parentCode === primary)
+              && (!secondary || (record.status || "Active") === secondary);
+          });
+        }
+        return organizationRoleRecords().filter(record => {
+          const text = [record.name, record.scope, record.users, record.lastChanged, record.status].join(" ").toLowerCase();
+          return (!query || text.includes(query))
+            && (!primary || record.scope === primary)
+            && (!secondary || record.status === secondary);
+        });
+      };
+
+      const organizationActionButtons = (id, label) => `<span class="organization-action-group"><button class="icon-action-button" type="button" data-organization-edit="${organizationEscape(id)}" aria-label="Edit ${organizationEscape(label)}" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></button><button class="icon-action-button is-danger" type="button" data-organization-delete="${organizationEscape(id)}" aria-label="Delete ${organizationEscape(label)}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5"/></svg></button></span>`;
+
+      const renderOrganizationTable = () => {
+        const records = filteredOrganizationRecords();
+        if (activeOrganizationPage === "entity-master") {
+          organizationTableHead.innerHTML = `<tr><th>Legal Name</th><th>Entity ID</th><th>Role</th><th>Constitution</th><th>State</th><th>Location Mapped</th><th>GST Status</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr>`;
+          organizationTableBody.innerHTML = records.map(record => {
+            const details = record.details || {};
+            const mapped = organizationMappedLocations(record.entity_id);
+            return `<tr><td><span class="customer-name-cell"><strong>${organizationEscape(record.legal_name)}</strong><span class="customer-name-meta">${organizationEscape(record.entity_role || "Role pending")}</span></span></td><td>${organizationEscape(record.entity_id)}</td><td>${organizationEscape(record.entity_role || "—")}</td><td>${organizationEscape(record.entity_type || "—")}</td><td>${organizationEscape(details.state || "—")}</td><td>${mapped.length ? `${mapped.length} mapped` : "No location"}</td><td>${details.gstin ? `<span class="status-chip active">Registered</span><span class="customer-name-meta">${organizationEscape(details.gstin)}</span>` : '<span class="status-chip inactive">Not registered</span>'}</td><td>${organizationStatusChip(record.status)}</td><td>${organizationActionButtons(record.entity_id, record.legal_name)}</td></tr>`;
+          }).join("");
+        } else if (activeOrganizationPage === "sub-location") {
+          organizationTableHead.innerHTML = `<tr><th>Location</th><th>Location ID</th><th>Parent Entity</th><th>Type</th><th>State</th><th>Readiness</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr>`;
+          organizationTableBody.innerHTML = records.map(record => `<tr><td><span class="customer-name-cell"><strong>${organizationEscape(record.listName || record.name)}</strong><span class="customer-name-meta">${organizationEscape(record.record?.city || record.state || "")}</span></span></td><td>${organizationEscape(record.id)}</td><td>${organizationEscape(record.parent || organizationEntityName(record.parentCode))}</td><td>${organizationEscape(record.type || "—")}</td><td>${organizationEscape(record.state || "—")}</td><td>${Number(record.readiness || 0)}%</td><td>${organizationStatusChip(record.status)}</td><td>${organizationActionButtons(record.id, record.listName || record.name)}</td></tr>`).join("");
+        } else {
+          organizationTableHead.innerHTML = `<tr><th>Role</th><th>Scope</th><th>Users</th><th>Last Changed</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr>`;
+          organizationTableBody.innerHTML = records.map(record => `<tr><td><span class="customer-name-cell"><strong>${organizationEscape(record.name)}</strong><span class="customer-name-meta">Role Master</span></span></td><td>${organizationEscape(record.scope)}</td><td>${organizationEscape(record.users)}</td><td>${organizationEscape(record.lastChanged)}</td><td>${organizationStatusChip(record.status)}</td><td>${organizationActionButtons(record.row_id, record.name)}</td></tr>`).join("");
+        }
+        organizationTableContainer.hidden = records.length === 0;
+        organizationEmptyState.classList.toggle("is-visible", records.length === 0);
+        organizationEmptyTitle.textContent = records.length ? "" : `No ${organizationPageConfig[activeOrganizationPage].title.toLowerCase()} records found`;
+        organizationEmptyCopy.textContent = "Adjust the filters or create a new record.";
+        const total = activeOrganizationPage === "entity-master"
+          ? organizationData.entities.length
+          : activeOrganizationPage === "sub-location"
+            ? organizationData.locations.length
+            : organizationRoleRecords().length;
+        organizationRecordCount.textContent = `Showing ${records.length} of ${total} records`;
+      };
+
+      const renderOrganizationPage = () => {
+        const config = organizationPageConfig[activeOrganizationPage];
+        organizationBreadcrumbCurrent.textContent = config.title;
+        organizationPageTitle.textContent = config.title;
+        organizationPageDescription.textContent = config.description;
+        organizationRecordTitle.textContent = config.recordTitle;
+        organizationRecordDescription.textContent = config.recordDescription;
+        organizationTopAddLabel.textContent = config.addLabel;
+        organizationPanelAddLabel.textContent = config.addLabel;
+        renderOrganizationSummary();
+        setupOrganizationFilters();
+        renderOrganizationTable();
+      };
+
+      const organizationPanFromGstin = gstin => {
+        const normalized = String(gstin || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+        return normalized.length >= 12 ? normalized.slice(2, 12) : "";
+      };
+
+      const organizationStateCodeFromGstin = gstin => String(gstin || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 2);
+
+      const organizationLocationStem = source => {
+        const words = String(source || "").normalize("NFKD").replace(/[^a-z0-9\s]/gi, " ").toUpperCase().match(/[A-Z0-9]+/g) || [];
+        const joined = words.join("");
+        const consonants = joined.replace(/[AEIOU]/g, "");
+        return (consonants || joined || "LOC").slice(0, 3).padEnd(3, "X");
+      };
+
+      const nextOrganizationEntityId = record => {
+        const prefix = record.entity_role === "Primary" ? "IPL" : record.entity_type === "Partnership" ? "PCP" : record.entity_type === "Proprietorship" ? "SCP" : "HPR";
+        const next = Math.max(100, ...organizationData.entities.map(item => Number(String(item.entity_id || "").replace(/\D/g, ""))).filter(Number.isFinite)) + 1;
+        return `${prefix}${next}`;
+      };
+
+      const nextOrganizationLocationId = record => {
+        if (!record.parent_entity_id || !record.location_name) return "";
+        const parentPrefix = `${record.parent_entity_id}-`;
+        const stem = organizationLocationStem(record.brand_flag || record.location_name);
+        const serials = organizationData.locations
+          .map(location => String(location.id || ""))
+          .filter(id => id.startsWith(parentPrefix) && id !== organizationEditingId)
+          .map(id => Number(id.match(/(\d+)$/)?.[1] || 0))
+          .filter(Number.isFinite);
+        let serial = Math.max(0, ...serials) + 1;
+        let candidate = "";
+        do {
+          candidate = `${record.parent_entity_id}-${stem}${String(serial).padStart(3, "0")}`;
+          serial += 1;
+        } while (organizationData.locations.some(location => location.id === candidate && location.id !== organizationEditingId));
+        return candidate;
+      };
+
+      const organizationModalField = ({ name, label, value = "", required = false, type = "text", options = null, readonly = false, span = false, placeholder = "", inputmode = "" }) => {
+        const requiredBadge = required ? '<span class="customer-required">Required</span>' : "";
+        const attributes = `${required ? " required data-organization-required" : ""}${readonly ? " readonly" : ""}${inputmode ? ` inputmode="${inputmode}"` : ""}`;
+        const control = options
+          ? `<select name="${name}" ${attributes}>${organizationSelectOptions(options, value)}</select>`
+          : `<input name="${name}" type="${type}" value="${organizationEscape(value)}" placeholder="${organizationEscape(placeholder)}"${attributes}>`;
+        return `<label class="customer-form-field ${span ? "span-2" : ""}"><span class="customer-form-label">${organizationEscape(label)} ${requiredBadge}</span>${control}</label>`;
+      };
+
+      const organizationSectionLabel = label => `<div class="organization-section-label">${organizationEscape(label)}</div>`;
+
+      const organizationEntityModalFields = record => {
+        const existingPrimary = organizationPrimaryEntity();
+        const editingPrimary = record.entity_id && existingPrimary?.entity_id === record.entity_id;
+        const roleOptions = [{ value: "", label: "Select entity role" }];
+        if (!existingPrimary || editingPrimary) roleOptions.push("Primary");
+        if (existingPrimary && !editingPrimary) roleOptions.push("Franchisee");
+        const stateOptions = [{ value: "", label: "Select state" }, ...organizationStateRecords().map(state => ({ value: state.state_name, label: state.state_name }))];
+        const cityOptions = [{ value: "", label: "Select city" }, ...organizationCityRecords(record.state).map(city => ({ value: city.city, label: city.city }))];
+        const roleValue = normalizeOrganizationRole(record.entity_role) || (!existingPrimary ? "Primary" : "Franchisee");
+        return [
+          organizationSectionLabel("Overview"),
+          organizationModalField({ name: "legal_name", label: "Legal Name", value: record.legal_name, required: true, span: true, placeholder: "Enter legal entity name" }),
+          organizationModalField({ name: "entity_role", label: "Entity Role", value: roleValue, required: true, options: roleOptions, readonly: editingPrimary }),
+          organizationModalField({ name: "entity_type", label: "Constitution", value: record.entity_type || "Company", required: true, options: ["Company", "Proprietorship", "Partnership"] }),
+          organizationModalField({ name: "status", label: "Status", value: record.status || "Active", required: true, options: ["Active", "Inactive"] }),
+          organizationSectionLabel("Legal & Tax"),
+          organizationModalField({ name: "gstin", label: "GSTIN", value: record.gstin, placeholder: "Enter GSTIN" }),
+          organizationModalField({ name: "gst_type", label: "GST Type", value: record.gst_type || "", options: [{ value: "", label: "Select GST type" }, "Regular", "Composition", "SEZ"] }),
+          organizationModalField({ name: "pan_number", label: "PAN Number", value: record.pan_number, placeholder: "Fetched from GSTIN when available" }),
+          organizationModalField({ name: "cin_number", label: "CIN Number", value: record.cin_number, placeholder: "Enter CIN number" }),
+          organizationSectionLabel("Address & Contact"),
+          organizationModalField({ name: "address_line1", label: "Address Line 1", value: record.address_line1, required: true, span: true, placeholder: "Enter registered address" }),
+          organizationModalField({ name: "address_line2", label: "Address Line 2", value: record.address_line2, span: true, placeholder: "Enter address line 2" }),
+          organizationModalField({ name: "city", label: "City", value: record.city, required: true, options: cityOptions }),
+          organizationModalField({ name: "pincode", label: "Pincode", value: record.pincode, required: true, inputmode: "numeric", placeholder: "Enter pincode" }),
+          organizationModalField({ name: "state", label: "State", value: record.state, required: true, options: stateOptions }),
+          organizationModalField({ name: "country", label: "Country", value: record.country || "India", required: true, options: ["India"] }),
+          organizationModalField({ name: "phone", label: "Phone", value: record.phone, inputmode: "tel", placeholder: "Enter phone number" }),
+          organizationModalField({ name: "email", label: "Email", value: record.email, type: "email", placeholder: "entity@example.com" }),
+          organizationSectionLabel("ERP Login Access"),
+          organizationModalField({ name: "admin_name", label: "Admin Name", value: record.admin_name, required: roleValue === "Primary", placeholder: "Enter admin name" }),
+          organizationModalField({ name: "admin_phone", label: "Admin Phone", value: record.admin_phone, required: roleValue === "Primary", inputmode: "tel", placeholder: "Enter admin phone" }),
+          organizationModalField({ name: "user_id", label: "User ID", value: record.user_id, required: true, placeholder: "Enter ERP user ID" }),
+          organizationModalField({ name: "role_id", label: "Role", value: roleValue === "Primary" ? "SYSTEM_ADMIN" : record.role_id, required: roleValue !== "Primary", options: roleValue === "Primary" ? [{ value: "SYSTEM_ADMIN", label: "Admin (System)" }] : [{ value: "", label: "Select role" }, ...organizationRoleRecords().filter(role => role.name.toLowerCase() !== "admin").map(role => ({ value: role.name, label: role.name }))] }),
+          organizationModalField({ name: "login_password", label: "Password", value: record.login_password, required: !record.entity_id, type: "password", placeholder: record.entity_id ? "Leave blank to keep existing" : "Enter password" }),
+          organizationModalField({ name: "confirm_password", label: "Confirm Password", value: "", required: !record.entity_id, type: "password", placeholder: "Re-enter password" }),
+          '<div class="organization-form-note">Primary always receives the reserved system Admin role. Role Master cannot create another Admin role.</div>',
+          organizationSectionLabel("Commercial Settings"),
+          organizationModalField({ name: "commission_on_products", label: "Product Commission (%)", value: record.commission_on_products || "0", type: "number" }),
+          organizationModalField({ name: "commission_on_services", label: "Service Commission (%)", value: record.commission_on_services || "0", type: "number" })
+        ].join("");
+      };
+
+      const organizationLocationModalFields = record => {
+        const stateOptions = [{ value: "", label: "Select state" }, ...organizationStateRecords().map(state => ({ value: state.state_name, label: state.state_name }))];
+        const cityOptions = [{ value: "", label: "Select city" }, ...organizationCityRecords(record.state).map(city => ({ value: city.city, label: city.city }))];
+        return [
+          organizationSectionLabel("Location Identity"),
+          organizationModalField({ name: "parent_entity_id", label: "Mapped Entity", value: record.parent_entity_id || record.parentCode, required: true, options: [{ value: "", label: "Select mapped entity" }, ...organizationActiveEntities().map(entity => ({ value: entity.entity_id, label: `${entity.legal_name} (${entity.entity_id})` }))] }),
+          organizationModalField({ name: "location_id", label: "Location ID", value: record.location_id || record.id, required: true, readonly: true, placeholder: "Auto-generated" }),
+          organizationModalField({ name: "location_name", label: "Location Name", value: record.location_name || record.listName, required: true, span: true, placeholder: "Enter location name" }),
+          organizationModalField({ name: "brand_flag", label: "Display / Brand Name", value: record.brand_flag || record.name, placeholder: "Optional display name" }),
+          organizationModalField({ name: "location_type", label: "Location Type", value: record.location_type || record.type || "Retail Store", required: true, options: ["Head Office", "Retail Store", "Warehouse", "Office"] }),
+          organizationModalField({ name: "status", label: "Status", value: record.status || "Active", required: true, options: ["Active", "Inactive", "Draft", "Blocked"] }),
+          organizationSectionLabel("Address & Contact"),
+          organizationModalField({ name: "address_line1", label: "Address Line 1", value: record.address_line1, required: true, span: true, placeholder: "Enter location address" }),
+          organizationModalField({ name: "address_line2", label: "Address Line 2", value: record.address_line2, span: true, placeholder: "Enter address line 2" }),
+          organizationModalField({ name: "city", label: "City", value: record.city, required: true, options: cityOptions }),
+          organizationModalField({ name: "pincode", label: "Pincode", value: record.pincode, required: true, inputmode: "numeric", placeholder: "Enter pincode" }),
+          organizationModalField({ name: "state", label: "State", value: record.state, required: true, options: stateOptions }),
+          organizationModalField({ name: "country", label: "Country", value: record.country || "India", required: true, options: ["India"] }),
+          organizationModalField({ name: "phone", label: "Phone", value: record.phone, inputmode: "tel", placeholder: "Enter phone number" }),
+          organizationModalField({ name: "email", label: "Email", value: record.email, type: "email", placeholder: "location@example.com" }),
+          organizationSectionLabel("Readiness"),
+          organizationModalField({ name: "onboarding_status", label: "Onboarding Status", value: record.onboarding_status || record.readinessLabel || "Setup Draft", options: ["Setup Draft", "Missing Services", "Ready", "Completed"] }),
+          organizationModalField({ name: "readiness", label: "Readiness Score", value: record.readiness || "20", type: "number", placeholder: "0-100" })
+        ].join("");
+      };
+
+      const organizationRoleModalFields = record => [
+        organizationModalField({ name: "name", label: "Role Name", value: record.name, required: true, placeholder: "Enter role name", span: true }),
+        organizationModalField({ name: "scope", label: "Scope", value: record.scope || "ERP Core", required: true, options: ["ERP Core", "ERP", "HRMS", "CRM", "Accounting"] }),
+        organizationModalField({ name: "users", label: "Users", value: record.users || "0", type: "number" }),
+        organizationModalField({ name: "status", label: "Status", value: record.status || "Active", required: true, options: ["Active", "Inactive"] })
+      ].join("");
+
+      const organizationEntityRecordForModal = entityId => {
+        const record = organizationData.entities.find(item => item.entity_id === entityId) || {};
+        return { ...record.details, ...record.access, entity_id: record.entity_id || "", legal_name: record.legal_name || "", entity_type: record.entity_type || "", entity_role: record.entity_role || "", status: record.status || "Active" };
+      };
+
+      const organizationLocationRecordForModal = locationId => {
+        const record = organizationData.locations.find(item => item.id === locationId) || {};
+        return { ...record.record, id: record.id || "", location_id: record.id || "", listName: record.listName || "", location_name: record.listName || "", name: record.name || "", brand_flag: record.name || "", parent_entity_id: record.parentCode || "", parentCode: record.parentCode || "", state: record.state || "", type: record.type || "", location_type: record.type || "", status: record.status || "Active", readiness: record.readiness || 20, readinessLabel: record.readinessLabel || "" };
+      };
+
+      const openOrganizationRecordModal = (recordId = "") => {
+        organizationEditingId = recordId;
+        const config = organizationPageConfig[activeOrganizationPage];
+        const isEdit = Boolean(recordId);
+        let fields = "";
+        if (activeOrganizationPage === "entity-master") {
+          fields = organizationEntityModalFields(isEdit ? organizationEntityRecordForModal(recordId) : {});
+        } else if (activeOrganizationPage === "sub-location") {
+          if (!organizationPrimaryEntity()) {
+            showMasterHubToast("Create Primary Entity first", "Sub Locations must be mapped to an existing Primary or Franchisee entity.");
+            return;
+          }
+          fields = organizationLocationModalFields(isEdit ? organizationLocationRecordForModal(recordId) : {});
+        } else {
+          fields = organizationRoleModalFields(isEdit ? organizationRoleRecords().find(record => record.row_id === recordId) || {} : {});
+        }
+        organizationRecordModalTitle.textContent = `${isEdit ? "Edit" : "Add"} ${config.title === "Sub Location" ? "Sub Location" : config.title.replace(" Master", "")}`;
+        organizationRecordModalDescription.textContent = isEdit ? `Update this ${config.title} record.` : `Create a new ${config.title} record.`;
+        organizationRecordModalSave.textContent = isEdit ? "Save Changes" : "Create";
+        organizationRecordFields.innerHTML = fields;
+        organizationRecordModalError.classList.remove("is-visible");
+        organizationRecordModal.hidden = false;
+        body.classList.add("master-modal-open");
+        syncOrganizationModalDerivedFields();
+        requestAnimationFrame(() => organizationRecordFields.querySelector("input:not([readonly]), select:not([disabled])")?.focus());
+      };
+
+      const closeOrganizationRecordModal = () => {
+        organizationRecordModal.hidden = true;
+        body.classList.remove("master-modal-open");
+        organizationEditingId = "";
+      };
+
+      const organizationModalValues = () => Object.fromEntries([...organizationRecordFields.querySelectorAll("input[name], select[name]")].map(field => [field.name, field.value.trim()]));
+
+      const syncOrganizationCityOptions = values => {
+        const citySelect = organizationRecordFields.querySelector('[name="city"]');
+        if (!citySelect) return;
+        const currentCity = values.city || citySelect.value;
+        citySelect.innerHTML = organizationSelectOptions([{ value: "", label: "Select city" }, ...organizationCityRecords(values.state).map(city => ({ value: city.city, label: city.city }))], currentCity);
+      };
+
+      const syncOrganizationModalDerivedFields = () => {
+        const values = organizationModalValues();
+        if (activeOrganizationPage === "entity-master") {
+          const gstField = organizationRecordFields.querySelector('[name="gstin"]');
+          const panField = organizationRecordFields.querySelector('[name="pan_number"]');
+          const stateField = organizationRecordFields.querySelector('[name="state"]');
+          if (gstField) {
+            gstField.value = gstField.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+            const pan = organizationPanFromGstin(gstField.value);
+            if (pan && panField) panField.value = pan;
+            const state = organizationStateByGstCode(organizationStateCodeFromGstin(gstField.value));
+            if (state && stateField) {
+              stateField.value = state.state_name;
+              syncOrganizationCityOptions({ ...values, state: state.state_name });
+            }
+          }
+          const roleField = organizationRecordFields.querySelector('[name="entity_role"]');
+          const roleSelect = organizationRecordFields.querySelector('[name="role_id"]');
+          if (roleField && roleSelect) {
+            if (roleField.value === "Primary") {
+              roleSelect.innerHTML = organizationSelectOptions([{ value: "SYSTEM_ADMIN", label: "Admin (System)" }], "SYSTEM_ADMIN");
+              roleSelect.disabled = true;
+            } else {
+              roleSelect.disabled = false;
+            }
+          }
+        }
+        if (["entity-master", "sub-location"].includes(activeOrganizationPage)) {
+          const pincodeRecord = organizationPincodeRecord(values.pincode);
+          const stateField = organizationRecordFields.querySelector('[name="state"]');
+          const cityField = organizationRecordFields.querySelector('[name="city"]');
+          if (pincodeRecord && stateField && cityField) {
+            stateField.value = pincodeRecord.state_name;
+            syncOrganizationCityOptions({ ...values, state: pincodeRecord.state_name, city: pincodeRecord.city });
+            cityField.value = pincodeRecord.city;
+          } else if (stateField) {
+            syncOrganizationCityOptions({ ...values, state: stateField.value });
+          }
+        }
+        if (activeOrganizationPage === "sub-location") {
+          const idField = organizationRecordFields.querySelector('[name="location_id"]');
+          if (idField && !organizationEditingId) {
+            idField.value = nextOrganizationLocationId(organizationModalValues());
+          }
+        }
+      };
+
+      const showOrganizationModalError = (message, fields = []) => {
+        organizationRecordModalError.textContent = message;
+        organizationRecordModalError.classList.add("is-visible");
+        fields.forEach(field => field?.setAttribute("aria-invalid", "true"));
+        fields[0]?.focus();
+      };
+
+      const validateOrganizationModal = values => {
+        const required = [...organizationRecordFields.querySelectorAll("[data-organization-required]")].filter(field => !field.disabled && !field.readOnly);
+        const missing = required.filter(field => !field.value.trim());
+        if (missing.length) return { ok: false, message: "Complete the required fields before saving.", fields: missing };
+        if (activeOrganizationPage === "entity-master") {
+          const role = normalizeOrganizationRole(values.entity_role);
+          if (!role) return { ok: false, message: "Entity Role must be Primary or Franchisee.", fields: [organizationRecordFields.querySelector('[name="entity_role"]')] };
+          const primary = organizationPrimaryEntity();
+          if (role === "Primary" && primary && primary.entity_id !== organizationEditingId) return { ok: false, message: "Only one Primary Entity can exist. Add Franchisee entities after Primary setup.", fields: [organizationRecordFields.querySelector('[name="entity_role"]')] };
+          if (role === "Franchisee" && !primary) return { ok: false, message: "Create the Primary Entity first. Franchisee entities can be added after Primary setup.", fields: [organizationRecordFields.querySelector('[name="entity_role"]')] };
+          if (values.login_password !== values.confirm_password) return { ok: false, message: "Password and Confirm Password must match.", fields: [organizationRecordFields.querySelector('[name="confirm_password"]')] };
+        }
+        if (activeOrganizationPage === "role-manager" && values.name.toLowerCase() === "admin") {
+          return { ok: false, message: "Admin is system-reserved for Primary and cannot be created in Role Master.", fields: [organizationRecordFields.querySelector('[name="name"]')] };
+        }
+        return { ok: true };
+      };
+
+      const saveOrganizationEntity = values => {
+        const role = normalizeOrganizationRole(values.entity_role);
+        const entityId = organizationEditingId || nextOrganizationEntityId({ ...values, entity_role: role });
+        const existing = organizationData.entities.find(record => record.entity_id === entityId);
+        const access = {
+          user_id: values.user_id || "",
+          role_id: role === "Primary" ? "SYSTEM_ADMIN" : values.role_id || "",
+          login_status: values.login_status || "Active",
+          login_password: values.login_password || existing?.access?.login_password || existing?.details?.login_password || ""
+        };
+        const details = {
+          ...values,
+          entity_id: entityId,
+          entity_role: role,
+          status: values.status || "Active",
+          gstRegistered: Boolean(values.gstin),
+          gst_state_code: organizationStateByName(values.state)?.gst_state_code || organizationStateCodeFromGstin(values.gstin),
+          ...access
+        };
+        const row = {
+          entity_id: entityId,
+          legal_name: values.legal_name,
+          entity_type: values.entity_type || "Company",
+          entity_role: role,
+          status: values.status || "Active",
+          details,
+          access
+        };
+        if (existing) Object.assign(existing, row);
+        else organizationData.entities.push(row);
+        organizationData.locations.filter(location => location.parentCode === entityId).forEach(location => { location.parent = values.legal_name; });
+        return persistOrganizationTables("entities", "locations");
+      };
+
+      const saveOrganizationLocation = values => {
+        const locationId = organizationEditingId || values.location_id || nextOrganizationLocationId(values);
+        const parent = organizationData.entities.find(record => record.entity_id === values.parent_entity_id);
+        const readiness = Math.max(0, Math.min(100, Number(values.readiness || 20)));
+        const record = {
+          location_id: locationId,
+          ...values,
+          country: values.country || "India",
+          gst_state_code: organizationStateByName(values.state)?.gst_state_code || ""
+        };
+        const row = {
+          id: locationId,
+          name: values.brand_flag || values.location_name,
+          listName: values.location_name,
+          parent: parent?.legal_name || values.parent_entity_id,
+          parentCode: values.parent_entity_id,
+          state: values.state || "Not set",
+          type: values.location_type || "Retail Store",
+          status: values.status || "Active",
+          readiness,
+          readinessLabel: values.onboarding_status || "Setup Draft",
+          readinessTone: readiness >= 80 ? "good" : "attention",
+          officialHours: "Not configured",
+          operationalHours: "Not configured",
+          closedDay: null,
+          services: [],
+          deliveryZones: [],
+          shifts: [],
+          record,
+          operatingHoursRecords: []
+        };
+        const existing = organizationData.locations.find(location => location.id === locationId);
+        if (existing) Object.assign(existing, row);
+        else organizationData.locations.push(row);
+        return persistOrganizationTables("locations");
+      };
+
+      const saveOrganizationRole = values => {
+        const roles = organizationRoleRecords();
+        const duplicate = roles.find(role => role.row_id !== organizationEditingId && role.name.toLowerCase() === values.name.toLowerCase());
+        if (duplicate) {
+          showOrganizationModalError("Role name already exists.", [organizationRecordFields.querySelector('[name="name"]')]);
+          return Promise.resolve("duplicate");
+        }
+        const rowId = organizationEditingId || `role-manager-${Date.now()}`;
+        const row = {
+          row_id: rowId,
+          pageKey: "role-manager",
+          cells: [values.name, values.scope || "ERP Core", values.users || "0", "Updated today", values.status || "Active"]
+        };
+        const index = organizationData.module_rows.findIndex(record => record.row_id === rowId);
+        if (index >= 0) organizationData.module_rows[index] = row;
+        else organizationData.module_rows.push(row);
+        return persistOrganizationTables("module_rows");
+      };
+
+      const submitOrganizationRecord = async event => {
+        event.preventDefault();
+        organizationRecordModalError.classList.remove("is-visible");
+        organizationRecordFields.querySelectorAll("[aria-invalid]").forEach(field => field.removeAttribute("aria-invalid"));
+        syncOrganizationModalDerivedFields();
+        const values = organizationModalValues();
+        const validation = validateOrganizationModal(values);
+        if (!validation.ok) {
+          showOrganizationModalError(validation.message, validation.fields);
+          return;
+        }
+        let result = "";
+        if (activeOrganizationPage === "entity-master") result = await saveOrganizationEntity(values);
+        if (activeOrganizationPage === "sub-location") result = await saveOrganizationLocation(values);
+        if (activeOrganizationPage === "role-manager") result = await saveOrganizationRole(values);
+        if (result === "duplicate") return;
+        closeOrganizationRecordModal();
+        renderOrganizationPage();
+        showErpSaveToast(`${organizationPageConfig[activeOrganizationPage].title} saved`, "ERP Core Organization record saved.");
+      };
+
+      const deleteOrganizationRecord = async recordId => {
+        if (activeOrganizationPage === "entity-master") {
+          const record = organizationData.entities.find(item => item.entity_id === recordId);
+          if (!record) return;
+          const mapped = organizationMappedLocations(recordId).length;
+          if (mapped) return showMasterHubToast("Delete blocked", `Cannot delete ${record.legal_name}; ${mapped} Sub Location record${mapped === 1 ? " is" : "s are"} mapped.`);
+          if (record.entity_role === "Primary" && organizationData.entities.some(item => item.entity_id !== recordId)) return showMasterHubToast("Delete blocked", "Primary Entity cannot be deleted while Franchisee entities exist.");
+          organizationData.entities = organizationData.entities.filter(item => item.entity_id !== recordId);
+          await persistOrganizationTables("entities");
+        } else if (activeOrganizationPage === "sub-location") {
+          organizationData.locations = organizationData.locations.filter(item => item.id !== recordId);
+          await persistOrganizationTables("locations");
+        } else {
+          const role = organizationRoleRecords().find(item => item.row_id === recordId);
+          if (!role) return;
+          const inUse = organizationData.entities.some(entity => entity.access?.role_id === role.name || entity.details?.role_id === role.name);
+          if (inUse) return showMasterHubToast("Delete blocked", "This Role is already mapped to an entity login.");
+          organizationData.module_rows = organizationData.module_rows.filter(item => item.row_id !== recordId);
+          await persistOrganizationTables("module_rows");
+        }
+        renderOrganizationPage();
+        showErpSaveToast("Deleted", "ERP Core Organization record removed.");
       };
 
       const openOrganizationMenu = () => {
@@ -12108,18 +12999,28 @@
         organizationWorkspaceView.classList.add("is-active");
         organizationMenu.classList.add("is-active");
         organizationMenu.setAttribute("aria-current", "page");
+        activeOrganizationPage = nextPageKey;
         organizationNavLinks.forEach(link => {
           const selected = link.dataset.organizationPage === nextPageKey;
           link.classList.toggle("is-active", selected);
           if (selected) link.setAttribute("aria-current", "page");
           else link.removeAttribute("aria-current");
         });
-        organizationBreadcrumbCurrent.textContent = config.title;
-        organizationPageTitle.textContent = config.title;
-        organizationPageDescription.textContent = config.description;
-        if (organizationCoreFrame.dataset.currentPage !== nextPageKey) {
-          organizationCoreFrame.src = organizationFrameUrl(nextPageKey);
-          organizationCoreFrame.dataset.currentPage = nextPageKey;
+        if (!organizationLoaded) {
+          organizationBreadcrumbCurrent.textContent = config.title;
+          organizationPageTitle.textContent = config.title;
+          organizationPageDescription.textContent = config.description;
+          organizationTableHead.innerHTML = "";
+          organizationTableBody.innerHTML = "";
+          organizationTableContainer.hidden = true;
+          organizationEmptyState.classList.add("is-visible");
+          organizationEmptyTitle.textContent = "Loading ERP Core records";
+          organizationEmptyCopy.textContent = "Reading the shared Organization reserve data.";
+          loadOrganizationReserve().then(() => {
+            if (organizationWorkspaceView.classList.contains("is-active")) renderOrganizationPage();
+          });
+        } else {
+          renderOrganizationPage();
         }
         openOrganizationMenu();
         document.title = `${config.title} - ERP Core - Indipet ERP`;
@@ -15471,16 +16372,49 @@
       organizationNavLinks.forEach(link => {
         link.addEventListener("click", event => showOrganizationWorkspace(link.dataset.organizationPage, event));
       });
-      organizationRefreshButton.addEventListener("click", () => {
-        const pageKey = organizationCoreFrame.dataset.currentPage || "entity-master";
-        organizationCoreFrame.src = organizationFrameUrl(pageKey);
+      organizationRefreshButton.addEventListener("click", async () => {
+        await loadOrganizationReserve({ force: true });
+        renderOrganizationPage();
+        showErpSaveToast("ERP Core refreshed", "Organization data reloaded from the shared reserve.");
       });
-      window.addEventListener("message", event => {
-        const data = event.data || {};
-        if (data.type !== "indipet:erp-core-frame-height") return;
-        const nextHeight = Math.ceil(Number(data.height) || 0);
-        if (nextHeight <= 0) return;
-        organizationCoreFrame.style.height = `${Math.max(nextHeight, window.innerHeight - 190)}px`;
+      [organizationTopAdd, organizationPanelAdd].forEach(button => {
+        button.addEventListener("click", () => openOrganizationRecordModal());
+      });
+      [organizationTableSearch, organizationPrimaryFilter, organizationSecondaryFilter].forEach(control => {
+        control.addEventListener(control === organizationTableSearch ? "input" : "change", renderOrganizationTable);
+      });
+      organizationFilterButton.addEventListener("click", renderOrganizationTable);
+      organizationFilterReset.addEventListener("click", () => {
+        organizationTableSearch.value = "";
+        organizationPrimaryFilter.value = "";
+        organizationSecondaryFilter.value = "";
+        renderOrganizationTable();
+      });
+      organizationTableBody.addEventListener("click", event => {
+        const edit = event.target.closest("[data-organization-edit]");
+        if (edit) {
+          openOrganizationRecordModal(edit.dataset.organizationEdit);
+          return;
+        }
+        const remove = event.target.closest("[data-organization-delete]");
+        if (remove) deleteOrganizationRecord(remove.dataset.organizationDelete);
+      });
+      organizationRecordModalClose.addEventListener("click", closeOrganizationRecordModal);
+      organizationRecordModalCancel.addEventListener("click", closeOrganizationRecordModal);
+      organizationRecordForm.addEventListener("submit", submitOrganizationRecord);
+      organizationRecordFields.addEventListener("input", event => {
+        event.target.removeAttribute("aria-invalid");
+        organizationRecordModalError.classList.remove("is-visible");
+        if (["gstin", "pincode", "state", "parent_entity_id", "location_name", "brand_flag", "entity_role"].includes(event.target.name)) {
+          syncOrganizationModalDerivedFields();
+        }
+      });
+      organizationRecordFields.addEventListener("change", event => {
+        event.target.removeAttribute("aria-invalid");
+        organizationRecordModalError.classList.remove("is-visible");
+        if (["state", "city", "parent_entity_id", "location_name", "brand_flag", "entity_role"].includes(event.target.name)) {
+          syncOrganizationModalDerivedFields();
+        }
       });
       customerNavLink.addEventListener("click", showCustomerWorkspace);
       productNavLink.addEventListener("click", showProductWorkspace);
