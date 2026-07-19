@@ -1247,6 +1247,7 @@
 
     .organization-core-frame {
       width: 100%;
+      height: calc(100vh - 190px);
       min-height: calc(100vh - 190px);
       display: block;
       border: 0;
@@ -6446,7 +6447,7 @@
           </section>
 
           <article class="organization-core-card" data-component="DataCard" aria-label="ERP Core Organization frame">
-            <iframe class="organization-core-frame" id="organizationCoreFrame" title="ERP Core Organization"></iframe>
+            <iframe class="organization-core-frame" id="organizationCoreFrame" title="ERP Core Organization" scrolling="no"></iframe>
           </article>
         </section>
 
@@ -15473,6 +15474,13 @@
       organizationRefreshButton.addEventListener("click", () => {
         const pageKey = organizationCoreFrame.dataset.currentPage || "entity-master";
         organizationCoreFrame.src = organizationFrameUrl(pageKey);
+      });
+      window.addEventListener("message", event => {
+        const data = event.data || {};
+        if (data.type !== "indipet:erp-core-frame-height") return;
+        const nextHeight = Math.ceil(Number(data.height) || 0);
+        if (nextHeight <= 0) return;
+        organizationCoreFrame.style.height = `${Math.max(nextHeight, window.innerHeight - 190)}px`;
       });
       customerNavLink.addEventListener("click", showCustomerWorkspace);
       productNavLink.addEventListener("click", showProductWorkspace);
